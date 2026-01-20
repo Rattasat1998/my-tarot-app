@@ -89,6 +89,7 @@ const App = () => {
   const [readingType, setReadingType] = useState('3-cards'); 
   const [theme, setTheme] = useState('dark');
   const audioContextRef = useRef(null);
+  const isDark = theme === 'dark';
 
   // Load Google AdSense Script once on mount
   useEffect(() => {
@@ -172,17 +173,17 @@ const App = () => {
   };
 
   return (
-    <div className={`min-h-screen transition-colors duration-500 ${theme === 'dark' ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'}`}>
+    <div className={`min-h-screen transition-colors duration-500 ${isDark ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'}`}>
       <nav className="px-4 py-5 sm:px-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 max-w-6xl mx-auto">
         <div className="flex items-center gap-2 text-xl sm:text-2xl font-serif font-bold tracking-wider">
           <Sparkles className="text-purple-500" />
           <span>TAROT ORACLE</span>
         </div>
         <button 
-          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-          className="self-start sm:self-auto p-2 rounded-full hover:bg-slate-800/20 transition-colors"
+          onClick={() => setTheme(isDark ? 'light' : 'dark')}
+          className={`self-start sm:self-auto p-2 rounded-full transition-colors ${isDark ? 'hover:bg-slate-800/20' : 'hover:bg-slate-200'}`}
         >
-          {theme === 'dark' ? <Sun size={24} /> : <Moon size={24} />}
+          {isDark ? <Sun size={24} /> : <Moon size={24} />}
         </button>
       </nav>
 
@@ -197,13 +198,13 @@ const App = () => {
         <div className="w-full flex flex-col sm:flex-row gap-3 sm:gap-4 mb-4">
           <button 
             onClick={() => { setReadingType('3-cards'); setSelectedCards([]); }}
-            className={`w-full sm:w-auto px-6 py-2 rounded-full border transition-all ${readingType === '3-cards' ? 'bg-purple-600 border-purple-500 text-white shadow-lg shadow-purple-500/20' : 'border-slate-700'}`}
+            className={`w-full sm:w-auto px-6 py-2 rounded-full border transition-all ${readingType === '3-cards' ? 'bg-purple-600 border-purple-500 text-white shadow-lg shadow-purple-500/20' : isDark ? 'border-slate-700 text-slate-200 hover:bg-slate-800/40' : 'border-slate-300 text-slate-700 hover:bg-slate-200/70'}`}
           >
             แบบ 3 ใบ
           </button>
           <button 
             onClick={() => { setReadingType('1-card'); setSelectedCards([]); }}
-            className={`w-full sm:w-auto px-6 py-2 rounded-full border transition-all ${readingType === '1-card' ? 'bg-purple-600 border-purple-500 text-white shadow-lg shadow-purple-500/20' : 'border-slate-700'}`}
+            className={`w-full sm:w-auto px-6 py-2 rounded-full border transition-all ${readingType === '1-card' ? 'bg-purple-600 border-purple-500 text-white shadow-lg shadow-purple-500/20' : isDark ? 'border-slate-700 text-slate-200 hover:bg-slate-800/40' : 'border-slate-300 text-slate-700 hover:bg-slate-200/70'}`}
           >
             ใบเดียว
           </button>
@@ -225,7 +226,7 @@ const App = () => {
                <button 
                 onClick={drawCards}
                 disabled={isRevealing}
-                className="group relative w-full sm:w-auto px-8 sm:px-10 py-3 sm:py-4 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full font-bold text-base sm:text-lg hover:scale-105 active:scale-95 transition-all disabled:opacity-50 shadow-xl shadow-purple-500/20"
+                className="group relative w-full sm:w-auto px-8 sm:px-10 py-3 sm:py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-full font-bold text-base sm:text-lg hover:scale-105 active:scale-95 transition-all disabled:opacity-50 shadow-xl shadow-purple-500/20"
                >
                  {isRevealing ? 'กำลังสื่อจิตกับดวงดาว...' : 'เริ่มต้นทำนาย'}
                </button>
@@ -273,7 +274,7 @@ const App = () => {
               
               <button 
                 onClick={drawCards}
-                className="flex items-center gap-2 w-full sm:w-auto px-6 sm:px-8 py-2 sm:py-3 text-sm sm:text-base bg-slate-800 hover:bg-slate-700 rounded-full transition-colors mt-6 sm:mt-8"
+                className={`flex items-center gap-2 w-full sm:w-auto px-6 sm:px-8 py-2 sm:py-3 text-sm sm:text-base rounded-full transition-colors mt-6 sm:mt-8 ${isDark ? 'bg-slate-800 hover:bg-slate-700 text-slate-100' : 'bg-slate-200 hover:bg-slate-300 text-slate-900'}`}
               >
                 <RefreshCw size={20} />
                 สลับไพ่ใหม่
