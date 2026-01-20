@@ -142,8 +142,8 @@ export const ResultState = ({
                             คำทำนาย{READING_TOPICS.find(t => t.id === topic)?.label}
                         </h2>
                         <p className="text-slate-400 text-sm">
-                            {(isDrawingFuture || selectedCards.length === 3)
-                                ? 'การทำนายสมบูรณ์ (อดีต - ปัจจุบัน - อนาคต)'
+                            {(isDrawingFuture || (readingType === '1-card' ? selectedCards.length === 2 : selectedCards.length === 3))
+                                ? `การทำนายสมบูรณ์ (${readingType === '1-card' ? 'ปัจจุบัน - อนาคต' : 'อดีต - ปัจจุบัน - อนาคต'})`
                                 : `การทำนายแบบ ${readingType === '1-card' ? '1 ใบ' : '2 ใบ'} (${readingType === '1-card' ? 'ปัจจุบัน' : 'อดีต และ ปัจจุบัน'})`}
                         </p>
                     </div>
@@ -256,21 +256,6 @@ export const ResultState = ({
                             );
                         })}
 
-                        {!isDrawingFuture && selectedCards.length < (readingType === '1-card' ? 2 : 3) && (
-                            <div className="border-t border-slate-800/50 pt-8 mt-4 opacity-60">
-                                <div className="flex items-center gap-3 mb-3 justify-center md:justify-start">
-                                    <div className="w-6 h-6 bg-purple-900/30 flex items-center justify-center text-[10px] font-bold text-purple-300 border border-purple-500/20">
-                                        {selectedCards.length + 1}
-                                    </div>
-                                    <span className="font-bold text-lg text-purple-400/80 italic">
-                                        อนาคต / บทสรุป (Locked)
-                                    </span>
-                                </div>
-                                <p className="text-slate-500 italic text-sm text-center md:text-left">
-                                    จิตวิญญานของคุณยังคงเตรียมพร้อมสำหรับบทสรุปในอนาคต พลังงานในปัจจุบันจะส่งผลถึงสิ่งที่กำลังจะมาถึง...
-                                </p>
-                            </div>
-                        )}
                         <div className="mt-8 p-4 bg-slate-800/40 text-center">
                             <p className="text-sm text-slate-400">* คำแจ้งเตือนเป็นเพียงแนวทาง การพิจารณาและตัดสินใจอยู่ที่ตัวคุณเอง</p>
                         </div>

@@ -52,6 +52,11 @@ function App() {
     }
   }, [isDark]);
 
+  // Handle scroll to top on state change
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [gameState, isDrawingFuture]);
+
   // Handle shuffle sound during animation
   useEffect(() => {
     if (gameState === 'SHUFFLING') {
