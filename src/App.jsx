@@ -9,6 +9,11 @@ import { CuttingState } from './components/game/CuttingState';
 import { PickingState } from './components/game/PickingState';
 import { ResultState } from './components/game/ResultState';
 import { ThaiLunarCalendar } from './components/calendar/ThaiLunarCalendar';
+import { BankHolidaysCalendar } from './components/calendar/BankHolidaysCalendar';
+import { WanPhraCalendar } from './components/calendar/WanPhraCalendar';
+import { AuspiciousCalendar } from './components/calendar/AuspiciousCalendar';
+import { PakkhaCalendar } from './components/calendar/PakkhaCalendar';
+import { ArticlePage } from './components/articles/ArticlePage';
 import { FutureConfirmDialog } from './components/modals/FutureConfirmDialog';
 
 function App() {
@@ -40,7 +45,10 @@ function App() {
     onShuffleComplete,
     onCutComplete,
     manualShuffle,
-    manualCut
+    manualCut,
+    calendarType,
+    articleId,
+    openArticle
   } = useTarotGame();
 
   // Handle dark mode
@@ -66,12 +74,21 @@ function App() {
 
   return (
     <div className={`min-h-screen transition-colors duration-500 ${isDark ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'}`}>
-      <div className="fixed inset-0 overflow-hidden pointer-events-none opacity-40">
-        <div className="absolute -top-1/4 -left-1/4 w-1/2 h-1/2 bg-purple-900/20 blur-[120px] rounded-full"></div>
-        <div className="absolute -bottom-1/4 -right-1/4 w-1/2 h-1/2 bg-indigo-900/20 blur-[120px] rounded-full"></div>
+      {/* Spectacular Background */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <img
+          src="/bg.png"
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover opacity-30"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/80 via-slate-950/40 to-slate-950/90"></div>
+        {/* Animated Glow Orbs */}
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-600/20 blur-[150px] rounded-full animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-indigo-600/20 blur-[120px] rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-amber-500/10 blur-[200px] rounded-full animate-pulse" style={{ animationDelay: '0.5s' }}></div>
       </div>
 
-      <Navbar isDark={isDark} setIsDark={setIsDark} resetGame={resetGame} openCalendar={openCalendar} />
+      <Navbar isDark={isDark} setIsDark={setIsDark} resetGame={resetGame} openCalendar={openCalendar} openArticle={openArticle} />
 
       <main className="relative pt-24 pb-12 px-4 sm:px-6 max-w-7xl mx-auto">
         {gameState === 'MENU' && (
@@ -82,6 +99,7 @@ function App() {
             setReadingType={setReadingType}
             startReading={startReading}
             isDark={isDark}
+            openArticle={openArticle}
           />
         )}
 
@@ -124,7 +142,17 @@ function App() {
         )}
 
         {gameState === 'CALENDAR' && (
-          <ThaiLunarCalendar resetGame={resetGame} isDark={isDark} />
+          <>
+            {calendarType === 'lunar' && <ThaiLunarCalendar resetGame={resetGame} isDark={isDark} />}
+            {calendarType === 'holidays' && <BankHolidaysCalendar resetGame={resetGame} isDark={isDark} />}
+            {calendarType === 'wanphra' && <WanPhraCalendar resetGame={resetGame} isDark={isDark} />}
+            {calendarType === 'auspicious' && <AuspiciousCalendar resetGame={resetGame} isDark={isDark} />}
+            {calendarType === 'pakkha' && <PakkhaCalendar resetGame={resetGame} isDark={isDark} />}
+          </>
+        )}
+
+        {gameState === 'ARTICLE' && (
+          <ArticlePage articleId={articleId} resetGame={resetGame} openArticle={openArticle} />
         )}
       </main>
 

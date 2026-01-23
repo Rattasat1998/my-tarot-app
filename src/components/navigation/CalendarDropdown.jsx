@@ -34,17 +34,17 @@ export const CalendarDropdown = ({ isDark, openCalendar }) => {
                         <div className="text-lg font-serif text-purple-300">ปฏิทิน พ.ศ.2569</div>
                     </div>
                     <div className="space-y-1">
-                        {CALENDAR_CATEGORIES.map((item, idx) => (
+                        {CALENDAR_CATEGORIES.map((item) => (
                             <button
-                                key={idx}
+                                key={item.id}
                                 className="w-full text-left px-5 py-3 text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors flex items-center gap-3"
                                 onClick={() => {
                                     setIsOpen(false);
-                                    openCalendar();
+                                    openCalendar(item.id);
                                 }}
                             >
-                                <div className="w-1.5 h-1.5 rounded-full bg-purple-500"></div>
-                                <span>{item}</span>
+                                <span className="text-lg">{item.icon}</span>
+                                <span>{item.label}</span>
                             </button>
                         ))}
                     </div>

@@ -105,3 +105,40 @@ h1 {
 .animate-slide-up {
   animation: slideUp 0.5s ease-out forwards;
 }
+
+/* Cutting Animation */
+@keyframes cutTop {
+  0% {
+    transform: translateY(0) translateX(0);
+  }
+
+  30% {
+    transform: translateY(-80px) translateX(-20px);
+  }
+
+  60% {
+    transform: translateY(-80px) translateX(40px);
+  }
+
+  100% {
+    transform: translateY(0) translateX(60px);
+  }
+}
+
+@keyframes cutBottom {
+  0% {
+    transform: translateY(0) translateX(0);
+  }
+
+  30% {
+    transform: translateY(20px) translateX(20px);
+  }
+
+  60% {
+    transform: translateY(20px) translateX(-20px);
+  }
+
+  100% {
+    transform: translateY(0) translateX(-60px);
+  }
+}

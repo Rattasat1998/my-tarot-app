@@ -12,6 +12,8 @@ export const useTarotGame = () => {
     const [isRevealing, setIsRevealing] = useState(false);
     const [isDrawingFuture, setIsDrawingFuture] = useState(false);
     const [showFutureDialog, setShowFutureDialog] = useState(false);
+    const [calendarType, setCalendarType] = useState('lunar');
+    const [articleId, setArticleId] = useState(null);
 
     const { playRevealSound } = useAudio();
 
@@ -37,14 +39,22 @@ export const useTarotGame = () => {
         setRevealedIndices([]);
         setIsDrawingFuture(false);
         setShowFutureDialog(false);
+        setCalendarType('lunar');
+        setArticleId(null);
     }, []);
 
     const startReading = useCallback(() => {
         setGameState('SHUFFLING');
     }, []);
 
-    const openCalendar = useCallback(() => {
+    const openCalendar = useCallback((type = 'lunar') => {
+        setCalendarType(type);
         setGameState('CALENDAR');
+    }, []);
+
+    const openArticle = useCallback((id) => {
+        setArticleId(id);
+        setGameState('ARTICLE');
     }, []);
 
     const onShuffleComplete = useCallback(() => {
@@ -134,11 +144,14 @@ export const useTarotGame = () => {
         isRevealing, setIsRevealing,
         isDrawingFuture, setIsDrawingFuture,
         showFutureDialog, setShowFutureDialog,
+        calendarType, setCalendarType,
+        articleId, setArticleId,
         requiredPickCount,
         isSelectionComplete,
         resetGame,
         startReading,
         openCalendar,
+        openArticle,
         onShuffleComplete,
         handleCardPick,
         confirmReading,

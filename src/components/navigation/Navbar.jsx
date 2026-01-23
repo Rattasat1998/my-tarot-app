@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Sparkles, Sun, Moon } from 'lucide-react';
 import { CalendarDropdown } from './CalendarDropdown';
+import { ArticleDropdown } from './ArticleDropdown';
 
-export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar }) => (
+export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle }) => (
     <nav className="fixed top-0 left-0 right-0 z-40 bg-slate-950/80 backdrop-blur-md border-b border-slate-800/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
             <div className="flex items-center gap-2 cursor-pointer" onClick={resetGame}>
@@ -15,6 +16,7 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar }) => (
             </div>
 
             <div className="flex items-center gap-2 sm:gap-4">
+                <ArticleDropdown openArticle={openArticle} />
                 <CalendarDropdown isDark={isDark} openCalendar={openCalendar} />
                 <button
                     onClick={() => setIsDark(!isDark)}

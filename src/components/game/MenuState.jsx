@@ -1,10 +1,22 @@
 import React from 'react';
 import { READING_TOPICS } from '../../constants/readingTopics';
 import { GoogleAdSlot } from '../ui/GoogleAdSlot';
+import { DailyCard } from '../ui/DailyCard';
+import { DailyFortune } from '../ui/DailyFortune';
+import { ArticlesCarousel } from '../ui/ArticlesCarousel';
+import { StatsCounter } from '../ui/StatsCounter';
+import { FloatingCards } from '../ui/FloatingCards';
 
-export const MenuState = ({ topic, setTopic, readingType, setReadingType, startReading, isDark }) => (
+export const MenuState = ({ topic, setTopic, readingType, setReadingType, startReading, isDark, openArticle }) => (
     <div className="w-full flex flex-col items-center animate-in fade-in slide-in-from-bottom-4 duration-700">
-        <header className="text-center mb-10 sm:mb-12">
+        {/* Floating Cards Background */}
+        <FloatingCards />
+
+        {/* Daily Fortune Banner */}
+        <DailyFortune />
+
+        {/* Hero Section with Daily Card */}
+        <header className="text-center mb-6 sm:mb-8">
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif mb-3 sm:mb-4">ค้นหาคำตอบจากจิตวิญญาณ</h1>
             <p className="text-sm sm:text-base text-slate-400 max-w-lg mx-auto">
                 ตั้งจิตอธิษฐานถึงเรื่องที่ต้องการทราบ แล้วเลือกหัวข้อเพื่อเริ่มทำนาย
@@ -67,6 +79,18 @@ export const MenuState = ({ topic, setTopic, readingType, setReadingType, startR
         >
             เริ่มต้นทำนาย
         </button>
+
+        {/* Stats Counter */}
+        <div className="mt-12 w-full">
+            <StatsCounter />
+        </div>
+
+        {/* Featured Articles Carousel */}
+        {openArticle && (
+            <div className="mt-12 w-full">
+                <ArticlesCarousel openArticle={openArticle} />
+            </div>
+        )}
 
         <GoogleAdSlot className="mt-12" />
     </div>
