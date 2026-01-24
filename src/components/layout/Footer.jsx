@@ -1,7 +1,7 @@
 import React from 'react';
 import { Info, History, Sparkles, Brain, Zap, Heart, Search, Target, Compass, BookOpen, Star, Moon, Calendar } from 'lucide-react';
 
-export const Footer = ({ gameState }) => {
+export const Footer = ({ gameState, onOpenAdmin, isAdmin }) => {
     const getContent = () => {
         switch (gameState) {
             case 'SHUFFLING':
@@ -53,8 +53,13 @@ export const Footer = ({ gameState }) => {
                     </div>
                 ))}
             </div>
-            <div className="mt-8 text-center text-[10px] text-slate-600 uppercase tracking-widest font-sans">
-                &copy; {new Date().getFullYear()} Tarot Oracle • Crafted for Your Inner Peace
+            <div className="mt-8 text-center text-[10px] text-slate-600 uppercase tracking-widest font-sans flex items-center justify-center gap-4">
+                <span>&copy; {new Date().getFullYear()} Tarot Oracle • Crafted for Your Inner Peace</span>
+                {onOpenAdmin && isAdmin && (
+                    <button onClick={onOpenAdmin} className="opacity-50 hover:opacity-100 transition-opacity cursor-pointer p-2">
+                        [Admin]
+                    </button>
+                )}
             </div>
         </footer>
     );

@@ -1,5 +1,7 @@
 import React from 'react';
+import { Coins, Sparkles } from 'lucide-react';
 import { READING_TOPICS } from '../../constants/readingTopics';
+import { getReadingCost } from '../../constants/costs';
 import { GoogleAdSlot } from '../ui/GoogleAdSlot';
 import { DailyCard } from '../ui/DailyCard';
 import { DailyFortune } from '../ui/DailyFortune';
@@ -7,7 +9,7 @@ import { ArticlesCarousel } from '../ui/ArticlesCarousel';
 import { StatsCounter } from '../ui/StatsCounter';
 import { FloatingCards } from '../ui/FloatingCards';
 
-export const MenuState = ({ topic, setTopic, readingType, setReadingType, startReading, isDark, openArticle }) => (
+export const MenuState = ({ topic, setTopic, readingType, setReadingType, startReading, isDark, openArticle, credits, isDailyFreeAvailable }) => (
     <div className="w-full flex flex-col items-center animate-in fade-in slide-in-from-bottom-4 duration-700">
         {/* Floating Cards Background */}
         <FloatingCards />
@@ -27,36 +29,62 @@ export const MenuState = ({ topic, setTopic, readingType, setReadingType, startR
         <div className="w-full max-w-3xl mx-auto mb-8">
             <h2 className="text-center text-sm uppercase tracking-widest text-slate-500 mb-4">เลือกหัวข้อคำทำนาย</h2>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {READING_TOPICS.map((t) => (
-                    <button
-                        key={t.id}
-                        onClick={() => setTopic(t.id)}
-                        className={`p-3 rounded-xl border transition-all flex flex-col items-center gap-2 ${topic === t.id
-                            ? 'bg-purple-900/30 border-purple-500 text-purple-200 shadow-lg shadow-purple-900/20 scale-105'
-                            : isDark ? 'bg-slate-900/40 border-slate-800 text-slate-400 hover:bg-slate-800 hover:border-slate-700' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'}`}
-                    >
-                        <span className="text-2xl">{t.icon}</span>
-                        <span className="text-sm font-medium">{t.label}</span>
-                    </button>
-                ))}
+                {READING_TOPICS.map((t) => {
+                    const { cost, isDaily } = getReadingCost(t.id);
+                    const showFree = isDaily && isDailyFreeAvailable;
+
+                    return (
+                        <button
+                            key={t.id}
+                            onClick={() => setTopic(t.id)}
+                            className={`relative p-3 rounded-xl border transition-all flex flex-col items-center gap-2 ${topic === t.id
+                                ? 'bg-purple-900/30 border-purple-500 text-purple-200 shadow-lg shadow-purple-900/20 scale-105'
+                                : isDark ? 'bg-slate-900/40 border-slate-800 text-slate-400 hover:bg-slate-800 hover:border-slate-700' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+                        >
+                            <span className={`absolute top-2 right-2 text-[10px] px-1.5 py-0.5 rounded-full font-bold shadow-sm ${showFree
+                                ? 'bg-green-100 text-green-700 border-green-200'
+                                : isDark
+                                    ? 'bg-slate-800 text-slate-300 border-slate-700'
+                                    : 'bg-slate-100 text-slate-500 border-slate-200'
+                                }`}>
+                                {showFree ? 'FREE' : cost}
+                            </span>
+                            <span className="text-2xl">{t.icon}</span>
+                            <span className="text-sm font-medium">{t.label}</span>
+                        </button>
+                    );
+                })}
             </div>
         </div>
 
         {/* Reading Type Selection (Hidden for Daily, Monthly, and Love) */}
         {topic !== 'daily' && topic !== 'monthly' && topic !== 'love' && (
             <div className="w-full flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 mb-10">
-                <button
-                    onClick={() => setReadingType('2-cards')}
-                    className={`px-6 py-2 rounded-full border transition-all ${readingType === '2-cards' ? 'bg-purple-600 border-purple-500 text-white shadow-lg shadow-purple-500/20' : isDark ? 'border-slate-700 text-slate-200 hover:bg-slate-800/40' : 'border-slate-300 text-slate-700 hover:bg-slate-200/70'}`}
-                >
-                    แบบ 2 ใบ (อดีต/ปัจจุบัน)
-                </button>
-                <button
-                    onClick={() => setReadingType('1-card')}
-                    className={`px-6 py-2 rounded-full border transition-all ${readingType === '1-card' ? 'bg-purple-600 border-purple-500 text-white shadow-lg shadow-purple-500/20' : isDark ? 'border-slate-700 text-slate-200 hover:bg-slate-800/40' : 'border-slate-300 text-slate-700 hover:bg-slate-200/70'}`}
-                >
-                    ใบเดียว
-                </button>
+                {(() => {
+                    const { cost } = getReadingCost(topic);
+                    return (
+                        <>
+                            <button
+                                onClick={() => setReadingType('2-cards')}
+                                className={`relative px-6 py-3 rounded-xl border transition-all flex flex-col items-center gap-1 ${readingType === '2-cards' ? 'bg-purple-600 border-purple-500 text-white shadow-lg shadow-purple-500/20' : isDark ? 'bg-slate-900/40 border-slate-700 text-slate-200 hover:bg-slate-800/40' : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50'}`}
+                            >
+                                <span className="font-bold">แบบ 2 ใบ (อดีต/ปัจจุบัน)</span>
+                                <span className={`text-[10px] px-2 py-0.5 rounded-full ${readingType === '2-cards' ? 'bg-purple-500/30 text-white' : 'bg-slate-200 text-slate-600'}`}>
+                                    ใช้ {cost * 2} เครดิต
+                                </span>
+                            </button>
+                            <button
+                                onClick={() => setReadingType('1-card')}
+                                className={`relative px-6 py-3 rounded-xl border transition-all flex flex-col items-center gap-1 ${readingType === '1-card' ? 'bg-purple-600 border-purple-500 text-white shadow-lg shadow-purple-500/20' : isDark ? 'bg-slate-900/40 border-slate-700 text-slate-200 hover:bg-slate-800/40' : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50'}`}
+                            >
+                                <span className="font-bold">ใบเดียว</span>
+                                <span className={`text-[10px] px-2 py-0.5 rounded-full ${readingType === '1-card' ? 'bg-purple-500/30 text-white' : 'bg-slate-200 text-slate-600'}`}>
+                                    ใช้ {cost} เครดิต
+                                </span>
+                            </button>
+                        </>
+                    );
+                })()}
             </div>
         )}
 
@@ -70,15 +98,56 @@ export const MenuState = ({ topic, setTopic, readingType, setReadingType, startR
         )}
 
         {/* Start Button */}
-        <button
-            onClick={startReading}
-            disabled={!topic}
-            className={`group relative w-full sm:w-auto px-10 sm:px-16 py-4 sm:py-5 rounded-full font-bold text-lg sm:text-xl transition-all shadow-xl ${topic
-                ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:scale-105 active:scale-95 shadow-purple-500/20'
-                : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'}`}
-        >
-            เริ่มต้นทำนาย
-        </button>
+        {/* Start Button */}
+        {(() => {
+            const { cost, isDaily } = topic ? getReadingCost(topic) : { cost: 0, isDaily: false };
+            const isFreeDaily = isDaily && isDailyFreeAvailable;
+            const canAfford = isFreeDaily || credits >= cost;
+            const isDisabled = !topic || !canAfford;
+
+            return (
+                <button
+                    onClick={startReading}
+                    disabled={isDisabled}
+                    className={`group relative w-full sm:w-auto px-10 sm:px-16 py-4 sm:py-5 rounded-full font-bold text-lg sm:text-xl transition-all shadow-xl flex flex-col items-center gap-1 ${isDisabled
+                        ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
+                        : 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:scale-105 active:scale-95 shadow-purple-500/20'
+                        }`}
+                >
+                    <span className="flex items-center gap-2">
+                        {isDisabled && !topic ? 'เลือกหัวข้อก่อน' :
+                            isDisabled && !canAfford ? 'เครดิตไม่พอ' :
+                                'เริ่มต้นทำนาย'}
+                        {topic && isFreeDaily && (
+                            <span className="bg-green-500 text-white text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider font-bold animate-pulse">
+                                FREE
+                            </span>
+                        )}
+                    </span>
+
+                    {topic && (
+                        <span className="text-xs sm:text-sm font-normal opacity-90 flex items-center gap-1.5">
+                            {isFreeDaily ? (
+                                <>
+                                    <Sparkles size={14} className="text-yellow-300" />
+                                    <span>โควต้าฟรีวันนี้</span>
+                                </>
+                            ) : canAfford ? (
+                                <>
+                                    <Coins size={14} className="text-amber-300" />
+                                    <span>ใช้ {cost} เครดิต (มี {credits})</span>
+                                </>
+                            ) : (
+                                <>
+                                    <Coins size={14} className="text-slate-300" />
+                                    <span>เครดิตไม่พอ (ต้องการ {cost})</span>
+                                </>
+                            )}
+                        </span>
+                    )}
+                </button>
+            );
+        })()}
 
         {/* Stats Counter */}
         <div className="mt-12 w-full">
@@ -95,3 +164,4 @@ export const MenuState = ({ topic, setTopic, readingType, setReadingType, startR
         <GoogleAdSlot className="mt-12" />
     </div>
 );
+
