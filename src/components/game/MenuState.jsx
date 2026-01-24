@@ -8,6 +8,10 @@ import { DailyFortune } from '../ui/DailyFortune';
 import { ArticlesCarousel } from '../ui/ArticlesCarousel';
 import { StatsCounter } from '../ui/StatsCounter';
 import { FloatingCards } from '../ui/FloatingCards';
+import { AncientWisdom } from '../ui/AncientWisdom';
+import { Testimonials } from '../ui/Testimonials';
+import { WhyChooseUs } from '../ui/WhyChooseUs';
+import { HowItWorks } from '../ui/HowItWorks';
 
 export const MenuState = ({ topic, setTopic, readingType, setReadingType, startReading, isDark, openArticle, credits, isDailyFreeAvailable }) => (
     <div className="w-full flex flex-col items-center animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -154,9 +158,29 @@ export const MenuState = ({ topic, setTopic, readingType, setReadingType, startR
             <StatsCounter />
         </div>
 
+        {/* Ancient Wisdom Section */}
+        <div className="mt-16 w-full">
+            <AncientWisdom openArticle={openArticle} />
+        </div>
+
+        {/* Testimonials */}
+        <div className="mt-16 w-full">
+            <Testimonials />
+        </div>
+
+        {/* How It Works */}
+        <div className="mt-16 w-full">
+            <HowItWorks />
+        </div>
+
+        {/* Why Choose Us */}
+        <div className="mt-16 w-full">
+            <WhyChooseUs />
+        </div>
+
         {/* Featured Articles Carousel */}
         {openArticle && (
-            <div className="mt-12 w-full">
+            <div className="mt-16 w-full">
                 <ArticlesCarousel openArticle={openArticle} />
             </div>
         )}

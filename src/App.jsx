@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { READING_TOPICS } from './constants/readingTopics';
 import { Navbar } from './components/navigation/Navbar';
 import { MenuState } from './components/game/MenuState';
 import { ShufflingState } from './components/game/ShufflingState';
@@ -18,6 +19,9 @@ import { FutureConfirmDialog } from './components/modals/FutureConfirmDialog';
 import { TermsModal } from './components/modals/TermsModal';
 import { PrivacyModal } from './components/modals/PrivacyModal';
 import { AgeVerificationModal } from './components/modals/AgeVerificationModal';
+import { WarpTransition } from './components/ui/WarpTransition';
+import { ConfirmReadingDialog } from './components/modals/ConfirmReadingDialog';
+import { Screensaver } from './components/ui/Screensaver';
 import { useTarotGame } from './hooks/useTarotGame';
 import { useAudio } from './hooks/useAudio';
 import { useCredits } from './hooks/useCredits';
@@ -46,6 +50,14 @@ function App() {
     return localStorage.getItem('ageVerified') !== 'true';
   });
   const [currentReadingId, setCurrentReadingId] = useState(null);
+  const [showWarp, setShowWarp] = useState(false);
+  const [pendingReading, setPendingReading] = useState(false);
+  const [showConfirmReading, setShowConfirmReading] = useState(false);
+  const [pendingCreditCost, setPendingCreditCost] = useState(0);
+  const [pendingIsFreeDaily, setPendingIsFreeDaily] = useState(false);
+
+  // Use ref for saving lock to prevent duplicates
+  const isSavingRef = useRef(false);
 
   const {
     gameState,
@@ -91,7 +103,12 @@ function App() {
     }
   }, [gameState, playShuffleSound]);
 
-  const handleStartReading = async () => {
+  // Scroll to top when game state changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [gameState]);
+
+  const handleStartReading = () => {
     // Determine credit cost based on topic
     let { cost, isDaily } = getReadingCost(topic);
 
@@ -105,30 +122,35 @@ function App() {
     // Check if this is a free daily reading or a paid reading
     const isFreeDaily = isDaily && isDailyFreeAvailable;
 
-    // If daily free is available OR user has credits, proceed
-    if (isFreeDaily || credits >= cost) {
-      // If free daily, cost is 0 and we mark it as daily
-      // If paid (including paid daily after free is used), cost applies and isDaily=false
-      const effectiveCost = isFreeDaily ? 0 : cost;
-      const treatAsDaily = isFreeDaily; // Only treat as daily if it's actually the free daily
+    // Store pending info and show confirmation dialog
+    setPendingCreditCost(cost);
+    setPendingIsFreeDaily(isFreeDaily);
+    setShowConfirmReading(true);
+  };
 
+  const handleConfirmReadingStart = async () => {
+    setShowConfirmReading(false);
+
+    const effectiveCost = pendingIsFreeDaily ? 0 : pendingCreditCost;
+    const treatAsDaily = pendingIsFreeDaily;
+
+    // Check if user has enough credits or it's free
+    if (pendingIsFreeDaily || credits >= pendingCreditCost) {
       const result = await useCredit(effectiveCost, treatAsDaily);
       if (result.success) {
-        setGameState('SHUFFLING');
-        // IMPORTANT: Play sound is handled by useEffect above
+        // Show warp animation first
+        setShowWarp(true);
+        setPendingReading(true);
       } else {
-        // Handle failure (e.g. daily limit reached or insufficient credits)
+        // Handle failure
         if (result.message === 'Daily reading allowed once per day') {
-          // This shouldn't happen now, but just in case
           alert('คุณใช้สิทธิ์ดูดวงรายวันฟรีไปแล้ว จะใช้เครดิตแทน');
         } else {
-          // Insufficient credits
-          alert(`เครดิตไม่พอ? \nServer Message: ${result.message}\nApp thinks: Credits=${credits}, Cost=${cost}\nPlease tell the developer this message.`);
+          alert(`เกิดข้อผิดพลาด: ${result.message}`);
           setIsTopUpOpen(true);
         }
       }
     } else {
-      // Otherwise open top up modal
       setIsTopUpOpen(true);
     }
   };
@@ -137,6 +159,15 @@ function App() {
     gameReset();
     setArticleId(null);
     setCurrentReadingId(null);
+  };
+
+  const handleWarpComplete = () => {
+    setShowWarp(false);
+    if (pendingReading) {
+      manualShuffle();
+      setGameState('PICKING');
+      setPendingReading(false);
+    }
   };
 
   const openCalendar = (type) => {
@@ -148,10 +179,14 @@ function App() {
   const openArticle = (id) => {
     setArticleId(id);
     setGameState('ARTICLE');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // Save reading to history (or update existing if drawing future)
   const saveReadingResult = async (currentSelectedCards, isFutureUpdate = false) => {
+    if (isSavingRef.current) return;
+    isSavingRef.current = true;
+
     console.log('saveReadingResult called:', {
       isFutureUpdate,
       currentReadingId,
@@ -159,7 +194,10 @@ function App() {
       cardNames: currentSelectedCards.map(c => c.name),
       isDrawingFuture
     });
-    if (!user) return; // Only save if logged in
+    if (!user) {
+      isSavingRef.current = false;
+      return;
+    }
 
     try {
       if (isFutureUpdate && currentReadingId) {
@@ -198,6 +236,11 @@ function App() {
       }
     } catch (err) {
       console.error('Error saving reading:', err);
+    } finally {
+      // Add a small delay before unlocking just to be safe from rapid-fire
+      setTimeout(() => {
+        isSavingRef.current = false;
+      }, 500);
     }
   };
 
@@ -322,7 +365,8 @@ function App() {
               if (result.success) {
                 setShowFutureDialog(false);
                 setIsDrawingFuture(true);
-                setGameState('SHUFFLING');
+                manualShuffle();
+                setGameState('PICKING');
               } else {
                 alert('เกิดข้อผิดพลาดในการตัดเครดิต: ' + result.message);
               }
@@ -365,6 +409,23 @@ function App() {
           window.location.href = 'https://www.google.com';
         }}
       />
+
+      <WarpTransition isActive={showWarp} onComplete={handleWarpComplete} />
+
+      <ConfirmReadingDialog
+        isOpen={showConfirmReading}
+        onConfirm={handleConfirmReadingStart}
+        onCancel={() => setShowConfirmReading(false)}
+        topic={topic}
+        readingType={readingType}
+        creditCost={pendingCreditCost}
+        currentCredits={credits}
+        isFreeDaily={pendingIsFreeDaily}
+        topicLabel={READING_TOPICS.find(t => t.id === topic)?.label || topic}
+        isDark={isDark}
+      />
+
+      <Screensaver />
     </div>
   );
 }

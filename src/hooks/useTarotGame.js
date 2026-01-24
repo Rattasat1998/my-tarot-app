@@ -112,26 +112,40 @@ export const useTarotGame = () => {
 
     const manualShuffle = useCallback(() => {
         playRevealSound();
-        // If drawing future, don't clear the original cards
+
+        // Logical Reset
         if (isDrawingFuture) {
             const originalCount = readingType === '1-card' ? 1 : 2;
             setSelectedCards(prev => prev.slice(0, originalCount));
         } else {
             setSelectedCards([]);
         }
-        setGameState('SHUFFLING');
-    }, [playRevealSound, isDrawingFuture, readingType]);
+
+        // Perform Shuffle Logic In-Place (No state transition)
+        const majorArcanaTopics = ['love', 'work', 'finance', 'health', 'social', 'luck'];
+        const baseDeck = majorArcanaTopics.includes(topic) ? TAROT_CARDS.slice(0, 22) : TAROT_CARDS;
+        const shuffledDeck = [...baseDeck].sort(() => 0.5 - Math.random());
+        setDeck(shuffledDeck);
+
+    }, [playRevealSound, isDrawingFuture, readingType, topic]);
 
     const manualCut = useCallback(() => {
         playRevealSound();
-        // If drawing future, don't clear the original cards
+
+        // Logical Reset
         if (isDrawingFuture) {
             const originalCount = readingType === '1-card' ? 1 : 2;
             setSelectedCards(prev => prev.slice(0, originalCount));
         } else {
             setSelectedCards([]);
         }
-        setGameState('CUTTING');
+
+        // Perform Cut Logic In-Place (No state transition)
+        setDeck(currentDeck => {
+            const cutPoint = Math.floor(currentDeck.length / 2) + Math.floor(Math.random() * 10) - 5;
+            return [...currentDeck.slice(cutPoint), ...currentDeck.slice(0, cutPoint)];
+        });
+
     }, [playRevealSound, isDrawingFuture, readingType]);
 
     return {

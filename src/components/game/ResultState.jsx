@@ -1,7 +1,11 @@
-import React from 'react';
-import { Sparkles, RefreshCw, Search } from 'lucide-react';
+import React, { useMemo } from 'react';
+import { Sparkles, RefreshCw, Search, Volume2, VolumeX, Pause, Play } from 'lucide-react';
 import { READING_TOPICS } from '../../constants/readingTopics';
 import { GoogleAdSlot } from '../ui/GoogleAdSlot';
+import { useSpeech } from '../../hooks/useSpeech';
+import { HolographicCard } from '../ui/HolographicCard';
+import { ManaParticles } from '../ui/ManaParticles';
+import { MysticBackground } from '../ui/MysticBackground';
 
 export const ResultState = ({
     topic,
@@ -11,26 +15,93 @@ export const ResultState = ({
     isDrawingFuture,
     setShowFutureDialog
 }) => {
+    const { speak, stop, toggle, isSpeaking, isPaused } = useSpeech();
+
+    // Create full reading text for TTS
+    const fullReadingText = useMemo(() => {
+        const topicLabel = READING_TOPICS.find(t => t.id === topic)?.label || '';
+        let text = `คำทำนาย${topicLabel}。`;
+
+        selectedCards.forEach((card, idx) => {
+            let label = '';
+            if (topic === 'monthly') {
+                label = `ใบที่ ${idx + 1}`;
+            } else if (readingType === '1-card') {
+                label = idx === 0 ? 'ปัจจุบัน' : 'อนาคต';
+            } else {
+                label = idx === 0 ? 'อดีต' : idx === 1 ? 'ปัจจุบัน' : 'อนาคต';
+            }
+            text += ` ${label}。 ไพ่ ${card.nameThai}。 ${card.description}。`;
+        });
+
+        text += ' ขอให้โชคดี';
+        return text;
+    }, [selectedCards, topic, readingType]);
+
+    const handleSpeak = () => {
+        if (isSpeaking && !isPaused) {
+            stop();
+        } else {
+            speak(fullReadingText);
+        }
+    };
+
+    // TTS Button Component
+    const TTSButton = () => (
+        <div className="flex items-center gap-2">
+            <button
+                onClick={handleSpeak}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${isSpeaking
+                    ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/30'
+                    : 'bg-slate-800 hover:bg-slate-700 text-slate-300'
+                    }`}
+            >
+                {isSpeaking ? (
+                    <>
+                        <VolumeX size={18} />
+                        <span className="text-sm">หยุดอ่าน</span>
+                    </>
+                ) : (
+                    <>
+                        <Volume2 size={18} />
+                        <span className="text-sm">อ่านให้ฟัง</span>
+                    </>
+                )}
+            </button>
+            {isSpeaking && (
+                <button
+                    onClick={toggle}
+                    className="p-2 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 transition-all"
+                >
+                    {isPaused ? <Play size={16} /> : <Pause size={16} />}
+                </button>
+            )}
+        </div>
+    );
+
     // ---------------------------------------------------------
     // MONTHLY VIEW
     // ---------------------------------------------------------
     if (topic === 'monthly') {
         return (
-            <div className="w-full flex flex-col items-center animate-in fade-in slide-in-from-bottom-8 duration-700 max-w-6xl mx-auto">
+            <div className="w-full flex flex-col items-center animate-in fade-in slide-in-from-bottom-8 duration-700 max-w-6xl mx-auto relative overflow-hidden">
+                <MysticBackground />
+                <ManaParticles count={50} />
                 <div className="mb-8 text-center">
                     <h2 className="text-3xl font-serif text-yellow-500 mb-2">คำทำนายรายเดือน</h2>
-                    <p className="text-slate-400 text-sm">ภาพรวมตลอดเดือนของคุณ</p>
+                    <p className="text-slate-400 text-sm mb-4">ภาพรวมตลอดเดือนของคุณ</p>
+                    <TTSButton />
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-4 w-full mb-12">
                     {selectedCards.map((card, idx) => (
                         <div key={card.id} className="flex flex-col items-center gap-2 animate-in zoom-in duration-500 group/card" style={{ animationDelay: `${idx * 100}ms` }}>
-                            <div className="relative w-full aspect-[2/3] group-hover/card:scale-105 transition-transform duration-500">
+                            <HolographicCard className="relative w-full aspect-[2/3] group-hover/card:scale-105 transition-transform duration-500">
                                 <div className="absolute inset-0 bg-yellow-500/5 blur-xl group-hover/card:bg-yellow-500/10 transition-all"></div>
                                 <div className="relative w-full h-full overflow-hidden shadow-lg shadow-purple-900/40 z-10">
                                     <img src={card.img} alt={card.name} className="w-full h-full object-contain" />
                                 </div>
-                            </div>
+                            </HolographicCard>
                             <div className="text-center">
                                 <div className="text-xs text-yellow-500/70 font-mono mb-1">ใบที่ {idx + 1}</div>
                                 <h4 className="text-xs sm:text-sm font-bold text-yellow-100 leading-tight">{card.name}</h4>
@@ -82,23 +153,28 @@ export const ResultState = ({
     // STANDARD / MULTI-CARD VIEW
     // ---------------------------------------------------------
     return (
-        <div className="w-full flex flex-col items-center animate-in fade-in slide-in-from-bottom-8 duration-700 max-w-5xl mx-auto">
+        <div className="w-full flex flex-col items-center animate-in fade-in slide-in-from-bottom-8 duration-700 max-w-5xl mx-auto relative overflow-hidden">
+            <MysticBackground />
+            <ManaParticles count={40} />
             {readingType === '1-card' && !isDrawingFuture && selectedCards.length === 1 ? (
                 <div className="w-full flex flex-col items-center">
                     <div className="mb-8 text-center">
                         <span className="px-4 py-1 border border-green-500/30 bg-green-500/10 text-green-300 text-sm tracking-wider uppercase">
                             ปัจจุบัน / สถานการณ์ (พื้นฐาน)
                         </span>
+                        <div className="mt-4">
+                            <TTSButton />
+                        </div>
                     </div>
                     <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 w-full relative">
                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-yellow-500/10 blur-[100px] -z-10 pointer-events-none"></div>
 
-                        <div className="relative w-72 h-[432px] sm:w-[300px] sm:h-[540px] preserve-3d animate-in zoom-in duration-700">
-                            <div className="absolute inset-0 bg-slate-950 overflow-hidden shadow-2xl shadow-purple-900/50">
+                        <HolographicCard className="relative w-72 h-[432px] sm:w-[300px] sm:h-[540px] animate-in zoom-in duration-700">
+                            <div className="absolute inset-0 bg-slate-950 overflow-hidden shadow-2xl shadow-purple-900/50 rounded-xl">
                                 <img src={selectedCards[0].img} alt={selectedCards[0].name} className="w-full h-full object-contain" />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none"></div>
                             </div>
-                        </div>
+                        </HolographicCard>
                         <div className="flex-1 max-w-xl w-full">
                             <div className="bg-slate-900/40 p-6 md:p-8 border border-slate-800 space-y-6">
                                 <div className="space-y-4">
@@ -107,7 +183,7 @@ export const ResultState = ({
                                         <span>{selectedCards[0].name}</span>
                                         <span className="text-lg text-yellow-200/80 font-normal">({selectedCards[0].nameThai})</span>
                                     </h3>
-                                    <p className="text-slate-300 leading-relaxed text-lg pb-4 border-b border-slate-800">
+                                    <p className="text-slate-300 leading-relaxed text-lg pb-4 border-b border-slate-800 magic-text-reveal">
                                         <span className="font-bold text-yellow-100">ความหมายปัจจุบัน:</span> {selectedCards[0].description}
                                     </p>
                                 </div>
@@ -141,11 +217,12 @@ export const ResultState = ({
                         <h2 className="text-3xl font-serif text-yellow-500 mb-2">
                             คำทำนาย{READING_TOPICS.find(t => t.id === topic)?.label}
                         </h2>
-                        <p className="text-slate-400 text-sm">
+                        <p className="text-slate-400 text-sm mb-4">
                             {(isDrawingFuture || (readingType === '1-card' ? selectedCards.length === 2 : selectedCards.length === 3))
                                 ? `การทำนายสมบูรณ์ (${readingType === '1-card' ? 'ปัจจุบัน - อนาคต' : 'อดีต - ปัจจุบัน - อนาคต'})`
                                 : `การทำนายแบบ ${readingType === '1-card' ? '1 ใบ' : '2 ใบ'} (${readingType === '1-card' ? 'ปัจจุบัน' : 'อดีต และ ปัจจุบัน'})`}
                         </p>
+                        <TTSButton />
                     </div>
 
                     <div className={`grid grid-cols-1 ${(isDrawingFuture || selectedCards.length === 3) ? 'sm:grid-cols-3' : 'sm:grid-cols-2'} gap-8 md:gap-12 w-full mb-16 relative justify-items-center`}>
@@ -174,12 +251,12 @@ export const ResultState = ({
                                             {label}
                                         </span>
                                     </div>
-                                    <div className={`relative w-full ${sizeClass} aspect-[2/3] group/card`}>
+                                    <HolographicCard className={`relative w-full ${sizeClass} aspect-[2/3] group/card`}>
                                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-yellow-500/10 blur-[80px] group-hover/card:bg-yellow-500/20 transition-all pointer-events-none"></div>
-                                        <div className="relative w-full h-full overflow-hidden shadow-2xl shadow-purple-900/40 z-10">
+                                        <div className="relative w-full h-full overflow-hidden shadow-2xl shadow-purple-900/40 z-10 rounded-xl">
                                             <img src={card.img} alt={card.name} className="w-full h-full object-contain bg-slate-950" />
                                         </div>
-                                    </div>
+                                    </HolographicCard>
                                     <div className="text-center">
                                         <h4 className="font-bold text-yellow-500 text-lg">{card.name}</h4>
                                         <div className="text-sm text-slate-400">({card.nameThai})</div>
@@ -247,7 +324,7 @@ export const ResultState = ({
                                         </div>
                                         <div className="text-center md:text-left">
                                             <span className="font-bold text-yellow-500 text-lg block md:inline">{card.name} ({card.nameThai}):</span>
-                                            <p className="block md:inline text-slate-300 leading-relaxed md:ml-2">
+                                            <p className="block md:inline text-slate-300 leading-relaxed md:ml-2 magic-text-reveal">
                                                 {card.description}
                                             </p>
                                         </div>
