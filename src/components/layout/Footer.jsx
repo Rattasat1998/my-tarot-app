@@ -1,7 +1,7 @@
 import React from 'react';
-import { Info, History, Sparkles, Brain, Zap, Heart, Search, Target, Compass, BookOpen, Star, Moon, Calendar } from 'lucide-react';
+import { Info, History, Sparkles, Brain, Zap, Heart, Search, Target, Compass, BookOpen, Star, Moon, Calendar, FileText, Shield } from 'lucide-react';
 
-export const Footer = ({ gameState, onOpenAdmin, isAdmin }) => {
+export const Footer = ({ gameState, onOpenAdmin, isAdmin, onOpenTerms, onOpenPrivacy }) => {
     const getContent = () => {
         switch (gameState) {
             case 'SHUFFLING':
@@ -53,8 +53,31 @@ export const Footer = ({ gameState, onOpenAdmin, isAdmin }) => {
                     </div>
                 ))}
             </div>
-            <div className="mt-8 text-center text-[10px] text-slate-600 uppercase tracking-widest font-sans flex items-center justify-center gap-4">
-                <span>&copy; {new Date().getFullYear()} Tarot Oracle • Crafted for Your Inner Peace</span>
+
+            {/* Disclaimer */}
+            <div className="mt-8 max-w-2xl mx-auto text-center">
+                <p className="text-[10px] text-amber-500/70 mb-4">
+                    ⚠️ บริการนี้เป็นเพียงความบันเทิงเท่านั้น ผลทำนายไม่ใช่ข้อเท็จจริง กรุณาใช้วิจารณญาณในการรับชม
+                </p>
+            </div>
+
+            <div className="mt-4 text-center text-[10px] text-slate-600 uppercase tracking-widest font-sans flex flex-wrap items-center justify-center gap-4">
+                <span>&copy; {new Date().getFullYear()} ศาสตร์ดวงดาว ออนไลน์ • Entertainment Only</span>
+
+                {onOpenTerms && (
+                    <button onClick={onOpenTerms} className="flex items-center gap-1 opacity-70 hover:opacity-100 transition-opacity cursor-pointer normal-case">
+                        <FileText size={12} />
+                        ข้อกำหนดการใช้งาน
+                    </button>
+                )}
+
+                {onOpenPrivacy && (
+                    <button onClick={onOpenPrivacy} className="flex items-center gap-1 opacity-70 hover:opacity-100 transition-opacity cursor-pointer normal-case">
+                        <Shield size={12} />
+                        นโยบายความเป็นส่วนตัว
+                    </button>
+                )}
+
                 {onOpenAdmin && isAdmin && (
                     <button onClick={onOpenAdmin} className="opacity-50 hover:opacity-100 transition-opacity cursor-pointer p-2">
                         [Admin]

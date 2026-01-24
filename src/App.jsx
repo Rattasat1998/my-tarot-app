@@ -15,6 +15,9 @@ import { ArticlePage } from './components/articles/ArticlePage';
 import { AdminDashboard } from './components/admin/AdminDashboard';
 import { TopUpModal } from './components/modals/TopUpModal';
 import { FutureConfirmDialog } from './components/modals/FutureConfirmDialog';
+import { TermsModal } from './components/modals/TermsModal';
+import { PrivacyModal } from './components/modals/PrivacyModal';
+import { AgeVerificationModal } from './components/modals/AgeVerificationModal';
 import { useTarotGame } from './hooks/useTarotGame';
 import { useAudio } from './hooks/useAudio';
 import { useCredits } from './hooks/useCredits';
@@ -36,6 +39,12 @@ function App() {
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [isTopUpOpen, setIsTopUpOpen] = useState(false);
   const [showFutureDialog, setShowFutureDialog] = useState(false);
+  const [isTermsOpen, setIsTermsOpen] = useState(false);
+  const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
+  const [showAgeVerification, setShowAgeVerification] = useState(() => {
+    // Check if user already accepted age verification
+    return localStorage.getItem('ageVerified') !== 'true';
+  });
   const [currentReadingId, setCurrentReadingId] = useState(null);
 
   const {
@@ -296,7 +305,7 @@ function App() {
         )}
       </main>
 
-      <Footer isDark={isDark} gameState={gameState} onOpenAdmin={() => setIsAdminOpen(true)} isAdmin={isAdmin} />
+      <Footer isDark={isDark} gameState={gameState} onOpenAdmin={() => setIsAdminOpen(true)} isAdmin={isAdmin} onOpenTerms={() => setIsTermsOpen(true)} onOpenPrivacy={() => setIsPrivacyOpen(true)} />
 
       {isAdminOpen && (
         <AdminDashboard onClose={() => setIsAdminOpen(false)} isDark={isDark} />
@@ -332,6 +341,29 @@ function App() {
         isOpen={isTopUpOpen}
         onClose={() => setIsTopUpOpen(false)}
         isDark={isDark}
+      />
+
+      <TermsModal
+        isOpen={isTermsOpen}
+        onClose={() => setIsTermsOpen(false)}
+        isDark={isDark}
+      />
+
+      <PrivacyModal
+        isOpen={isPrivacyOpen}
+        onClose={() => setIsPrivacyOpen(false)}
+        isDark={isDark}
+      />
+
+      <AgeVerificationModal
+        isOpen={showAgeVerification}
+        onAccept={() => {
+          localStorage.setItem('ageVerified', 'true');
+          setShowAgeVerification(false);
+        }}
+        onDecline={() => {
+          window.location.href = 'https://www.google.com';
+        }}
       />
     </div>
   );
