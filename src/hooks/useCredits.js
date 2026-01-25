@@ -15,6 +15,8 @@ export const useCredits = () => {
     });
 
     const [remoteCredits, setRemoteCredits] = useState(0);
+    const [isDailyFreeEligibleToClaim, setIsDailyFreeEligibleToClaim] = useState(false);
+    const [isDailyFreeClaimed, setIsDailyFreeClaimed] = useState(false);
     const [isDailyFreeAvailable, setIsDailyFreeAvailable] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -23,20 +25,25 @@ export const useCredits = () => {
 
     // Check if daily free is available (Local Logic)
     const checkDailyFreeLocal = useCallback(() => {
+        const lastClaimed = localStorage.getItem('tarot_daily_free_last_claimed');
         const lastUsed = localStorage.getItem(DAILY_FREE_CREDIT_KEY);
-        if (!lastUsed) {
-            setIsDailyFreeAvailable(true);
-            return;
-        }
-
-        const lastDate = new Date(parseInt(lastUsed, 10));
         const now = new Date();
 
-        const isDifferentDay = lastDate.getDate() !== now.getDate() ||
-            lastDate.getMonth() !== now.getMonth() ||
-            lastDate.getFullYear() !== now.getFullYear();
+        const checkDiffDay = (ts) => {
+            if (!ts) return true;
+            const date = new Date(parseInt(ts, 10));
+            return date.getDate() !== now.getDate() ||
+                date.getMonth() !== now.getMonth() ||
+                date.getFullYear() !== now.getFullYear();
+        };
 
-        setIsDailyFreeAvailable(isDifferentDay);
+        const eligibleToClaim = checkDiffDay(lastClaimed);
+        const claimedToday = !eligibleToClaim;
+        const usedToday = !checkDiffDay(lastUsed);
+
+        setIsDailyFreeEligibleToClaim(eligibleToClaim);
+        setIsDailyFreeClaimed(claimedToday);
+        setIsDailyFreeAvailable(claimedToday && !usedToday);
     }, []);
 
     // Fetch from Supabase
@@ -57,23 +64,29 @@ export const useCredits = () => {
             // Check Daily Free status via Profile
             const { data: profile, error: profileError } = await supabase
                 .from('profiles')
-                .select('last_free_draw_at')
+                .select('last_free_draw_at, last_free_draw_claimed_at')
                 .eq('id', user.id)
                 .single();
 
             if (profileError && profileError.code !== 'PGRST116') throw profileError;
 
             if (profile) {
-                const lastDraw = profile.last_free_draw_at ? new Date(profile.last_free_draw_at) : null;
-                if (!lastDraw) {
-                    setIsDailyFreeAvailable(true);
-                } else {
-                    const now = new Date();
-                    const isDifferentDay = lastDraw.getDate() !== now.getDate() ||
-                        lastDraw.getMonth() !== now.getMonth() ||
-                        lastDraw.getFullYear() !== now.getFullYear();
-                    setIsDailyFreeAvailable(isDifferentDay);
-                }
+                const now = new Date();
+                const checkDiffDay = (dateStr) => {
+                    if (!dateStr) return true;
+                    const date = new Date(dateStr);
+                    return date.getDate() !== now.getDate() ||
+                        date.getMonth() !== now.getMonth() ||
+                        date.getFullYear() !== now.getFullYear();
+                };
+
+                const eligibleToClaim = checkDiffDay(profile.last_free_draw_claimed_at);
+                const claimedToday = !eligibleToClaim;
+                const usedToday = !checkDiffDay(profile.last_free_draw_at);
+
+                setIsDailyFreeEligibleToClaim(eligibleToClaim);
+                setIsDailyFreeClaimed(claimedToday);
+                setIsDailyFreeAvailable(claimedToday && !usedToday);
             }
         } catch (err) {
             console.error('Error fetching user credits:', err);
@@ -121,10 +134,37 @@ export const useCredits = () => {
         }
     }, [user]);
 
+    const claimDailyFreeDraw = useCallback(async () => {
+        if (user) {
+            try {
+                const { data, error } = await supabase.rpc('claim_daily_free_draw');
+                if (error) throw error;
+                if (data.success) {
+                    await fetchRemoteData();
+                    return { success: true };
+                }
+                return { success: false, message: data.message };
+            } catch (err) {
+                console.error('Error claiming free draw:', err);
+                return { success: false, message: err.message };
+            }
+        } else {
+            // Guest logic
+            localStorage.setItem('tarot_daily_free_last_claimed', Date.now().toString());
+            checkDailyFreeLocal();
+            return { success: true };
+        }
+    }, [user, fetchRemoteData, checkDailyFreeLocal]);
+
     const useCredit = useCallback(async (cost, isDaily = false) => {
         if (user) {
             // Call Supabase RPC
             try {
+                // If it's a daily reading, ensure it's claimed and not used
+                if (isDaily && !isDailyFreeAvailable) {
+                    return { success: false, message: 'Free draw not claimed or already used' };
+                }
+
                 const { data, error } = await supabase.rpc('deduct_credit', {
                     cost: cost,
                     check_daily_limit: isDaily
@@ -146,8 +186,8 @@ export const useCredits = () => {
             // Local Guest Logic
             if (isDaily) {
                 // Check if played today
-                if (!isDailyFreeAvailable) { // This variable name maps to "Is Daily Available"
-                    return { success: false, message: 'Daily reading allowed once per day' };
+                if (!isDailyFreeAvailable) {
+                    return { success: false, message: 'Free draw not claimed or already used' };
                 }
                 // Mark as used
                 localStorage.setItem(DAILY_FREE_CREDIT_KEY, Date.now().toString());
@@ -156,9 +196,6 @@ export const useCredits = () => {
 
             // Check balance
             if (localCredits < cost) {
-                // For guests, maybe we allow 1 free Daily but other types need... wait, Guests have 0 credits usually?
-                // Unless we gave them starting credits. User didn't specify Guest behavior.
-                // Assuming Guest works same as User but with local credits.
                 return { success: false, message: 'Insufficient credits' };
             }
 
@@ -167,7 +204,7 @@ export const useCredits = () => {
         }
     }, [user, localCredits, isDailyFreeAvailable, checkDailyFreeLocal, fetchRemoteData]);
 
-    // Async function for checking daily free (used by App.jsx)
+    // Async function for checking daily free (used by App.jsx or Menu)
     const checkDailyFree = useCallback(async () => {
         if (user) {
             await fetchRemoteData();
@@ -182,7 +219,10 @@ export const useCredits = () => {
         credits, // derived based on auth state
         isLoading,
         addCredits,
+        isDailyFreeEligibleToClaim,
+        isDailyFreeClaimed,
         isDailyFreeAvailable,
+        claimDailyFreeDraw,
         useCredit,
         checkDailyFree
     };

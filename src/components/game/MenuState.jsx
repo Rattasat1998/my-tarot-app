@@ -137,7 +137,7 @@ export const MenuState = ({ topic, setTopic, readingType, setReadingType, startR
                             isDisabled && !canAfford ? 'เครดิตไม่พอ' :
                                 'เริ่มต้นทำนาย'}
                         {topic && isFreeDaily && (
-                            <span className="bg-green-500 text-white text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider font-bold animate-pulse">
+                            <span className="bg-green-500 text-white text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider font-bold animate-bounce">
                                 FREE
                             </span>
                         )}
@@ -148,7 +148,7 @@ export const MenuState = ({ topic, setTopic, readingType, setReadingType, startR
                             {isFreeDaily ? (
                                 <>
                                     <Sparkles size={14} className="text-yellow-300" />
-                                    <span>โควต้าฟรีวันนี้</span>
+                                    <span>ใช้สิทธิ์สุ่มฟรี (เก็บแล้ว)</span>
                                 </>
                             ) : canAfford ? (
                                 <>

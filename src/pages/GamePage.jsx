@@ -99,17 +99,15 @@ export function GamePage({ isDark, setIsDark }) {
         setIsDrawingFuture
     } = useTarotGame();
 
-    const { credits, isLoading: creditsLoading, useCredit, addCredits, checkDailyFree } = useCredits();
+    const {
+        credits,
+        isLoading: creditsLoading,
+        useCredit,
+        addCredits,
+        checkDailyFree,
+        isDailyFreeAvailable
+    } = useCredits();
     const { user, isAdmin } = useAuth();
-
-    // Daily Free Check State
-    const [isDailyFreeAvailable, setIsDailyFreeAvailable] = useState(false);
-
-    useEffect(() => {
-        if (user) {
-            checkDailyFree().then(setIsDailyFreeAvailable);
-        }
-    }, [user, checkDailyFree, gameState]);
 
     // Sound effects for shuffling
     useEffect(() => {

@@ -7,12 +7,18 @@ import { HistoryPage } from './pages/HistoryPage';
 import { AdminPage } from './pages/AdminPage';
 
 import { useAuth } from './contexts/AuthContext';
+import { useCredits } from './hooks/useCredits';
 import { supabase } from './lib/supabase';
 import { DailyRewardModal } from './components/modals/DailyRewardModal';
 
 function App() {
   const [isDark, setIsDark] = useState(true);
   const { user } = useAuth();
+  const {
+    isDailyFreeEligibleToClaim,
+    isDailyFreeClaimed,
+    claimDailyFreeDraw
+  } = useCredits();
 
   // Daily Reward State
   const [showRewardModal, setShowRewardModal] = useState(false);
@@ -39,8 +45,8 @@ function App() {
         // data: { streak: int, checked_in_today: boolean, is_streak_broken: boolean }
         if (data) {
           setRewardData({ streak: data.streak, checked_in_today: data.checked_in_today });
-          // Auto-open modal if not checked in today
-          if (!data.checked_in_today) {
+          // Auto-open modal if not checked in today OR if free draw not claimed
+          if (!data.checked_in_today || isDailyFreeEligibleToClaim) {
             setShowRewardModal(true);
           }
         }
@@ -50,7 +56,7 @@ function App() {
     };
 
     checkStatus();
-  }, [user]);
+  }, [user, isDailyFreeEligibleToClaim]);
 
   return (
     <>
@@ -66,6 +72,8 @@ function App() {
         onClose={() => setShowRewardModal(false)}
         streak={rewardData.streak}
         checked_in_today={rewardData.checked_in_today}
+        isFreeClaimedToday={isDailyFreeClaimed}
+        onClaimFree={claimDailyFreeDraw}
         isDark={isDark}
       />
     </>
