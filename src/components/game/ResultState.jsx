@@ -77,8 +77,9 @@ export const ResultState = ({
             await new Promise(resolve => setTimeout(resolve, 100));
             const canvas = await html2canvas(shareTemplateRef.current, {
                 useCORS: true,
-                scale: 2,
-                backgroundColor: null,
+                scale: 1, // Native 1080x1920
+                backgroundColor: '#020617',
+                logging: false,
             });
             const image = canvas.toDataURL("image/png");
             const link = document.createElement('a');
@@ -129,12 +130,11 @@ export const ResultState = ({
 
     const ShareButton = () => (
         <button
-            onClick={handleShare}
-            disabled={isSharing}
-            className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-pink-600 to-rose-500 text-white shadow-lg shadow-pink-500/30 hover:scale-105 transition-all text-sm font-bold disabled:opacity-70 disabled:cursor-not-allowed"
+            disabled
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700 opacity-60 text-sm font-bold"
         >
-            {isSharing ? <Loader size={18} className="animate-spin" /> : <Share2 size={18} />}
-            {isSharing ? 'กำลังสร้างรูป...' : 'แจก IG Story'}
+            <Share2 size={18} />
+            Coming Soon
         </button>
     );
 
@@ -157,8 +157,8 @@ export const ResultState = ({
                 <MysticBackground />
                 <ManaParticles count={50} />
 
-                <div style={{ position: 'absolute', top: -9999, left: -9999, width: '1200px' }}>
-                    <div ref={shareTemplateRef}>
+                <div style={{ position: 'fixed', left: '-3000px', top: 0, width: '1080px', height: '1920px', zIndex: -10, overflow: 'hidden' }}>
+                    <div ref={shareTemplateRef} data-share-template>
                         <ShareCardTemplate
                             cards={selectedCards}
                             topic={topic}
@@ -278,20 +278,13 @@ export const ResultState = ({
                     <div className="flex gap-2">
                         <TTSButton />
 
-                        <div style={{ position: 'absolute', top: -9999, left: -9999, width: '1200px' }}>
-                            <div ref={shareTemplateRef}>
+                        <div style={{ position: 'fixed', left: '-3000px', top: 0, width: '1080px', height: '1920px', zIndex: -10, overflow: 'hidden' }}>
+                            <div ref={shareTemplateRef} data-share-template>
                                 <ShareCardTemplate cards={selectedCards} topic={topic} readingType={readingType} appName="ศาสตร์ดวงดาว" />
                             </div>
                         </div>
 
-                        <button
-                            onClick={handleShare}
-                            disabled={isSharing}
-                            className="flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium shadow-lg shadow-indigo-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {isSharing ? <Loader className="animate-spin" size={18} /> : <Share2 size={18} />}
-                            <span className="hidden sm:inline">Share</span>
-                        </button>
+                        <ShareButton />
 
                         <button
                             onClick={() => setShowSaveModal(true)}
@@ -312,9 +305,11 @@ export const ResultState = ({
                 {/* Main Card Grid */}
                 <div className={`grid gap-4 sm:gap-6 w-full ${readingType === 'celtic-cross'
                     ? 'grid-cols-1 lg:grid-cols-3 max-w-6xl mx-auto'
-                    : readingType === '2-cards'
-                        ? 'grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto'
-                        : 'grid-cols-1 max-w-md mx-auto'
+                    : readingType === '3-cards'
+                        ? 'grid-cols-1 md:grid-cols-3 max-w-5xl mx-auto'
+                        : readingType === '2-cards'
+                            ? 'grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto'
+                            : 'grid-cols-1 max-w-md mx-auto'
                     }`}>
                     {readingType === 'celtic-cross' ? (
                         // Celtic Cross Layout

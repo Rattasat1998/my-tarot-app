@@ -16,15 +16,17 @@ export const useTarotGame = () => {
 
     const requiredPickCount = isDrawingFuture
         ? (readingType === '1-card' ? 2 : 3)
-        : (topic === 'monthly' ? 10 : (readingType === 'celtic-cross' ? 10 : (topic === 'daily' || topic === 'love' ? 1 : (readingType === '2-cards' ? 2 : 1))));
+        : (topic === 'monthly' || readingType === 'celtic-cross' ? 10 : (readingType === '3-cards' ? 3 : (readingType === '2-cards' ? 2 : 1)));
     const isSelectionComplete = selectedCards.length === requiredPickCount;
 
     // Automatically set reading type for specific topics
     useEffect(() => {
-        if (topic === 'daily' || topic === 'love') {
+        if (topic === 'daily') {
             setReadingType('1-card');
+        } else if (topic === 'love' || topic === 'work' || topic === 'finance' || topic === 'social' || topic === 'health') {
+            setReadingType('3-cards');
         } else if (topic === 'monthly') {
-            setReadingType('2-cards'); // Monthly uses its own count but we keep a valid type
+            setReadingType('2-cards'); // Keeps internal type simple, though count is 10 overrides it
         }
     }, [topic]);
 
@@ -55,12 +57,11 @@ export const useTarotGame = () => {
     }, []);
 
     const onShuffleComplete = useCallback(() => {
-        const majorArcanaTopics = ['love', 'work', 'finance', 'health', 'social', 'luck'];
-        const baseDeck = majorArcanaTopics.includes(topic) ? TAROT_CARDS.slice(0, 22) : TAROT_CARDS;
-        const shuffledDeck = [...baseDeck].sort(() => 0.5 - Math.random());
+        // Use full deck for all topics for better depth (Minor Arcana included)
+        const shuffledDeck = [...TAROT_CARDS].sort(() => 0.5 - Math.random());
         setDeck(shuffledDeck);
         setGameState('PICKING');
-    }, [topic]);
+    }, []);
 
     const handleCardPick = useCallback((card) => {
         setSelectedCards(prev => {
