@@ -143,7 +143,7 @@ export const PickingState = ({
                 <h2 className="text-2xl sm:text-3xl font-serif mb-2 text-center text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]">
                     {isDrawingFuture
                         ? 'เลือกไพ่เพิ่มอีก 1 ใบเพื่อดูอนาคต'
-                        : (topic === 'monthly' ? 'เลือกไพ่ 10 ใบ' : 'เลือกไพ่ที่ดึงดูดใจคุณที่สุด')}
+                        : (topic === 'monthly' || readingType === 'celtic-cross' ? 'เลือกไพ่ 10 ใบ' : 'เลือกไพ่ที่ดึงดูดใจคุณที่สุด')}
                 </h2>
                 <p className="text-sm text-purple-200/70 mb-8 backdrop-blur-sm px-4 py-1 rounded-full border border-purple-500/20 bg-purple-900/10">
                     เลือกแล้ว {selectedCards.length}/{requiredPickCount} ใบ

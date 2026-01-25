@@ -63,16 +63,18 @@ export const MenuState = ({ topic, setTopic, readingType, setReadingType, startR
 
         {/* Reading Type Selection (Hidden for Daily, Monthly, and Love) */}
         {topic !== 'daily' && topic !== 'monthly' && topic !== 'love' && (
-            <div className="w-full flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 mb-10">
+            <div className="w-full flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 mb-10 flex-wrap">
                 {(() => {
                     const { cost } = getReadingCost(topic);
+                    const celticCost = cost * 5; // Celtic cross costs 5x base (approx 50-100 credits)
+
                     return (
                         <>
                             <button
                                 onClick={() => setReadingType('2-cards')}
                                 className={`relative px-6 py-3 rounded-xl border transition-all flex flex-col items-center gap-1 ${readingType === '2-cards' ? 'bg-purple-600 border-purple-500 text-white shadow-lg shadow-purple-500/20' : isDark ? 'bg-slate-900/40 border-slate-700 text-slate-200 hover:bg-slate-800/40' : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50'}`}
                             >
-                                <span className="font-bold">แบบ 2 ใบ (อดีต/ปัจจุบัน)</span>
+                                <span className="font-bold">แบบ 2 ใบ (สรุป)</span>
                                 <span className={`text-[10px] px-2 py-0.5 rounded-full ${readingType === '2-cards' ? 'bg-purple-500/30 text-white' : 'bg-slate-200 text-slate-600'}`}>
                                     ใช้ {cost * 2} เครดิต
                                 </span>
@@ -81,9 +83,21 @@ export const MenuState = ({ topic, setTopic, readingType, setReadingType, startR
                                 onClick={() => setReadingType('1-card')}
                                 className={`relative px-6 py-3 rounded-xl border transition-all flex flex-col items-center gap-1 ${readingType === '1-card' ? 'bg-purple-600 border-purple-500 text-white shadow-lg shadow-purple-500/20' : isDark ? 'bg-slate-900/40 border-slate-700 text-slate-200 hover:bg-slate-800/40' : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50'}`}
                             >
-                                <span className="font-bold">ใบเดียว</span>
+                                <span className="font-bold">ใบเดียว (เน้นๆ)</span>
                                 <span className={`text-[10px] px-2 py-0.5 rounded-full ${readingType === '1-card' ? 'bg-purple-500/30 text-white' : 'bg-slate-200 text-slate-600'}`}>
                                     ใช้ {cost} เครดิต
+                                </span>
+                            </button>
+                            <button
+                                onClick={() => setReadingType('celtic-cross')}
+                                className={`relative px-6 py-3 rounded-xl border transition-all flex flex-col items-center gap-1 ${readingType === 'celtic-cross' ? 'bg-amber-600 border-amber-500 text-white shadow-lg shadow-amber-500/20 ring-2 ring-amber-300/50' : isDark ? 'bg-slate-900/40 border-slate-700 text-slate-200 hover:bg-slate-800/40' : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50'}`}
+                            >
+                                <div className="flex items-center gap-2">
+                                    <Sparkles size={16} className={readingType === 'celtic-cross' ? 'text-white' : 'text-amber-500'} />
+                                    <span className="font-bold">Celtic Cross (10 ใบ)</span>
+                                </div>
+                                <span className={`text-[10px] px-2 py-0.5 rounded-full ${readingType === 'celtic-cross' ? 'bg-amber-500/30 text-white' : 'bg-slate-200 text-slate-600'}`}>
+                                    ใช้ {celticCost} เครดิต (จัดเต็ม)
                                 </span>
                             </button>
                         </>

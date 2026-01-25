@@ -25,3 +25,19 @@
     - [x] Add Background Music (BGM) with Fade-in/out <!-- id: 5.2 -->
     - [x] Add Sound Effects (Flip, Revealing, Button Click) <!-- id: 5.3 -->
     - [x] Add Sound Toggle Controls (BGM / SFX) <!-- id: 5.4 -->
+
+## Roadmap: Competitor Gap Analysis (Potential Upgrades)
+- [x] **Advanced Spreads (Celtic Cross)** <!-- id: 6 -->
+    - [x] Implement 10-card layout logic
+    - [x] Add specific position meanings (Cross, Crown, Root, Staff, etc.)
+- [ ] **UX Improvements** <!-- id: 6.5 -->
+    - [x] **Interactive Results**: Click card to view details (Modal)
+- [ ] **Deck Customization (Themes)** <!-- id: 7 -->
+    - [ ] Create "Theme Store" / Selector in Settings
+    - [ ] Add alternative Card Back designs
+    - [ ] Add "Radiant" or "Modern" Card Front styles
+- [ ] **AI-Powered Insights (LLM Integration)** <!-- id: 8 -->
+    - [ ] Replace static text with synthesized reading based on card combinations
+    - [ ] Add "Chat with your Draw" feature
+- [ ] **Community Features** <!-- id: 9 -->
+    - [ ] "Live Lounge" (Anonymous real-time draws feed)

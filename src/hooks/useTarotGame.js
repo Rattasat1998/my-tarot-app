@@ -16,7 +16,7 @@ export const useTarotGame = () => {
 
     const requiredPickCount = isDrawingFuture
         ? (readingType === '1-card' ? 2 : 3)
-        : (topic === 'monthly' ? 10 : (topic === 'daily' || topic === 'love' ? 1 : (readingType === '2-cards' ? 2 : 1)));
+        : (topic === 'monthly' ? 10 : (readingType === 'celtic-cross' ? 10 : (topic === 'daily' || topic === 'love' ? 1 : (readingType === '2-cards' ? 2 : 1))));
     const isSelectionComplete = selectedCards.length === requiredPickCount;
 
     // Automatically set reading type for specific topics

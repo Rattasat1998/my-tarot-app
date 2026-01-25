@@ -9,6 +9,7 @@ import { ManaParticles } from '../ui/ManaParticles';
 import { MysticBackground } from '../ui/MysticBackground';
 import { ShareCardTemplate } from './ShareCardTemplate';
 import { SaveMemoModal } from '../modals/SaveMemoModal';
+import { CardDetailModal } from '../modals/CardDetailModal';
 
 export const ResultState = ({
     topic,
@@ -22,7 +23,19 @@ export const ResultState = ({
     const { speak, stop, toggle, isSpeaking, isPaused } = useSpeech();
     const [isSharing, setIsSharing] = useState(false);
     const [showSaveModal, setShowSaveModal] = useState(false);
+    const [selectedDetailCard, setSelectedDetailCard] = useState(null);
+    const [detailLabel, setDetailLabel] = useState('');
     const shareTemplateRef = useRef(null);
+
+    const handleCardClick = (card, label) => {
+        setSelectedDetailCard(card);
+        setDetailLabel(label);
+    };
+
+    const closeDetailModal = () => {
+        setSelectedDetailCard(null);
+        setDetailLabel('');
+    };
 
     // Create full reading text for TTS
     const fullReadingText = useMemo(() => {
@@ -33,6 +46,9 @@ export const ResultState = ({
             let label = '';
             if (topic === 'monthly') {
                 label = `ใบที่ ${idx + 1}`;
+            } else if (readingType === 'celtic-cross') {
+                const labels = ['สถานการณ์ปัจจุบัน', 'อุปสรรค', 'เป้าหมาย', 'พื้นฐาน', 'อดีต', 'อนาคต', 'ทัศนคติ', 'อิทธิพลภายนอก', 'ความหวัง', 'บทสรุป'];
+                label = labels[idx] || `ใบที่ ${idx + 1}`;
             } else if (readingType === '1-card') {
                 label = idx === 0 ? 'ปัจจุบัน' : 'อนาคต';
             } else {
@@ -58,26 +74,19 @@ export const ResultState = ({
         setIsSharing(true);
 
         try {
-            // Wait a bit for fonts/images to be fully ready if needed
             await new Promise(resolve => setTimeout(resolve, 100));
-
             const canvas = await html2canvas(shareTemplateRef.current, {
-                useCORS: true, // Important for external images
-                scale: 2, // High resolution
+                useCORS: true,
+                scale: 2,
                 backgroundColor: null,
             });
-
-            // Convert to blob/url
             const image = canvas.toDataURL("image/png");
-
-            // Trigger download
             const link = document.createElement('a');
             link.href = image;
             link.download = `tarot-destiny-${Date.now()}.png`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-
         } catch (error) {
             console.error("Error generating share image:", error);
             alert("ขออภัย ไม่สามารถสร้างรูปภาพได้ในขณะนี้");
@@ -86,7 +95,6 @@ export const ResultState = ({
         }
     };
 
-    // TTS Button Component
     const TTSButton = () => (
         <div className="flex items-center gap-2">
             <button
@@ -119,7 +127,6 @@ export const ResultState = ({
         </div>
     );
 
-    // Share Button Component
     const ShareButton = () => (
         <button
             onClick={handleShare}
@@ -131,7 +138,6 @@ export const ResultState = ({
         </button>
     );
 
-    // Save Button Component
     const SaveButton = () => (
         <button
             onClick={() => setShowSaveModal(true)}
@@ -142,9 +148,6 @@ export const ResultState = ({
         </button>
     );
 
-    // Main Card to display in Share Template (Default to first card)
-    const cardToShare = selectedCards[0];
-
     // ---------------------------------------------------------
     // MONTHLY VIEW
     // ---------------------------------------------------------
@@ -154,13 +157,16 @@ export const ResultState = ({
                 <MysticBackground />
                 <ManaParticles count={50} />
 
-                {/* Hidden Template for Generation */}
-                <ShareCardTemplate
-                    ref={shareTemplateRef}
-                    cards={selectedCards}
-                    topic={topic}
-                    appName="ศาสตร์ดวงดาว"
-                />
+                <div style={{ position: 'absolute', top: -9999, left: -9999, width: '1200px' }}>
+                    <div ref={shareTemplateRef}>
+                        <ShareCardTemplate
+                            cards={selectedCards}
+                            topic={topic}
+                            readingType={readingType}
+                            appName="ศาสตร์ดวงดาว"
+                        />
+                    </div>
+                </div>
 
                 <SaveMemoModal
                     isOpen={showSaveModal}
@@ -169,6 +175,13 @@ export const ResultState = ({
                     readingType={readingType}
                     cards={selectedCards}
                     isDark={isDark}
+                />
+
+                <CardDetailModal
+                    isOpen={!!selectedDetailCard}
+                    onClose={closeDetailModal}
+                    card={selectedDetailCard}
+                    label={detailLabel}
                 />
 
                 <div className="mb-8 text-center">
@@ -184,7 +197,10 @@ export const ResultState = ({
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-4 w-full mb-12">
                     {selectedCards.map((card, idx) => (
                         <div key={card.id} className="flex flex-col items-center gap-2 animate-in zoom-in duration-500 group/card" style={{ animationDelay: `${idx * 100}ms` }}>
-                            <HolographicCard className="relative w-full aspect-[2/3] group-hover/card:scale-105 transition-transform duration-500">
+                            <HolographicCard
+                                className="relative w-full aspect-[2/3] group-hover/card:scale-105 transition-transform duration-500"
+                                onClick={() => handleCardClick(card, `ใบที่ ${idx + 1}`)}
+                            >
                                 <div className="absolute inset-0 bg-yellow-500/5 blur-xl group-hover/card:bg-yellow-500/10 transition-all"></div>
                                 <div className="relative w-full h-full overflow-hidden shadow-lg shadow-purple-900/40 z-10">
                                     <img src={card.img} alt={card.name} className="w-full h-full object-contain" />
@@ -238,226 +254,260 @@ export const ResultState = ({
     }
 
     // ---------------------------------------------------------
-    // STANDARD / MULTI-CARD VIEW
+    // STANDARD & CELTIC LAYOUT
     // ---------------------------------------------------------
     return (
-        <div className="w-full flex flex-col items-center animate-in fade-in slide-in-from-bottom-8 duration-700 max-w-5xl mx-auto relative overflow-hidden">
-            <MysticBackground />
-            <ManaParticles count={40} />
+        <div className="w-full relative flex flex-col items-center animate-in fade-in zoom-in duration-1000">
+            {/* Mystic Background */}
+            <div className="fixed inset-0 z-0">
+                <MysticBackground />
+            </div>
 
-            {/* Hidden Template for Generation */}
-            <ShareCardTemplate
-                ref={shareTemplateRef}
-                cards={selectedCards}
-                topic={topic}
-                appName="ศาสตร์ดวงดาว"
-            />
+            {/* Content Container */}
+            <div className="relative z-10 w-full max-w-6xl mx-auto px-4 flex flex-col items-center pb-24">
 
-            <SaveMemoModal
-                isOpen={showSaveModal}
-                onClose={() => setShowSaveModal(false)}
-                topic={topic}
-                readingType={readingType}
-                cards={selectedCards}
-                isDark={isDark}
-            />
+                {/* Header Actions */}
+                <div className="w-full flex justify-between items-center mb-6 pt-4">
+                    <button
+                        onClick={resetGame}
+                        className="p-2 rounded-full bg-slate-800/50 hover:bg-slate-700/50 text-slate-300 hover:text-white transition-all backdrop-blur-sm border border-slate-700"
+                    >
+                        <RefreshCw size={20} />
+                    </button>
 
-            {readingType === '1-card' && !isDrawingFuture && selectedCards.length === 1 ? (
-                <div className="w-full flex flex-col items-center">
-                    <div className="mb-8 text-center">
-                        <span className="px-4 py-1 border border-green-500/30 bg-green-500/10 text-green-300 text-sm tracking-wider uppercase">
-                            ปัจจุบัน / สถานการณ์ (พื้นฐาน)
-                        </span>
-                        <div className="mt-4 flex justify-center gap-3 flex-wrap">
-                            <TTSButton />
-                            <SaveButton />
-                            <ShareButton />
-                        </div>
-                    </div>
-                    <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 w-full relative">
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-yellow-500/10 blur-[100px] -z-10 pointer-events-none"></div>
+                    <div className="flex gap-2">
+                        <TTSButton />
 
-                        <HolographicCard className="relative w-72 h-[432px] sm:w-[300px] sm:h-[540px] animate-in zoom-in duration-700">
-                            <div className="absolute inset-0 bg-slate-950 overflow-hidden shadow-2xl shadow-purple-900/50 rounded-xl">
-                                <img src={selectedCards[0].img} alt={selectedCards[0].name} className="w-full h-full object-contain" />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none"></div>
-                            </div>
-                        </HolographicCard>
-                        <div className="flex-1 max-w-xl w-full">
-                            <div className="bg-slate-900/40 p-6 md:p-8 border border-slate-800 space-y-6">
-                                <div className="space-y-4">
-                                    <h3 className="text-2xl font-bold flex flex-wrap items-center gap-2 text-yellow-500">
-                                        <Sparkles className="text-yellow-500" />
-                                        <span>{selectedCards[0].name}</span>
-                                        <span className="text-lg text-yellow-200/80 font-normal">({selectedCards[0].nameThai})</span>
-                                    </h3>
-                                    <p className="text-slate-300 leading-relaxed text-lg pb-4 border-b border-slate-800 magic-text-reveal">
-                                        <span className="font-bold text-yellow-100">ความหมายปัจจุบัน:</span> {selectedCards[0].description}
-                                    </p>
-                                </div>
-                                <div className="relative group">
-                                    <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-indigo-600 blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>
-                                    <div className="relative p-6 bg-slate-950/80 border border-slate-800 flex flex-col items-center gap-4">
-                                        <div className="text-center space-y-2">
-                                            <h4 className="text-lg font-bold text-purple-300 uppercase tracking-widest">อนาคต / บทสรุป</h4>
-                                            <p className="text-sm text-slate-500">คำทำนายในอนาคตถูกล็อคไว้...</p>
-                                        </div>
-                                        <div className="w-full h-12 bg-slate-900/50 overflow-hidden blur-md select-none pointer-events-none">
-                                            การเปลี่ยนแปลงที่น่ายินดีกำลังจะเกิดขึ้นในชีวิตของคุณในเร็วๆ นี้
-                                        </div>
-                                        <button onClick={() => setShowFutureDialog(true)} className="mt-2 px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white font-bold transition-all shadow-lg shadow-purple-500/20 active:scale-95 flex items-center gap-2 rounded-none">
-                                            <RefreshCw size={18} /> สุ่มเพิ่มเพื่อดูอนาคต
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="mt-8 flex justify-center md:justify-start">
-                                <button onClick={resetGame} className="px-8 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-none font-medium transition-all">
-                                    กลับหน้าหลัก
-                                </button>
+                        <div style={{ position: 'absolute', top: -9999, left: -9999, width: '1200px' }}>
+                            <div ref={shareTemplateRef}>
+                                <ShareCardTemplate cards={selectedCards} topic={topic} readingType={readingType} appName="ศาสตร์ดวงดาว" />
                             </div>
                         </div>
-                    </div>
-                </div>
-            ) : (
-                <div className="w-full flex flex-col items-center">
-                    <div className="mb-12 text-center">
-                        <h2 className="text-3xl font-serif text-yellow-500 mb-2">
-                            คำทำนาย{READING_TOPICS.find(t => t.id === topic)?.label}
-                        </h2>
-                        <p className="text-slate-400 text-sm mb-4">
-                            {(isDrawingFuture || (readingType === '1-card' ? selectedCards.length === 2 : selectedCards.length === 3))
-                                ? `การทำนายสมบูรณ์ (${readingType === '1-card' ? 'ปัจจุบัน - อนาคต' : 'อดีต - ปัจจุบัน - อนาคต'})`
-                                : `การทำนายแบบ ${readingType === '1-card' ? '1 ใบ' : '2 ใบ'} (${readingType === '1-card' ? 'ปัจจุบัน' : 'อดีต และ ปัจจุบัน'})`}
-                        </p>
-                        <div className="flex justify-center gap-3 flex-wrap">
-                            <TTSButton />
-                            <SaveButton />
-                            <ShareButton />
-                        </div>
-                    </div>
 
-                    <div className={`grid grid-cols-1 ${(isDrawingFuture || selectedCards.length === 3) ? 'sm:grid-cols-3' : 'sm:grid-cols-2'} gap-8 md:gap-12 w-full mb-16 relative justify-items-center`}>
-                        {selectedCards.map((card, idx) => {
-                            let label = '';
-                            let badgeClass = '';
-                            const isThreeColumn = isDrawingFuture || selectedCards.length === 3;
-                            const sizeClass = isThreeColumn ? 'max-w-[280px]' : 'max-w-[320px]';
+                        <button
+                            onClick={handleShare}
+                            disabled={isSharing}
+                            className="flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium shadow-lg shadow-indigo-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {isSharing ? <Loader className="animate-spin" size={18} /> : <Share2 size={18} />}
+                            <span className="hidden sm:inline">Share</span>
+                        </button>
 
-                            if (readingType === '1-card') {
-                                // 1-card flow: Present -> Future
-                                label = idx === 0 ? 'ปัจจุบัน / สถานการณ์' : 'อนาคต / บทสรุป';
-                                badgeClass = idx === 0 ? 'border-green-500/30 bg-green-500/10 text-green-300' : 'border-purple-500/30 bg-purple-500/10 text-purple-300';
-                            } else {
-                                // 2-card flow: Past -> Present -> (Future)
-                                label = idx === 0 ? 'อดีต / พื้นฐาน' : idx === 1 ? 'ปัจจุบัน / สถานการณ์' : 'อนาคต / บทสรุป';
-                                badgeClass = idx === 0 ? 'border-blue-500/30 bg-blue-500/10 text-blue-300' :
-                                    idx === 1 ? 'border-green-500/30 bg-green-500/10 text-green-300' :
-                                        'border-purple-500/30 bg-purple-500/10 text-purple-300';
-                            }
-
-                            return (
-                                <div key={card.id} className="flex flex-col items-center gap-6 animate-in zoom-in duration-700" style={{ animationDelay: `${idx * 200}ms` }}>
-                                    <div className="text-center">
-                                        <span className={`px-4 py-1 border text-xs uppercase tracking-widest ${badgeClass}`}>
-                                            {label}
-                                        </span>
-                                    </div>
-                                    <HolographicCard className={`relative w-full ${sizeClass} aspect-[2/3] group/card`}>
-                                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-yellow-500/10 blur-[80px] group-hover/card:bg-yellow-500/20 transition-all pointer-events-none"></div>
-                                        <div className="relative w-full h-full overflow-hidden shadow-2xl shadow-purple-900/40 z-10 rounded-xl">
-                                            <img src={card.img} alt={card.name} className="w-full h-full object-contain bg-slate-950" />
-                                        </div>
-                                    </HolographicCard>
-                                    <div className="text-center">
-                                        <h4 className="font-bold text-yellow-500 text-lg">{card.name}</h4>
-                                        <div className="text-sm text-slate-400">({card.nameThai})</div>
-                                    </div>
-                                </div>
-                            );
-                        })}
-
-                        {!isDrawingFuture && selectedCards.length < (readingType === '1-card' ? 2 : 3) && (
-                            <div className="flex flex-col items-center gap-6 animate-in zoom-in duration-700" style={{ animationDelay: '400ms' }}>
-                                <div className="text-center">
-                                    <span className="px-4 py-1 border border-purple-500/30 bg-purple-500/10 text-purple-300 text-xs uppercase tracking-widest">
-                                        อนาคต / บทสรุป
-                                    </span>
-                                </div>
-                                <div className={`relative w-full ${(isDrawingFuture || selectedCards.length === 3) ? 'max-w-[280px]' : 'max-w-[320px]'} aspect-[2/3] overflow-hidden shadow-2xl bg-slate-900/40 border border-slate-800 border-dashed flex items-center justify-center group/locked`}>
-                                    <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-md z-10 flex flex-col items-center justify-center p-4 text-center">
-                                        <Search className="text-purple-500 mb-2 animate-pulse" size={32} />
-                                        <div className="text-[10px] text-slate-500 uppercase tracking-widest mb-1">Locked Future</div>
-                                        <button onClick={() => setShowFutureDialog(true)} className="text-[10px] px-3 py-1 bg-purple-600 hover:bg-purple-500 text-white rounded-none transition-all shadow-lg active:scale-95">
-                                            Unlock Future
-                                        </button>
-                                    </div>
-                                    <div className="w-full h-full opacity-20 filter grayscale">
-                                        <img src={selectedCards[0].img} alt="Locked Future" className="w-full h-full object-contain blur-sm" />
-                                    </div>
-                                </div>
-                                <div className="text-center opacity-40">
-                                    <h4 className="font-bold text-slate-500">???</h4>
-                                    <div className="text-sm text-slate-600">(รอการปลดล็อค)</div>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-
-                    <div className="w-full max-w-4xl space-y-6 bg-slate-900/30 p-6 md:p-8">
-                        <h3 className="text-xl font-serif text-center mb-8 text-purple-300">ความหมายโดยละเอียด</h3>
-                        {selectedCards.map((card, idx) => {
-                            let label = '';
-                            let iconColor = '';
-                            if (readingType === '1-card') {
-                                label = idx === 0 ? 'ปัจจุบัน / สถานการณ์' : 'อนาคต / บทสรุป';
-                                iconColor = idx === 0 ? 'bg-green-600' : 'bg-purple-600';
-                            } else {
-                                label = idx === 0 ? 'อดีต / พื้นฐาน' : idx === 1 ? 'ปัจจุบัน / สถานการณ์' : 'อนาคต / บทสรุป';
-                                iconColor = idx === 0 ? 'bg-blue-600' : idx === 1 ? 'bg-green-600' : 'bg-purple-600';
-                            }
-
-                            return (
-                                <div key={card.id} className="flex flex-col md:flex-row gap-6 border-b border-slate-800/50 pb-8 last:border-0 last:pb-0 items-center md:items-start group">
-                                    <div className="relative shrink-0 w-32 aspect-[2/3] group/glow">
-                                        <div className="absolute inset-0 bg-yellow-500/10 blur-2xl group-hover/glow:bg-yellow-500/20 transition-all duration-700"></div>
-                                        <div className="relative w-full h-full overflow-hidden shadow-xl z-10">
-                                            <img src={card.img} alt={card.name} className="w-full h-full object-contain" />
-                                        </div>
-                                    </div>
-                                    <div className="flex-1">
-                                        <div className="flex items-center gap-3 mb-2 justify-center md:justify-start">
-                                            <div className={`w-6 h-6 flex items-center justify-center text-[10px] font-bold text-white border border-white/20 ${iconColor}`}>
-                                                {idx + 1}
-                                            </div>
-                                            <span className="font-bold text-lg text-yellow-200">
-                                                {label}
-                                            </span>
-                                        </div>
-                                        <div className="text-center md:text-left">
-                                            <span className="font-bold text-yellow-500 text-lg block md:inline">{card.name} ({card.nameThai}):</span>
-                                            <p className="block md:inline text-slate-300 leading-relaxed md:ml-2 magic-text-reveal">
-                                                {card.description}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            );
-                        })}
-
-                        <div className="mt-8 p-4 bg-slate-800/40 text-center">
-                            <p className="text-sm text-slate-400">* คำแจ้งเตือนเป็นเพียงแนวทาง การพิจารณาและตัดสินใจอยู่ที่ตัวคุณเอง</p>
-                        </div>
-                    </div>
-
-                    <div className="mt-12">
-                        <button onClick={resetGame} className="px-10 py-4 bg-purple-600 hover:bg-purple-500 text-white font-bold transition-all shadow-lg shadow-purple-500/20 rounded-none">
-                            กลับหน้าหลัก
+                        <button
+                            onClick={() => setShowSaveModal(true)}
+                            className="flex items-center gap-2 px-4 py-2 rounded-full bg-green-600 hover:bg-green-500 text-white font-medium shadow-lg shadow-green-500/30 transition-all"
+                        >
+                            <Save size={18} />
+                            <span className="hidden sm:inline">Save</span>
                         </button>
                     </div>
                 </div>
-            )}
-            <GoogleAdSlot className="mt-16" />
+
+                {/* Title */}
+                <h2 className="text-3xl md:text-5xl font-serif text-white mb-2 text-center drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]">
+                    ลิขิตแห่งดวงดาว
+                </h2>
+                <div className="h-1 w-24 bg-gradient-to-r from-transparent via-purple-500 to-transparent mb-10"></div>
+
+                {/* Main Card Grid */}
+                <div className={`grid gap-4 sm:gap-6 w-full ${readingType === 'celtic-cross'
+                    ? 'grid-cols-1 lg:grid-cols-3 max-w-6xl mx-auto'
+                    : readingType === '2-cards'
+                        ? 'grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto'
+                        : 'grid-cols-1 max-w-md mx-auto'
+                    }`}>
+                    {readingType === 'celtic-cross' ? (
+                        // Celtic Cross Layout
+                        <>
+                            <div className="lg:col-span-2 relative min-h-[600px] flex items-center justify-center p-4 sm:p-8 bg-slate-900/30 rounded-3xl border border-slate-700/50">
+                                <div className="relative w-full h-full max-w-md mx-auto aspect-square">
+                                    {/* Helper for rendering card content */}
+                                    {/* 1. Present */}
+                                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 w-24 sm:w-32 aspect-[2/3]">
+                                        <HolographicCard className="w-full h-full" onClick={() => handleCardClick(selectedCards[0], "1. ปัจจุบัน")}>
+                                            <div className="w-full h-full rounded-lg overflow-hidden relative shadow-xl">
+                                                <img src={selectedCards[0].img} alt="Present" className="w-full h-full object-cover" />
+                                                <div className="absolute bottom-0 inset-x-0 bg-black/70 py-1 px-2 text-center text-[10px] text-white font-bold">1. ปัจจุบัน</div>
+                                            </div>
+                                        </HolographicCard>
+                                    </div>
+                                    {/* 2. Challenge */}
+                                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-24 sm:w-32 aspect-[2/3] rotate-90 opacity-90 hover:rotate-0 transition-all duration-500">
+                                        <HolographicCard className="w-full h-full" onClick={() => handleCardClick(selectedCards[1], "2. อุปสรรค")}>
+                                            <div className="w-full h-full rounded-lg overflow-hidden relative shadow-xl">
+                                                <img src={selectedCards[1].img} alt="Challenge" className="w-full h-full object-cover" />
+                                                <div className="absolute bottom-0 inset-x-0 bg-black/70 py-1 px-2 text-center text-[10px] text-white font-bold">2. อุปสรรค</div>
+                                            </div>
+                                        </HolographicCard>
+                                    </div>
+                                    {/* 3. Crown */}
+                                    <div className="absolute top-0 left-1/2 -translate-x-1/2 z-10 w-24 sm:w-32 aspect-[2/3]">
+                                        <HolographicCard className="w-full h-full" onClick={() => handleCardClick(selectedCards[2], "3. เป้าหมาย")}>
+                                            <div className="w-full h-full rounded-lg overflow-hidden relative shadow-xl">
+                                                <img src={selectedCards[2].img} alt="Goal" className="w-full h-full object-cover" />
+                                                <div className="absolute bottom-0 inset-x-0 bg-black/70 py-1 px-2 text-center text-[10px] text-white font-bold">3. เป้าหมาย</div>
+                                            </div>
+                                        </HolographicCard>
+                                    </div>
+                                    {/* 4. Root */}
+                                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 z-10 w-24 sm:w-32 aspect-[2/3]">
+                                        <HolographicCard className="w-full h-full" onClick={() => handleCardClick(selectedCards[3], "4. พื้นฐาน")}>
+                                            <div className="w-full h-full rounded-lg overflow-hidden relative shadow-xl">
+                                                <img src={selectedCards[3].img} alt="Foundation" className="w-full h-full object-cover" />
+                                                <div className="absolute bottom-0 inset-x-0 bg-black/70 py-1 px-2 text-center text-[10px] text-white font-bold">4. พื้นฐาน</div>
+                                            </div>
+                                        </HolographicCard>
+                                    </div>
+                                    {/* 5. Past */}
+                                    <div className="absolute top-1/2 left-0 -translate-y-1/2 z-10 w-24 sm:w-32 aspect-[2/3]">
+                                        <HolographicCard className="w-full h-full" onClick={() => handleCardClick(selectedCards[4], "5. อดีต")}>
+                                            <div className="w-full h-full rounded-lg overflow-hidden relative shadow-xl">
+                                                <img src={selectedCards[4].img} alt="Past" className="w-full h-full object-cover" />
+                                                <div className="absolute bottom-0 inset-x-0 bg-black/70 py-1 px-2 text-center text-[10px] text-white font-bold">5. อดีต</div>
+                                            </div>
+                                        </HolographicCard>
+                                    </div>
+                                    {/* 6. Future */}
+                                    <div className="absolute top-1/2 right-0 -translate-y-1/2 z-10 w-24 sm:w-32 aspect-[2/3]">
+                                        <HolographicCard className="w-full h-full" onClick={() => handleCardClick(selectedCards[5], "6. อนาคต")}>
+                                            <div className="w-full h-full rounded-lg overflow-hidden relative shadow-xl">
+                                                <img src={selectedCards[5].img} alt="Future" className="w-full h-full object-cover" />
+                                                <div className="absolute bottom-0 inset-x-0 bg-black/70 py-1 px-2 text-center text-[10px] text-white font-bold">6. อนาคต</div>
+                                            </div>
+                                        </HolographicCard>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="flex flex-col gap-4 p-4 items-center justify-center bg-slate-900/30 rounded-3xl border border-slate-700/50">
+                                {/* Stack cards 7-10 */}
+                                {[9, 8, 7, 6].map((idx, i) => {
+                                    const label = idx === 9 ? '10. บทสรุป' : idx === 8 ? '9. หวัง/กลัว' : idx === 7 ? '8. อิทธิพล' : '7. ทัศนคติ';
+                                    return (
+                                        <div key={idx} className="w-24 sm:w-32 aspect-[2/3] scale-90 hover:scale-100 transition-transform duration-300">
+                                            <HolographicCard
+                                                className="w-full h-full"
+                                                onClick={() => handleCardClick(selectedCards[idx], label)}
+                                            >
+                                                <div className="w-full h-full rounded-lg overflow-hidden relative shadow-xl">
+                                                    <img src={selectedCards[idx].img} alt={`Card ${idx + 1}`} className="w-full h-full object-cover" />
+                                                    <div className="absolute bottom-0 inset-x-0 bg-black/70 py-1 px-2 text-center text-[10px] text-white font-bold">
+                                                        {label}
+                                                    </div>
+                                                </div>
+                                            </HolographicCard>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </>
+                    ) : (
+                        // Standard Layout
+                        <>
+                            {selectedCards.map((card, idx) => {
+                                let label = '';
+                                if (readingType === '1-card') label = idx === 0 ? 'ไพ่ใบที่เลือก' : 'บทสรุปอนาคต';
+                                else label = idx === 0 ? 'อดีต / สาเหตุ' : idx === 1 ? 'ปัจจุบัน / สถานการณ์' : 'อนาคต / แนวโน้ม';
+
+                                return (
+                                    <div key={card.id} className="flex flex-col items-center gap-4 animate-in zoom-in duration-700" style={{ animationDelay: `${idx * 200}ms` }}>
+                                        <span className="px-3 py-1 bg-slate-800/80 rounded-full text-xs text-purple-200 border border-purple-500/30">{label}</span>
+                                        <div className="w-full max-w-[320px] aspect-[2/3]">
+                                            <HolographicCard
+                                                className="w-full h-full"
+                                                onClick={() => handleCardClick(card, label)}
+                                            >
+                                                <div className="relative w-full h-full overflow-hidden shadow-2xl shadow-purple-900/40 z-10 rounded-xl">
+                                                    <img src={card.img} alt={card.name} className="w-full h-full object-contain bg-slate-950" />
+                                                </div>
+                                            </HolographicCard>
+                                        </div>
+                                        <h3 className="font-bold text-yellow-500">{card.name}</h3>
+                                    </div>
+                                );
+                            })}
+
+                            {/* Future Locked Card (Only for 1-card/2-cards modes that support it) */}
+                            {!isDrawingFuture && selectedCards.length < (readingType === '1-card' ? 2 : 3) && (
+                                <div className="flex flex-col items-center gap-4 animate-in zoom-in duration-700 delay-300">
+                                    <span className="px-3 py-1 bg-slate-800/80 rounded-full text-xs text-slate-400 border border-slate-700">อนาคต</span>
+                                    <div className="w-full max-w-[280px] aspect-[2/3] bg-slate-900/40 border border-slate-800 border-dashed rounded-xl flex flex-col items-center justify-center p-4">
+                                        <Search className="text-purple-500 mb-2 animate-pulse" />
+                                        <button onClick={() => setShowFutureDialog(true)} className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white text-xs rounded-lg transition-colors">
+                                            Unlock Future
+                                        </button>
+                                    </div>
+                                    <div className="text-center opacity-40">
+                                        <h4 className="font-bold text-slate-500">???</h4>
+                                        <div className="text-sm text-slate-600">(รอการปลดล็อค)</div>
+                                    </div>
+                                </div>
+                            )}
+                        </>
+                    )}
+                </div>
+
+                {/* Meanings Section */}
+                <div className="w-full max-w-4xl mt-12 space-y-8 bg-slate-900/40 p-6 rounded-3xl border border-slate-800 backdrop-blur-sm">
+                    <h3 className="text-2xl font-serif text-center text-purple-300 mb-8">ความหมายโดยละเอียด</h3>
+                    {selectedCards.map((card, idx) => {
+                        let label = '';
+                        if (readingType === 'celtic-cross') {
+                            const labels = ['สถานการณ์ปัจจุบัน', 'อุปสรรค', 'เป้าหมาย/ความคิด', 'พื้นฐาน/จิตใต้สำนึก', 'อดีต', 'อนาคตอันใกล้', 'ทัศนคติ', 'อิทธิพลภายนอก', 'ความหวัง/ความกลัว', 'บทสรุป'];
+                            label = `${idx + 1}. ${labels[idx]}`;
+                        } else if (readingType === '1-card') {
+                            label = idx === 0 ? 'ปัจจุบัน' : 'อนาคต';
+                        } else {
+                            label = idx === 0 ? 'อดีต' : idx === 1 ? 'ปัจจุบัน' : 'อนาคต';
+                        }
+
+                        return (
+                            <div key={card.id} className="flex flex-col md:flex-row gap-6 border-b border-slate-800/50 pb-8 last:border-0 last:pb-0 items-center md:items-start group">
+                                <div className="relative shrink-0 w-32 aspect-[2/3] group/glow">
+                                    <div className="absolute inset-0 bg-yellow-500/10 blur-2xl group-hover/glow:bg-yellow-500/20 transition-all duration-700"></div>
+                                    <div className="relative w-full h-full overflow-hidden shadow-xl z-10">
+                                        <img src={card.img} alt={card.name} className="w-full h-full object-contain" />
+                                    </div>
+                                </div>
+                                <div className="flex-1">
+                                    <div className="flex items-center gap-3 mb-2 justify-center md:justify-start">
+                                        <div className="shrink-0 w-6 h-6 rounded-none bg-purple-900/30 flex items-center justify-center text-xs font-bold text-purple-300 border border-purple-500/20">
+                                            {idx + 1}
+                                        </div>
+                                        <div className="flex items-baseline gap-2">
+                                            <span className="font-bold text-yellow-500 text-lg">{card.name}</span>
+                                            <span className="text-sm text-slate-400">({card.nameThai})</span>
+                                        </div>
+                                    </div>
+                                    <p className="text-sm md:text-base text-slate-300 leading-relaxed text-center md:text-left">{card.description}</p>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+
+                <div className="mt-12 flex justify-center">
+                    <button onClick={resetGame} className="px-8 py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-full font-bold shadow-lg shadow-purple-500/20 transition-all hover:scale-105">
+                        กลับหน้าหลัก
+                    </button>
+                </div>
+
+                <GoogleAdSlot className="mt-16" />
+
+                <SaveMemoModal
+                    isOpen={showSaveModal}
+                    onClose={() => setShowSaveModal(false)}
+                    selectedCards={selectedCards}
+                    readingType={readingType}
+                    topic={topic}
+                />
+
+                <CardDetailModal
+                    isOpen={!!selectedDetailCard}
+                    onClose={closeDetailModal}
+                    card={selectedDetailCard}
+                    label={detailLabel}
+                />
+            </div>
         </div>
     );
 };

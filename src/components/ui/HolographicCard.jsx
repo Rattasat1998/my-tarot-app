@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 
-export const HolographicCard = ({ children, className = '' }) => {
+export const HolographicCard = ({ children, className = '', onClick, ...props }) => {
     const cardRef = useRef(null);
     const [transform, setTransform] = useState('');
     const [sheen, setSheen] = useState('50% 50%');
@@ -40,6 +40,8 @@ export const HolographicCard = ({ children, className = '' }) => {
             className={`relative transition-transform duration-300 ease-out preserve-3d will-change-transform cursor-pointer ${className}`}
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
+            onClick={onClick}
+            {...props}
             style={{
                 transform,
                 transformStyle: 'preserve-3d'
