@@ -64,7 +64,8 @@ export const PickingState = ({
     resetGame,
     topic,
     readingType,
-    isDrawingFuture
+    isDrawingFuture,
+    playSFX
 }) => {
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
     const [showMeditation, setShowMeditation] = useState(false);
@@ -197,10 +198,22 @@ export const PickingState = ({
                         {/* Cutting Animation Cards */}
                         {isCuttingCenter && (
                             <>
-                                <div className="absolute inset-0 bg-purple-600 rounded-xl shadow-lg border-2 border-purple-400" style={{ animation: 'cutTop 2s ease-in-out infinite' }}>
+                                <div className="absolute inset-0 bg-purple-600 rounded-xl shadow-lg border-2 border-purple-400"
+                                    style={{
+                                        animationName: 'cutTop',
+                                        animationDuration: '2s',
+                                        animationTimingFunction: 'ease-in-out',
+                                        animationIterationCount: 'infinite'
+                                    }}>
                                     <CardBack />
                                 </div>
-                                <div className="absolute inset-0 bg-purple-600 rounded-xl shadow-lg border-2 border-purple-400" style={{ animation: 'cutBottom 2s ease-in-out infinite' }}>
+                                <div className="absolute inset-0 bg-purple-600 rounded-xl shadow-lg border-2 border-purple-400"
+                                    style={{
+                                        animationName: 'cutBottom',
+                                        animationDuration: '2s',
+                                        animationTimingFunction: 'ease-in-out',
+                                        animationIterationCount: 'infinite'
+                                    }}>
                                     <div className="absolute inset-0 bg-black/20"></div> {/* Darken bottom packet */}
                                     <CardBack />
                                 </div>
@@ -226,14 +239,20 @@ export const PickingState = ({
                             return (
                                 <div
                                     key={card.id}
-                                    onClick={() => !isLocked && !isGathering && handleCardPick(card)}
+                                    onClick={() => {
+                                        if (!isLocked && !isGathering) {
+                                            playSFX?.('flip');
+                                            handleCardPick(card);
+                                        }
+                                    }}
                                     className={`relative w-20 h-32 sm:w-28 sm:h-44 md:w-32 md:h-48 transition-all duration-300 ${isLocked ? 'cursor-not-allowed grayscale-[0.8] opacity-60' : 'cursor-pointer'} ${isSelected ? '-translate-y-10 scale-110 z-30' : 'hover:-translate-y-6 hover:scale-110 hover:z-20'}`}
                                     style={{
                                         zIndex: i,
                                         marginLeft: i % 10 === 0 ? 0 : '-50%',
-                                        animation: isGathering
-                                            ? 'none'
-                                            : `dealCard 0.8s cubic-bezier(0.25, 1, 0.5, 1) backwards`,
+                                        animationName: isGathering ? 'none' : 'dealCard',
+                                        animationDuration: '0.8s',
+                                        animationTimingFunction: 'cubic-bezier(0.25, 1, 0.5, 1)',
+                                        animationFillMode: 'backwards',
                                         animationDelay: isGathering ? '0s' : dealDelay
                                     }}
                                 >
@@ -243,7 +262,10 @@ export const PickingState = ({
                                             : 'brightness-90 hover:brightness-110'
                                             }`}
                                         style={{
-                                            animation: !isSelected && !isGathering ? `floatCard 4s ease-in-out infinite` : 'none',
+                                            animationName: !isSelected && !isGathering ? 'floatCard' : 'none',
+                                            animationDuration: '4s',
+                                            animationTimingFunction: 'ease-in-out',
+                                            animationIterationCount: 'infinite',
                                             animationDelay: floatDelay
                                         }}
                                     >

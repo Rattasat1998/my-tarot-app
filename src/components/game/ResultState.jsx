@@ -1,11 +1,14 @@
-import React, { useMemo } from 'react';
-import { Sparkles, RefreshCw, Search, Volume2, VolumeX, Pause, Play } from 'lucide-react';
+import React, { useMemo, useRef, useState } from 'react';
+import { Sparkles, RefreshCw, Search, Volume2, VolumeX, Pause, Play, Share2, Download, Loader, Save } from 'lucide-react';
+import html2canvas from 'html2canvas';
 import { READING_TOPICS } from '../../constants/readingTopics';
 import { GoogleAdSlot } from '../ui/GoogleAdSlot';
 import { useSpeech } from '../../hooks/useSpeech';
 import { HolographicCard } from '../ui/HolographicCard';
 import { ManaParticles } from '../ui/ManaParticles';
 import { MysticBackground } from '../ui/MysticBackground';
+import { ShareCardTemplate } from './ShareCardTemplate';
+import { SaveMemoModal } from '../modals/SaveMemoModal';
 
 export const ResultState = ({
     topic,
@@ -13,9 +16,13 @@ export const ResultState = ({
     selectedCards,
     resetGame,
     isDrawingFuture,
-    setShowFutureDialog
+    setShowFutureDialog,
+    isDark
 }) => {
     const { speak, stop, toggle, isSpeaking, isPaused } = useSpeech();
+    const [isSharing, setIsSharing] = useState(false);
+    const [showSaveModal, setShowSaveModal] = useState(false);
+    const shareTemplateRef = useRef(null);
 
     // Create full reading text for TTS
     const fullReadingText = useMemo(() => {
@@ -43,6 +50,39 @@ export const ResultState = ({
             stop();
         } else {
             speak(fullReadingText);
+        }
+    };
+
+    const handleShare = async () => {
+        if (!shareTemplateRef.current) return;
+        setIsSharing(true);
+
+        try {
+            // Wait a bit for fonts/images to be fully ready if needed
+            await new Promise(resolve => setTimeout(resolve, 100));
+
+            const canvas = await html2canvas(shareTemplateRef.current, {
+                useCORS: true, // Important for external images
+                scale: 2, // High resolution
+                backgroundColor: null,
+            });
+
+            // Convert to blob/url
+            const image = canvas.toDataURL("image/png");
+
+            // Trigger download
+            const link = document.createElement('a');
+            link.href = image;
+            link.download = `tarot-destiny-${Date.now()}.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+        } catch (error) {
+            console.error("Error generating share image:", error);
+            alert("ขออภัย ไม่สามารถสร้างรูปภาพได้ในขณะนี้");
+        } finally {
+            setIsSharing(false);
         }
     };
 
@@ -79,6 +119,32 @@ export const ResultState = ({
         </div>
     );
 
+    // Share Button Component
+    const ShareButton = () => (
+        <button
+            onClick={handleShare}
+            disabled={isSharing}
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-pink-600 to-rose-500 text-white shadow-lg shadow-pink-500/30 hover:scale-105 transition-all text-sm font-bold disabled:opacity-70 disabled:cursor-not-allowed"
+        >
+            {isSharing ? <Loader size={18} className="animate-spin" /> : <Share2 size={18} />}
+            {isSharing ? 'กำลังสร้างรูป...' : 'แจก IG Story'}
+        </button>
+    );
+
+    // Save Button Component
+    const SaveButton = () => (
+        <button
+            onClick={() => setShowSaveModal(true)}
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-slate-700 hover:bg-slate-600 text-white transition-all text-sm font-bold"
+        >
+            <Save size={18} />
+            บันทึก
+        </button>
+    );
+
+    // Main Card to display in Share Template (Default to first card)
+    const cardToShare = selectedCards[0];
+
     // ---------------------------------------------------------
     // MONTHLY VIEW
     // ---------------------------------------------------------
@@ -87,10 +153,32 @@ export const ResultState = ({
             <div className="w-full flex flex-col items-center animate-in fade-in slide-in-from-bottom-8 duration-700 max-w-6xl mx-auto relative overflow-hidden">
                 <MysticBackground />
                 <ManaParticles count={50} />
+
+                {/* Hidden Template for Generation */}
+                <ShareCardTemplate
+                    ref={shareTemplateRef}
+                    cards={selectedCards}
+                    topic={topic}
+                    appName="ศาสตร์ดวงดาว"
+                />
+
+                <SaveMemoModal
+                    isOpen={showSaveModal}
+                    onClose={() => setShowSaveModal(false)}
+                    topic={topic}
+                    readingType={readingType}
+                    cards={selectedCards}
+                    isDark={isDark}
+                />
+
                 <div className="mb-8 text-center">
                     <h2 className="text-3xl font-serif text-yellow-500 mb-2">คำทำนายรายเดือน</h2>
                     <p className="text-slate-400 text-sm mb-4">ภาพรวมตลอดเดือนของคุณ</p>
-                    <TTSButton />
+                    <div className="flex justify-center gap-3 flex-wrap">
+                        <TTSButton />
+                        <SaveButton />
+                        <ShareButton />
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-4 w-full mb-12">
@@ -156,14 +244,34 @@ export const ResultState = ({
         <div className="w-full flex flex-col items-center animate-in fade-in slide-in-from-bottom-8 duration-700 max-w-5xl mx-auto relative overflow-hidden">
             <MysticBackground />
             <ManaParticles count={40} />
+
+            {/* Hidden Template for Generation */}
+            <ShareCardTemplate
+                ref={shareTemplateRef}
+                cards={selectedCards}
+                topic={topic}
+                appName="ศาสตร์ดวงดาว"
+            />
+
+            <SaveMemoModal
+                isOpen={showSaveModal}
+                onClose={() => setShowSaveModal(false)}
+                topic={topic}
+                readingType={readingType}
+                cards={selectedCards}
+                isDark={isDark}
+            />
+
             {readingType === '1-card' && !isDrawingFuture && selectedCards.length === 1 ? (
                 <div className="w-full flex flex-col items-center">
                     <div className="mb-8 text-center">
                         <span className="px-4 py-1 border border-green-500/30 bg-green-500/10 text-green-300 text-sm tracking-wider uppercase">
                             ปัจจุบัน / สถานการณ์ (พื้นฐาน)
                         </span>
-                        <div className="mt-4">
+                        <div className="mt-4 flex justify-center gap-3 flex-wrap">
                             <TTSButton />
+                            <SaveButton />
+                            <ShareButton />
                         </div>
                     </div>
                     <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 w-full relative">
@@ -222,7 +330,11 @@ export const ResultState = ({
                                 ? `การทำนายสมบูรณ์ (${readingType === '1-card' ? 'ปัจจุบัน - อนาคต' : 'อดีต - ปัจจุบัน - อนาคต'})`
                                 : `การทำนายแบบ ${readingType === '1-card' ? '1 ใบ' : '2 ใบ'} (${readingType === '1-card' ? 'ปัจจุบัน' : 'อดีต และ ปัจจุบัน'})`}
                         </p>
-                        <TTSButton />
+                        <div className="flex justify-center gap-3 flex-wrap">
+                            <TTSButton />
+                            <SaveButton />
+                            <ShareButton />
+                        </div>
                     </div>
 
                     <div className={`grid grid-cols-1 ${(isDrawingFuture || selectedCards.length === 3) ? 'sm:grid-cols-3' : 'sm:grid-cols-2'} gap-8 md:gap-12 w-full mb-16 relative justify-items-center`}>

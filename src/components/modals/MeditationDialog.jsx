@@ -11,18 +11,17 @@ export const MeditationDialog = ({ isOpen, onComplete }) => {
         }
 
         const timer = setInterval(() => {
-            setTimeLeft((prev) => {
-                if (prev <= 1) {
-                    clearInterval(timer);
-                    onComplete();
-                    return 0;
-                }
-                return prev - 1;
-            });
+            setTimeLeft((prev) => prev > 0 ? prev - 1 : 0);
         }, 1000);
 
         return () => clearInterval(timer);
-    }, [isOpen, onComplete]);
+    }, [isOpen]);
+
+    useEffect(() => {
+        if (timeLeft === 0 && isOpen) {
+            onComplete();
+        }
+    }, [timeLeft, isOpen, onComplete]);
 
     if (!isOpen) return null;
 
@@ -63,8 +62,8 @@ export const MeditationDialog = ({ isOpen, onComplete }) => {
                             <div
                                 key={i}
                                 className={`w-3 h-3 rounded-full transition-all duration-500 ${i < (5 - timeLeft)
-                                        ? 'bg-purple-400 scale-110 shadow-[0_0_10px_rgba(192,132,252,0.8)]'
-                                        : 'bg-slate-800'
+                                    ? 'bg-purple-400 scale-110 shadow-[0_0_10px_rgba(192,132,252,0.8)]'
+                                    : 'bg-slate-800'
                                     }`}
                             />
                         ))}

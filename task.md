@@ -1,0 +1,27 @@
+# Task List
+
+- [x] Refactor Daily Login to Stamp System
+    - [x] Database Schema Updates
+    - [x] Frontend Implementation
+- [x] Display Streak Progress
+    - [x] Update `ProfilePage.jsx` to show Streak stats
+    - [x] Update `DailyRewardModal.jsx` to show Total Streak count
+- [x] Implement Shareable Destiny Card
+    - [x] Install `html2canvas`
+    - [x] Create `ShareCardTemplate` component
+    - [x] Add "Share/Download" button to Result View
+    - [x] Support Multiple Cards Layout (Vertical Stack)
+- [x] Deployment Preparation
+    - [x] Verify Production Build
+    - [x] configure `vercel.json`
+    - [x] Review Environment Variables
+- [x] Implement Reading History & Memo
+    - [x] Create `SaveMemoModal`
+    - [x] Integrate "Save" button in `ResultState`
+    - [x] Create `HistoryPage` with list view
+    - [x] Add navigation to History
+- [x] Enhancing Sound & Atmosphere <!-- id: 5 -->
+    - [x] Create `SoundManager` context/hook <!-- id: 5.1 -->
+    - [x] Add Background Music (BGM) with Fade-in/out <!-- id: 5.2 -->
+    - [x] Add Sound Effects (Flip, Revealing, Button Click) <!-- id: 5.3 -->
+    - [x] Add Sound Toggle Controls (BGM / SFX) <!-- id: 5.4 -->

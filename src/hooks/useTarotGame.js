@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 import { TAROT_CARDS } from '../data/tarotCards';
-import { useAudio } from './useAudio';
 
 export const useTarotGame = () => {
     const [gameState, setGameState] = useState('MENU');
@@ -14,8 +13,6 @@ export const useTarotGame = () => {
     const [showFutureDialog, setShowFutureDialog] = useState(false);
     const [calendarType, setCalendarType] = useState('lunar');
     const [articleId, setArticleId] = useState(null);
-
-    const { playRevealSound } = useAudio();
 
     const requiredPickCount = isDrawingFuture
         ? (readingType === '1-card' ? 2 : 3)
@@ -66,7 +63,6 @@ export const useTarotGame = () => {
     }, [topic]);
 
     const handleCardPick = useCallback((card) => {
-        playRevealSound();
         setSelectedCards(prev => {
             const isSelected = prev.some(c => c.id === card.id);
             const originalCount = readingType === '1-card' ? 1 : 2;
@@ -83,8 +79,7 @@ export const useTarotGame = () => {
                 return [...prev, card];
             }
         });
-    }, [requiredPickCount, playRevealSound, isDrawingFuture, readingType]);
-
+    }, [requiredPickCount, isDrawingFuture, readingType]);
     const confirmReading = useCallback(() => {
         if (selectedCards.length !== requiredPickCount) return;
 
@@ -111,7 +106,7 @@ export const useTarotGame = () => {
     }, [deck]);
 
     const manualShuffle = useCallback(() => {
-        playRevealSound();
+
 
         // Logical Reset
         if (isDrawingFuture) {
@@ -127,10 +122,10 @@ export const useTarotGame = () => {
         const shuffledDeck = [...baseDeck].sort(() => 0.5 - Math.random());
         setDeck(shuffledDeck);
 
-    }, [playRevealSound, isDrawingFuture, readingType, topic]);
+    }, [isDrawingFuture, readingType, topic]);
 
     const manualCut = useCallback(() => {
-        playRevealSound();
+
 
         // Logical Reset
         if (isDrawingFuture) {
@@ -146,7 +141,7 @@ export const useTarotGame = () => {
             return [...currentDeck.slice(cutPoint), ...currentDeck.slice(0, cutPoint)];
         });
 
-    }, [playRevealSound, isDrawingFuture, readingType]);
+    }, [isDrawingFuture, readingType]);
 
     return {
         gameState, setGameState,

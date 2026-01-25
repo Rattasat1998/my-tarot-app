@@ -17,7 +17,7 @@ export const StatsCounter = () => {
             try {
                 // Get total users
                 const { count: userCount } = await supabase
-                    .from('user_credits')
+                    .from('profiles')
                     .select('*', { count: 'exact', head: true });
 
                 // Get total readings
