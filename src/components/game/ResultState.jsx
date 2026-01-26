@@ -491,7 +491,7 @@ export const ResultState = ({
                 <SaveMemoModal
                     isOpen={showSaveModal}
                     onClose={() => setShowSaveModal(false)}
-                    selectedCards={selectedCards}
+                    cards={selectedCards}
                     readingType={readingType}
                     topic={topic}
                 />
