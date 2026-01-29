@@ -39,7 +39,7 @@ export const GoogleAdSlot = ({ className = "" }) => {
                 <ins className="adsbygoogle"
                     style={{ display: 'block', textAlign: 'center' }}
                     data-ad-client="ca-pub-6454901300191005"
-                    data-ad-slot="tarot_auto_slot"
+                    data-ad-slot="9470221240"
                     data-ad-format="auto"
                     data-full-width-responsive="true"></ins>
             </div>

@@ -140,6 +140,7 @@ src/
 ## 📝 Changelog
 
 ### 2026-01-29
+- ตั้งค่า Ad Unit ID (`9470221240`) ใน `GoogleAdSlot.jsx`
 - เพิ่ม Google AdSense Meta Tag (`index.html`)
 - สร้างเอกสาร FEATURES.md
 
