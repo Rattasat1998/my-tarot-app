@@ -5,6 +5,8 @@ import { GamePage } from './pages/GamePage';
 import { ProfilePage } from './pages/ProfilePage';
 import { HistoryPage } from './pages/HistoryPage';
 import { AdminPage } from './pages/AdminPage';
+import { LottoInsightPage } from './pages/LottoInsightPage';
+import { LottoDetailPage } from './pages/LottoDetailPage';
 
 function App() {
   const [isDark, setIsDark] = useState(true);
@@ -24,8 +26,11 @@ function App() {
         <Route path="/" element={<GamePage isDark={isDark} setIsDark={setIsDark} />} />
         <Route path="/profile" element={<ProfilePage isDark={isDark} />} />
         <Route path="/history" element={<HistoryPage isDark={isDark} />} />
+        <Route path="/lotto" element={<LottoInsightPage />} />
+        <Route path="/lotto/:drawId" element={<LottoDetailPage />} />
         <Route path="/admin/*" element={<AdminPage isDark={isDark} />} />
       </Routes>
+
     </>
   );
 }

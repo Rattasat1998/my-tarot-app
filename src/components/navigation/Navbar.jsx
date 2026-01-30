@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, Sun, Moon, Coins, Plus, LogIn, LogOut, User, Clock, BookOpen, Volume2, VolumeX, Menu, X } from 'lucide-react';
+import { Sparkles, Sun, Moon, Coins, Plus, LogIn, LogOut, User, Clock, BookOpen, Volume2, VolumeX, Menu, X, TrendingUp } from 'lucide-react';
 import { CalendarDropdown } from './CalendarDropdown';
 import { ArticleDropdown } from './ArticleDropdown';
 import { useAuth } from '../../contexts/AuthContext';
@@ -49,6 +49,15 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
                         <div className="hidden sm:block">
                             <CalendarDropdown isDark={isDark} openCalendar={openCalendar} />
                         </div>
+
+                        {/* LottoInsight Button */}
+                        <button
+                            onClick={() => navigate('/lotto')}
+                            className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-lg bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 text-amber-400 hover:text-amber-300 hover:bg-amber-500/20 transition-all text-sm font-medium"
+                        >
+                            <TrendingUp size={16} />
+                            <span>LottoInsight</span>
+                        </button>
 
                         {toggleMute && (
                             <button
@@ -205,6 +214,13 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
                                     <div className="space-y-2">
                                         <ArticleDropdown openArticle={(id) => { openArticle(id); setIsMobileMenuOpen(false); }} isMobile={true} />
                                         <CalendarDropdown isDark={isDark} openCalendar={(type) => { openCalendar(type); setIsMobileMenuOpen(false); }} isMobile={true} />
+                                        <button
+                                            onClick={() => { navigate('/lotto'); setIsMobileMenuOpen(false); }}
+                                            className="w-full flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 rounded-lg text-amber-400"
+                                        >
+                                            <TrendingUp size={20} />
+                                            <span className="font-medium">LottoInsight</span>
+                                        </button>
                                     </div>
                                 </div>
 

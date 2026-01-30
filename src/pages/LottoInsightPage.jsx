@@ -1,0 +1,353 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { ArrowLeft, TrendingUp, Users, Flame, ChevronRight, Calendar, Trophy, Sparkles, FileText } from 'lucide-react';
+import { LuckyGeneratorModal } from '../components/modals/LuckyGeneratorModal';
+import * as lottoService from '../services/lottoService';
+// Fallback to static data if database is not available
+import { LOTTO_DRAWS, getUpcomingDraw as getStaticUpcoming, getPastDraws as getStaticPast } from '../data/lottoData';
+
+// Module-level cache to persist data across navigations
+let cachedUpcoming = null;
+let cachedPast = [];
+let dataLoaded = false;
+
+export const LottoInsightPage = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    // Check if coming back from detail page (use cache) or from home (reload)
+    const fromDetail = location.state?.fromDetail === true;
+    const shouldUseCache = fromDetail && dataLoaded;
+
+    // Always use light theme for LottoInsight page
+    const isDark = false;
+    const [activeTab, setActiveTab] = useState('historical');
+    const [showLuckyModal, setShowLuckyModal] = useState(false);
+    const [selectedDraw, setSelectedDraw] = useState(null);
+    // Initialize from cache if coming from detail page
+    const [loading, setLoading] = useState(!shouldUseCache);
+    const [upcomingDraw, setUpcomingDraw] = useState(shouldUseCache ? cachedUpcoming : null);
+    const [pastDraws, setPastDraws] = useState(shouldUseCache ? cachedPast : []);
+
+    // Fetch data from database, fallback to static data
+    // Only skip fetch if coming from detail page and cache exists
+    useEffect(() => {
+        if (shouldUseCache) return; // Skip if coming from detail and cache exists
+
+        const fetchData = async () => {
+            setLoading(true);
+            try {
+                const [upcoming, past] = await Promise.all([
+                    lottoService.getUpcomingDraw(),
+                    lottoService.getPastDraws()
+                ]);
+
+                let upcomingData, pastData;
+
+                if (upcoming) {
+                    upcomingData = lottoService.transformDrawForUI(upcoming);
+                } else {
+                    upcomingData = getStaticUpcoming();
+                }
+
+                if (past && past.length > 0) {
+                    pastData = past.map(d => lottoService.transformDrawForUI(d));
+                } else {
+                    pastData = getStaticPast();
+                }
+
+                // Save to cache
+                cachedUpcoming = upcomingData;
+                cachedPast = pastData;
+                dataLoaded = true;
+
+                setUpcomingDraw(upcomingData);
+                setPastDraws(pastData);
+            } catch (error) {
+                console.error('Error fetching lotto data:', error);
+                // Fallback to static data
+                const upcomingData = getStaticUpcoming();
+                const pastData = getStaticPast();
+
+                cachedUpcoming = upcomingData;
+                cachedPast = pastData;
+                dataLoaded = true;
+
+                setUpcomingDraw(upcomingData);
+                setPastDraws(pastData);
+            }
+            setLoading(false);
+        };
+        fetchData();
+    }, []);
+
+    const currentDraw = selectedDraw || upcomingDraw;
+
+    const tabConfig = [
+        { id: 'historical', label: 'สถิติย้อนหลัง', icon: TrendingUp },
+        { id: 'sources', label: 'สำนักดัง', icon: Users },
+        { id: 'trends', label: 'กระแสสังคม', icon: Flame }
+    ];
+
+    const sourceColors = {
+        green: { bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-700', badge: 'bg-green-100 text-green-600' },
+        pink: { bg: 'bg-pink-50', border: 'border-pink-200', text: 'text-pink-700', badge: 'bg-pink-100 text-pink-600' },
+        blue: { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-700', badge: 'bg-blue-100 text-blue-600' }
+    };
+
+    // Loading state
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-amber-50 flex flex-col items-center justify-center">
+                <div className="relative">
+                    {/* Spinning outer ring */}
+                    <div className="w-16 h-16 border-4 border-amber-200 border-t-amber-500 rounded-full animate-spin"></div>
+                    {/* Center icon */}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="text-2xl">🔮</span>
+                    </div>
+                </div>
+                <p className="mt-4 text-amber-600 font-medium animate-pulse">กำลังโหลดข้อมูล...</p>
+            </div>
+        );
+    }
+
+    return (
+        <div className={`min-h-screen ${isDark ? 'bg-slate-950 text-white' : 'bg-amber-50 text-slate-800'}`}>
+            {/* Header */}
+            <header className={`sticky top-0 z-40 ${isDark ? 'bg-slate-900/95 border-slate-800' : 'bg-white/95 border-amber-100'} border-b backdrop-blur-sm`}>
+                <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <button
+                            onClick={() => navigate('/')}
+                            className={`p-2 rounded-lg ${isDark ? 'hover:bg-slate-800' : 'hover:bg-amber-100'} transition-colors`}
+                        >
+                            <ArrowLeft size={20} />
+                        </button>
+                        <div>
+                            <h1 className="text-xl font-bold flex items-center gap-2">
+                                🔮 LottoInsight
+                            </h1>
+                            <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                                วิเคราะห์แนวทางสลากกินแบ่งรัฐบาล
+                            </p>
+                        </div>
+                    </div>
+                    <button
+                        onClick={() => setShowLuckyModal(true)}
+                        className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-2 rounded-full font-medium flex items-center gap-2 hover:scale-105 transition-transform shadow-lg"
+                    >
+                        <Sparkles size={16} />
+                        สุ่มเลขมงคล
+                    </button>
+                </div>
+            </header>
+
+            <main className="max-w-6xl mx-auto px-4 py-8 space-y-8">
+                {/* Section: Upcoming Draw */}
+                {upcomingDraw && (
+                    <section>
+                        <div className="flex items-center gap-2 mb-4">
+                            <Calendar size={20} className="text-amber-500" />
+                            <h2 className="text-lg font-bold">งวดที่กำลังจะมาถึง</h2>
+                        </div>
+
+                        <div className={`rounded-2xl p-6 ${isDark ? 'bg-slate-900' : 'bg-white'} shadow-lg`}>
+                            <div className="flex items-center justify-between mb-6">
+                                <div>
+                                    <h3 className="text-xl font-bold text-amber-500">{upcomingDraw.label}</h3>
+                                    <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                                        รวบรวมข้อมูลจากสถิติ 22 ปี, สำนักดัง, และโซเชียล
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={() => navigate(`/lotto/${upcomingDraw.id}`)}
+                                    className="hidden sm:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded-full text-sm font-medium hover:scale-105 transition-transform shadow-md"
+                                >
+                                    <FileText size={16} />
+                                    ดูวิเคราะห์แบบละเอียด
+                                </button>
+                            </div>
+
+                            {/* KPI Cards */}
+                            <div className="grid grid-cols-3 gap-4 mb-6">
+                                <div className={`p-4 rounded-xl text-center ${isDark ? 'bg-slate-800' : 'bg-amber-50'}`}>
+                                    <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'} mb-1`}>สถิติสูงสุด</p>
+                                    <p className="text-2xl font-bold text-amber-500">{upcomingDraw.kpi.historical}</p>
+                                </div>
+                                <div className={`p-4 rounded-xl text-center ${isDark ? 'bg-slate-800' : 'bg-blue-50'}`}>
+                                    <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'} mb-1`}>เลขชนสำนัก</p>
+                                    <p className="text-2xl font-bold text-blue-500">{upcomingDraw.kpi.sources}</p>
+                                </div>
+                                <div className={`p-4 rounded-xl text-center ${isDark ? 'bg-slate-800' : 'bg-red-50'}`}>
+                                    <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'} mb-1`}>กระแสมาแรง</p>
+                                    <p className="text-2xl font-bold text-red-500">{upcomingDraw.kpi.trending}</p>
+                                </div>
+                            </div>
+
+                            {/* Tabs */}
+                            <div className={`flex gap-2 p-1 rounded-lg mb-6 ${isDark ? 'bg-slate-800' : 'bg-slate-100'}`}>
+                                {tabConfig.map(tab => (
+                                    <button
+                                        key={tab.id}
+                                        onClick={() => setActiveTab(tab.id)}
+                                        className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 ${activeTab === tab.id
+                                            ? `${isDark ? 'bg-slate-700 text-white' : 'bg-white text-amber-600 shadow-sm'}`
+                                            : `${isDark ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-700'}`
+                                            }`}
+                                    >
+                                        <tab.icon size={14} />
+                                        <span className="hidden sm:inline">{tab.label}</span>
+                                    </button>
+                                ))}
+                            </div>
+
+                            {/* Tab Content */}
+                            <div className="min-h-[200px]">
+                                {/* Historical */}
+                                {activeTab === 'historical' && upcomingDraw.historical && (
+                                    <div className="space-y-4">
+                                        <p className={`text-sm ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+                                            <strong className="text-amber-500">บทวิเคราะห์:</strong> จากสถิติย้อนหลัง 10 ปี พบว่าเลขที่ออกบ่อยในงวดนี้ ได้แก่
+                                        </p>
+                                        <div className="grid grid-cols-5 gap-2">
+                                            {upcomingDraw.historical.labels.map((num, idx) => (
+                                                <div key={idx} className={`p-4 rounded-xl text-center ${isDark ? 'bg-slate-800' : 'bg-amber-50'}`}>
+                                                    <p className="text-2xl font-bold text-amber-500">{num}</p>
+                                                    <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                                                        {upcomingDraw.historical.data[idx]} ครั้ง
+                                                    </p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Sources */}
+                                {activeTab === 'sources' && upcomingDraw.sources && (
+                                    <div className="space-y-4">
+                                        <p className={`text-sm ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+                                            <strong className="text-blue-500">บทวิเคราะห์:</strong> เปรียบเทียบเลขเด็ดจาก 3 สำนัก พบว่าเลข <strong className="text-blue-500">{upcomingDraw.kpi.sources}</strong> ปรากฏในทุกสำนัก
+                                        </p>
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                            {upcomingDraw.sources.map((source, idx) => {
+                                                const colors = sourceColors[source.color] || sourceColors.blue;
+                                                return (
+                                                    <div key={idx} className={`${colors.bg} ${colors.border} border rounded-xl p-4`}>
+                                                        <div className="flex items-center justify-between mb-3">
+                                                            <h4 className={`font-bold ${colors.text.replace('700', '800')}`}>{source.name}</h4>
+                                                            <span className={`text-xs px-2 py-1 rounded ${colors.badge}`}>{source.theme}</span>
+                                                        </div>
+                                                        <div className="flex flex-wrap gap-2 justify-center">
+                                                            {source.numbers.map((num, nidx) => (
+                                                                <div key={nidx} className={`w-10 h-10 rounded-full flex items-center justify-center font-bold bg-white ${colors.text} border ${colors.border} shadow-sm`}>
+                                                                    {num}
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Trends */}
+                                {activeTab === 'trends' && upcomingDraw.trends && (
+                                    <div className="space-y-4">
+                                        <p className={`text-sm ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+                                            <strong className="text-red-500">บทวิเคราะห์:</strong> กระแสโซเชียลมุ่งเน้นเลขที่เกี่ยวกับเหตุการณ์ปัจจุบัน
+                                        </p>
+                                        <div className="space-y-3">
+                                            {upcomingDraw.trends.items.map((item, idx) => (
+                                                <div key={idx} className={`flex items-center justify-between p-4 rounded-xl ${idx === 0 ? 'bg-red-50 border border-red-100' :
+                                                    idx === 1 ? 'bg-orange-50 border border-orange-100' :
+                                                        'bg-yellow-50 border border-yellow-100'
+                                                    }`}>
+                                                    <span className="text-slate-700">{item.label}</span>
+                                                    <span className={`text-sm font-semibold ${idx === 0 ? 'text-red-600' :
+                                                        idx === 1 ? 'text-orange-600' :
+                                                            'text-yellow-700'
+                                                        }`}>
+                                                        มาแรงอันดับ {item.rank}
+                                                    </span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Detail Button - Mobile */}
+                            <div className="mt-6 sm:hidden">
+                                <button
+                                    onClick={() => navigate(`/lotto/${upcomingDraw.id}`)}
+                                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded-xl font-medium shadow-md"
+                                >
+                                    <FileText size={18} />
+                                    ดูการวิเคราะห์แบบละเอียด
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+                )}
+
+                {/* Section: Past Draws */}
+                {pastDraws.length > 0 && (
+                    <section>
+                        <div className="flex items-center gap-2 mb-4">
+                            <Trophy size={20} className="text-slate-400" />
+                            <h2 className="text-lg font-bold">งวดที่ผ่านมา</h2>
+                        </div>
+
+                        <div className="space-y-4">
+                            {pastDraws.map((draw) => (
+                                <div
+                                    key={draw.id}
+                                    onClick={() => navigate(`/lotto/${draw.id}`)}
+                                    className={`rounded-xl p-4 ${isDark ? 'bg-slate-900' : 'bg-white'} shadow-md cursor-pointer hover:shadow-lg hover:scale-[1.01] transition-all`}
+                                >
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <h3 className="font-bold">{draw.label}</h3>
+                                            {draw.result && (
+                                                <div className="flex items-center gap-4 mt-2">
+                                                    <div>
+                                                        <span className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>รางวัลที่ 1</span>
+                                                        <p className="text-lg font-mono font-bold text-amber-500">{draw.result.first}</p>
+                                                    </div>
+                                                    <div>
+                                                        <span className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>เลขท้าย 2 ตัว</span>
+                                                        <p className="text-lg font-mono font-bold text-blue-500">{draw.result.lastTwo}</p>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-xs text-purple-500 hidden sm:inline">ดูวิเคราะห์</span>
+                                            <ChevronRight size={20} className="text-purple-400" />
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+                )}
+
+                {/* Disclaimer */}
+                <footer className={`text-center py-8 ${isDark ? 'text-slate-500' : 'text-slate-400'} text-xs`}>
+                    <p>ข้อมูลนี้เป็นเพียงการวิเคราะห์ทางสถิติเพื่อความบันเทิง</p>
+                    <p>โปรดใช้วิจารณญาณในการรับชม ทางผู้จัดทำไม่สนับสนุนการพนัน</p>
+                </footer>
+            </main>
+
+            <LuckyGeneratorModal
+                isOpen={showLuckyModal}
+                onClose={() => setShowLuckyModal(false)}
+                isDark={isDark}
+            />
+        </div>
+    );
+};
+
+export default LottoInsightPage;
