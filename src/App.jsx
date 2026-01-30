@@ -7,6 +7,7 @@ import { HistoryPage } from './pages/HistoryPage';
 import { AdminPage } from './pages/AdminPage';
 import { LottoInsightPage } from './pages/LottoInsightPage';
 import { LottoDetailPage } from './pages/LottoDetailPage';
+import { ZodiacPage } from './pages/ZodiacPage';
 
 function App() {
   const [isDark, setIsDark] = useState(true);
@@ -28,6 +29,7 @@ function App() {
         <Route path="/history" element={<HistoryPage isDark={isDark} />} />
         <Route path="/lotto" element={<LottoInsightPage />} />
         <Route path="/lotto/:drawId" element={<LottoDetailPage />} />
+        <Route path="/zodiac" element={<ZodiacPage />} />
         <Route path="/admin/*" element={<AdminPage isDark={isDark} />} />
       </Routes>
 

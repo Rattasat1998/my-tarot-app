@@ -2,8 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { User, Phone, Save, ArrowLeft, Loader, CheckCircle, Camera } from 'lucide-react';
+import { User, Phone, Save, ArrowLeft, Loader, CheckCircle, Camera, Calendar, CreditCard } from 'lucide-react';
 import { compressImage } from '../utils/imageCompression';
+import { MysticalIdCard } from '../components/MysticalIdCard';
+import { getZodiacFromDate } from '../utils/zodiacUtils';
 
 export const ProfilePage = ({ isDark }) => {
     const { user } = useAuth();
@@ -20,8 +22,10 @@ export const ProfilePage = ({ isDark }) => {
         phone: '',
         avatar_url: '',
         credits: 0,
-        streak_count: 0
+        streak_count: 0,
+        birthdate: ''
     });
+    const [showMysticalCard, setShowMysticalCard] = useState(false);
 
     useEffect(() => {
         if (user) {
@@ -36,7 +40,7 @@ export const ProfilePage = ({ isDark }) => {
             setLoading(true);
             const { data, error } = await supabase
                 .from('profiles')
-                .select('first_name, last_name, phone, avatar_url, credits, streak_count')
+                .select('first_name, last_name, phone, avatar_url, credits, streak_count, birthdate')
                 .eq('id', user.id)
                 .single();
 
@@ -49,7 +53,8 @@ export const ProfilePage = ({ isDark }) => {
                     phone: data.phone || '',
                     avatar_url: data.avatar_url || '',
                     credits: data.credits || 0,
-                    streak_count: data.streak_count || 0
+                    streak_count: data.streak_count || 0,
+                    birthdate: data.birthdate || ''
                 });
             }
         } catch (error) {
@@ -133,7 +138,8 @@ export const ProfilePage = ({ isDark }) => {
                 .update({
                     first_name: formData.first_name,
                     last_name: formData.last_name,
-                    phone: formData.phone
+                    phone: formData.phone,
+                    birthdate: formData.birthdate || null
                 })
                 .eq('id', user.id);
 
@@ -304,6 +310,47 @@ export const ProfilePage = ({ isDark }) => {
                                 </div>
                             </div>
 
+                            {/* Birthdate Field */}
+                            <div className="space-y-2">
+                                <label className={`text-sm font-medium ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+                                    วันเกิด (สำหรับคำนวณราศี)
+                                </label>
+                                <div className="relative">
+                                    <Calendar className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? 'text-slate-500' : 'text-slate-400'}`} />
+                                    <input
+                                        type="date"
+                                        name="birthdate"
+                                        value={formData.birthdate}
+                                        onChange={handleChange}
+                                        className={`w-full pl-10 pr-4 py-2.5 rounded-xl border outline-none transition-all ${isDark
+                                            ? 'bg-slate-800 border-slate-700 text-white focus:border-purple-500 focus:ring-1 focus:ring-purple-500'
+                                            : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-purple-500 focus:ring-1 focus:ring-purple-500'
+                                            }`}
+                                    />
+                                </div>
+                                {/* Show zodiac if birthdate is set */}
+                                {formData.birthdate && (() => {
+                                    const zodiac = getZodiacFromDate(formData.birthdate);
+                                    return zodiac ? (
+                                        <div className={`flex items-center gap-2 text-sm mt-2 p-3 rounded-xl ${isDark ? 'bg-purple-900/30 text-purple-300' : 'bg-purple-100 text-purple-700'}`}>
+                                            <span className="text-2xl">{zodiac.symbol}</span>
+                                            <span className="font-medium">{zodiac.name}</span>
+                                            <span className="opacity-60">• ธาตุ{zodiac.element} {zodiac.elementEmoji}</span>
+                                        </div>
+                                    ) : null;
+                                })()}
+                            </div>
+
+                            {/* Mystical Card Button */}
+                            <button
+                                type="button"
+                                onClick={() => setShowMysticalCard(true)}
+                                className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold shadow-lg hover:shadow-amber-500/30 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                            >
+                                <CreditCard size={20} />
+                                🪬 ดูบัตรสายมู
+                            </button>
+
                             {message && (
                                 <div className={`p-4 rounded-xl flex items-center gap-2 text-sm ${message.type === 'success'
                                     ? 'bg-green-500/10 text-green-500'
@@ -325,31 +372,18 @@ export const ProfilePage = ({ isDark }) => {
                         </form>
                     )}
 
-                    {/* Developer Options for Testing */}
-                    <div className="mt-8 pt-8 border-t border-slate-200 dark:border-slate-800">
-                        <h3 className={`text-xs font-bold uppercase tracking-wider mb-4 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
-                            เมนูสำหรับทดสอบ (Developer)
-                        </h3>
-                        <button
-                            onClick={async () => {
-                                try {
-                                    const { error } = await supabase
-                                        .from('profiles')
-                                        .update({ last_active_date: null })
-                                        .eq('id', user.id);
-                                    if (error) throw error;
-                                    alert('รีเซ็ตสถานะเช็คอินเรียบร้อย! โปรด Refresh หน้าจอเพื่อทดสอบ Daily Reward');
-                                } catch (err) {
-                                    alert('Error: ' + err.message);
-                                }
-                            }}
-                            className="px-4 py-2 text-xs font-bold rounded-lg border border-red-200 text-red-500 hover:bg-red-50 transition-colors"
-                        >
-                            รีเซ็ตสถานะเช็คอิน (Reset Daily Check-in)
-                        </button>
-                    </div>
                 </div>
             </div>
+
+            {/* Mystical ID Card Modal */}
+            {showMysticalCard && (
+                <MysticalIdCard
+                    user={user}
+                    profile={formData}
+                    onClose={() => setShowMysticalCard(false)}
+                    isDark={isDark}
+                />
+            )}
         </div>
     );
 };

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, Sun, Moon, Coins, Plus, LogIn, LogOut, User, Clock, BookOpen, Volume2, VolumeX, Menu, X, TrendingUp } from 'lucide-react';
+import { Sparkles, Sun, Moon, Coins, Plus, LogIn, LogOut, User, Clock, BookOpen, Volume2, VolumeX, Menu, X, TrendingUp, Stars } from 'lucide-react';
 import { CalendarDropdown } from './CalendarDropdown';
 import { ArticleDropdown } from './ArticleDropdown';
 import { useAuth } from '../../contexts/AuthContext';
@@ -49,6 +49,15 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
                         <div className="hidden sm:block">
                             <CalendarDropdown isDark={isDark} openCalendar={openCalendar} />
                         </div>
+
+                        {/* 12 Zodiac Button */}
+                        <button
+                            onClick={() => navigate('/zodiac')}
+                            className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-lg bg-gradient-to-r from-purple-500/10 to-indigo-500/10 border border-purple-500/30 text-purple-400 hover:text-purple-300 hover:bg-purple-500/20 transition-all text-sm font-medium"
+                        >
+                            <Stars size={16} />
+                            <span>12 ราศี</span>
+                        </button>
 
                         {/* LottoInsight Button */}
                         <button
@@ -214,6 +223,13 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
                                     <div className="space-y-2">
                                         <ArticleDropdown openArticle={(id) => { openArticle(id); setIsMobileMenuOpen(false); }} isMobile={true} />
                                         <CalendarDropdown isDark={isDark} openCalendar={(type) => { openCalendar(type); setIsMobileMenuOpen(false); }} isMobile={true} />
+                                        <button
+                                            onClick={() => { navigate('/zodiac'); setIsMobileMenuOpen(false); }}
+                                            className="w-full flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-purple-500/10 to-indigo-500/10 border border-purple-500/30 rounded-lg text-purple-400"
+                                        >
+                                            <Stars size={20} />
+                                            <span className="font-medium">ดวง 12 ราศี</span>
+                                        </button>
                                         <button
                                             onClick={() => { navigate('/lotto'); setIsMobileMenuOpen(false); }}
                                             className="w-full flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 rounded-lg text-amber-400"
