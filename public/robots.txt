@@ -2,7 +2,7 @@ User-agent: *
 Allow: /
 
 # Sitemaps
-Sitemap: https://rattasat1998.github.io/my-tarot-app/sitemap.xml
+Sitemap: https://satduangdao.com/sitemap.xml
 
 # Disallow admin pages (if any)
 Disallow: /admin/
