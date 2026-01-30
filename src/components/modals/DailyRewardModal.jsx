@@ -119,7 +119,7 @@ export const DailyRewardModal = ({ isOpen, onClose, streak, checked_in_today, is
                         <div className={`p-4 rounded-2xl border ${isDark ? 'bg-slate-800/40 border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
                             <div className="flex items-center justify-between mb-4 px-2">
                                 <span className={`text-sm font-bold ${isDark ? 'text-white' : 'text-slate-700'}`}>Check-in สะสมแต้ม</span>
-                                <span className="text-xs text-orange-500 font-bold">Day 7 รับ 20 Credits!</span>
+                                <span className="text-xs text-orange-500 font-bold">รับ 1 เครดิตทุกวัน / Day 7 รับ 3!</span>
                             </div>
                             <div className="grid grid-cols-4 gap-2 w-full">
                                 {stamps.map((stamp, index) => {
@@ -148,7 +148,7 @@ export const DailyRewardModal = ({ isOpen, onClose, streak, checked_in_today, is
                                             {isRewardDay ? (
                                                 <>
                                                     <Gift size={20} className={stamp.status === 'filled' ? 'text-orange-500' : ''} />
-                                                    <div className="text-[10px] font-bold">20 Credits</div>
+                                                    <div className="text-[10px] font-bold">3 Credits</div>
                                                 </>
                                             ) : (
                                                 <span className={`text-[10px] font-bold ${stamp.status === 'filled' ? 'opacity-0' : ''}`}>D{stamp.day}</span>
@@ -174,37 +174,10 @@ export const DailyRewardModal = ({ isOpen, onClose, streak, checked_in_today, is
                                 )}
                             </div>
                         </div>
-
-                        {/* Section 2: Daily Free Draw Claim */}
-                        <div className={`p-4 rounded-2xl border ${isDark ? 'bg-purple-900/20 border-purple-500/30' : 'bg-purple-50 border-purple-200'}`}>
-                            <div className="flex items-center gap-3 mb-4">
-                                <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center shrink-0">
-                                    <Sparkles className="text-purple-400" size={20} />
-                                </div>
-                                <div className="text-left">
-                                    <h3 className={`text-sm font-bold ${isDark ? 'text-white' : 'text-slate-700'}`}>Daily Free Draw</h3>
-                                    <p className="text-[10px] text-slate-400">รับสิทธิ์สุ่มไพ่ 1 ใบ ฟรีทุกวัน!</p>
-                                </div>
-                            </div>
-
-                            {!isFreeClaimedToday ? (
-                                <button
-                                    onClick={handleClaimFreeDraw}
-                                    disabled={claimingFree}
-                                    className="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-sm font-bold shadow-lg shadow-purple-500/30 hover:scale-[1.02] transition-all disabled:opacity-70 flex items-center justify-center gap-2"
-                                >
-                                    {claimingFree ? 'กำลังรับสิทธิ์...' : 'เก็บสิทธิ์สุ่มฟรีวันนี้'}
-                                </button>
-                            ) : (
-                                <div className="w-full py-3 rounded-xl bg-green-500/10 text-green-500 border border-green-500/30 text-sm font-bold flex items-center justify-center gap-2">
-                                    <CheckCircle size={16} /> เก็บสิทธิ์แล้ว (พร้อมใช้งาน)
-                                </div>
-                            )}
-                        </div>
                     </div>
 
                     <p className={`text-[10px] opacity-50 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                        * สิทธิ์สุ่มฟรีสามารถใช้ได้ภายในวันที่เก็บเท่านั้น
+                        * สิทธิ์สุ่มฟรีรายวัน อัตโนมัติทุกวัน ไม่ต้องกดรับ
                     </p>
 
                     <button

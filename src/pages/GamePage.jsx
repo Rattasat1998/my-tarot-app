@@ -21,6 +21,7 @@ import { PrivacyModal } from '../components/modals/PrivacyModal';
 import { AgeVerificationModal } from '../components/modals/AgeVerificationModal';
 import { WarpTransition } from '../components/ui/WarpTransition';
 import { ConfirmReadingDialog } from '../components/modals/ConfirmReadingDialog';
+import { DailyRewardModal } from '../components/modals/DailyRewardModal';
 import { Screensaver } from '../components/ui/Screensaver';
 import { useTarotGame } from '../hooks/useTarotGame';
 import { useCredits } from '../hooks/useCredits';
@@ -72,6 +73,10 @@ export function GamePage({ isDark, setIsDark }) {
     const [pendingCreditCost, setPendingCreditCost] = useState(0);
     const [pendingIsFreeDaily, setPendingIsFreeDaily] = useState(false);
 
+    // Daily Reward Modal state
+    const [showRewardModal, setShowRewardModal] = useState(false);
+    const [rewardData, setRewardData] = useState({ streak: 0, checked_in_today: false });
+
     // Use ref for saving lock to prevent duplicates
     const isSavingRef = useRef(false);
 
@@ -105,7 +110,9 @@ export function GamePage({ isDark, setIsDark }) {
         useCredit,
         addCredits,
         checkDailyFree,
-        isDailyFreeAvailable
+        isDailyFreeAvailable,
+        isDailyFreeClaimed,
+        claimDailyFreeDraw
     } = useCredits();
     const { user, isAdmin } = useAuth();
 
@@ -121,16 +128,25 @@ export function GamePage({ isDark, setIsDark }) {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }, [gameState]);
 
-    const handleStartReading = () => {
-        // Determine credit cost based on topic
-        let { cost, isDaily } = getReadingCost(topic);
-
-        // User Request: 2-card reading costs double
-        // Only apply if the topic SUPPORTS 2-card readings (i.e., not daily, monthly, or love)
-        const fixedTopics = ['daily', 'monthly', 'love'];
-        if (readingType === '2-cards' && !fixedTopics.includes(topic)) {
-            cost = cost * 2;
+    // Function to open Daily Reward modal
+    const openDailyReward = async () => {
+        if (!user) return;
+        try {
+            const { data, error } = await supabase.rpc('get_daily_checkin_status');
+            if (error) throw error;
+            if (data) {
+                setRewardData({ streak: data.streak, checked_in_today: data.checked_in_today });
+            }
+        } catch (err) {
+            console.error('Error fetching reward status:', err);
         }
+        setShowRewardModal(true);
+    };
+
+    const handleStartReading = (costFromMenu, readingTypeFromMenu) => {
+        // Use cost passed from MenuState (already calculated correctly there)
+        const cost = costFromMenu || 0;
+        const { isDaily } = getReadingCost(topic);
 
         // Check if this is a free daily reading or a paid reading
         const isFreeDaily = isDaily && isDailyFreeAvailable;
@@ -280,6 +296,7 @@ export function GamePage({ isDark, setIsDark }) {
                         openArticle={openArticle}
                         credits={credits}
                         isDailyFreeAvailable={isDailyFreeAvailable}
+                        openDailyReward={openDailyReward}
                     />
                 )}
 
@@ -417,6 +434,16 @@ export function GamePage({ isDark, setIsDark }) {
             />
 
             <Screensaver />
+
+            <DailyRewardModal
+                isOpen={showRewardModal}
+                onClose={() => setShowRewardModal(false)}
+                streak={rewardData.streak}
+                checked_in_today={rewardData.checked_in_today}
+                isFreeClaimedToday={isDailyFreeClaimed}
+                onClaimFree={claimDailyFreeDraw}
+                isDark={isDark}
+            />
         </div>
     );
 }

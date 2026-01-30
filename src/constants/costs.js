@@ -8,6 +8,7 @@ export const READING_COSTS = {
     social: { cost: 3, isDaily: false },
     luck: { cost: 3, isDaily: false },
     future: { cost: 1, isDaily: false },
+    celtic: { cost: 15, isDaily: false },
     default: { cost: 3, isDaily: false }
 };
 

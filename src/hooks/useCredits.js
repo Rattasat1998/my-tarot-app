@@ -23,9 +23,8 @@ export const useCredits = () => {
     // Derived state: what to show?
     const credits = user ? remoteCredits : localCredits;
 
-    // Check if daily free is available (Local Logic)
+    // Check if daily free is available (Local Logic) - AUTOMATIC: no claim needed
     const checkDailyFreeLocal = useCallback(() => {
-        const lastClaimed = localStorage.getItem('tarot_daily_free_last_claimed');
         const lastUsed = localStorage.getItem(DAILY_FREE_CREDIT_KEY);
         const now = new Date();
 
@@ -37,13 +36,12 @@ export const useCredits = () => {
                 date.getFullYear() !== now.getFullYear();
         };
 
-        const eligibleToClaim = checkDiffDay(lastClaimed);
-        const claimedToday = !eligibleToClaim;
         const usedToday = !checkDiffDay(lastUsed);
 
-        setIsDailyFreeEligibleToClaim(eligibleToClaim);
-        setIsDailyFreeClaimed(claimedToday);
-        setIsDailyFreeAvailable(claimedToday && !usedToday);
+        // Automatic: always eligible, always "claimed", available if not used today
+        setIsDailyFreeEligibleToClaim(false); // No need to claim
+        setIsDailyFreeClaimed(true); // Always "claimed" automatically
+        setIsDailyFreeAvailable(!usedToday); // Available if not used today
     }, []);
 
     // Fetch from Supabase
@@ -80,13 +78,12 @@ export const useCredits = () => {
                         date.getFullYear() !== now.getFullYear();
                 };
 
-                const eligibleToClaim = checkDiffDay(profile.last_free_draw_claimed_at);
-                const claimedToday = !eligibleToClaim;
                 const usedToday = !checkDiffDay(profile.last_free_draw_at);
 
-                setIsDailyFreeEligibleToClaim(eligibleToClaim);
-                setIsDailyFreeClaimed(claimedToday);
-                setIsDailyFreeAvailable(claimedToday && !usedToday);
+                // Automatic: always eligible, always "claimed", available if not used today
+                setIsDailyFreeEligibleToClaim(false); // No need to claim
+                setIsDailyFreeClaimed(true); // Always "claimed" automatically
+                setIsDailyFreeAvailable(!usedToday); // Available if not used today
             }
         } catch (err) {
             console.error('Error fetching user credits:', err);
@@ -160,9 +157,9 @@ export const useCredits = () => {
         if (user) {
             // Call Supabase RPC
             try {
-                // If it's a daily reading, ensure it's claimed and not used
+                // If it's a daily reading, check if available (automatic, no claim needed)
                 if (isDaily && !isDailyFreeAvailable) {
-                    return { success: false, message: 'Free draw not claimed or already used' };
+                    return { success: false, message: 'Already used free draw today' };
                 }
 
                 const { data, error } = await supabase.rpc('deduct_credit', {
@@ -185,9 +182,9 @@ export const useCredits = () => {
         } else {
             // Local Guest Logic
             if (isDaily) {
-                // Check if played today
+                // Check if used today (automatic, no claim needed)
                 if (!isDailyFreeAvailable) {
-                    return { success: false, message: 'Free draw not claimed or already used' };
+                    return { success: false, message: 'Already used free draw today' };
                 }
                 // Mark as used
                 localStorage.setItem(DAILY_FREE_CREDIT_KEY, Date.now().toString());

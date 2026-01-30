@@ -31,20 +31,14 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
                     </div>
 
                     <div className="flex items-center gap-2 sm:gap-4">
-                        {/* Credit Display (Only show if logged in or has credits) */}
+                        {/* Credit Display (No TopUp - just display) */}
                         {(user || credits > 0) && (
-                            <button
-                                onClick={onOpenTopUp}
-                                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-500/10 to-yellow-500/10 border border-amber-500/30 hover:bg-amber-500/20 transition-all group"
-                            >
-                                <div className="w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center text-white shadow-lg shadow-amber-500/20 group-hover:scale-110 transition-transform">
+                            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-500/10 to-yellow-500/10 border border-amber-500/30">
+                                <div className="w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center text-white shadow-lg shadow-amber-500/20">
                                     <Coins size={14} />
                                 </div>
                                 <span className="font-bold text-amber-500">{credits}</span>
-                                <div className="w-5 h-5 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 group-hover:text-white transition-colors">
-                                    <Plus size={12} />
-                                </div>
-                            </button>
+                            </div>
                         )}
 
                         <div className="h-6 w-px bg-slate-800 hidden sm:block"></div>
@@ -123,6 +117,7 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
                                                     ประวัติการทำนาย
                                                 </button>
 
+                                                {/* Transaction History - TEMPORARILY HIDDEN
                                                 <button
                                                     onClick={() => {
                                                         setShowHistory(true);
@@ -133,6 +128,7 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
                                                     <Clock size={16} />
                                                     ประวัติการเติมเงิน
                                                 </button>
+                                                */}
 
                                                 <button
                                                     onClick={() => {
@@ -239,9 +235,11 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
                                         <button onClick={() => { setShowReadingHistory(true); setIsMobileMenuOpen(false); }} className="w-full text-left px-4 py-3 rounded-lg bg-slate-900/50 text-slate-300 hover:bg-slate-800 flex items-center gap-3">
                                             <BookOpen size={18} /> ประวัติการทำนาย
                                         </button>
+                                        {/* Transaction History - TEMPORARILY HIDDEN
                                         <button onClick={() => { setShowHistory(true); setIsMobileMenuOpen(false); }} className="w-full text-left px-4 py-3 rounded-lg bg-slate-900/50 text-slate-300 hover:bg-slate-800 flex items-center gap-3">
                                             <Clock size={18} /> ประวัติการเติมเงิน
                                         </button>
+                                        */}
                                         <button onClick={() => { signOut(); setIsMobileMenuOpen(false); }} className="w-full text-left px-4 py-3 rounded-lg bg-red-900/20 text-red-400 hover:bg-red-900/30 flex items-center gap-3 border border-red-900/30">
                                             <LogOut size={18} /> ออกจากระบบ
                                         </button>

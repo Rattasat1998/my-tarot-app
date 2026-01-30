@@ -6,23 +6,8 @@ import { ProfilePage } from './pages/ProfilePage';
 import { HistoryPage } from './pages/HistoryPage';
 import { AdminPage } from './pages/AdminPage';
 
-import { useAuth } from './contexts/AuthContext';
-import { useCredits } from './hooks/useCredits';
-import { supabase } from './lib/supabase';
-import { DailyRewardModal } from './components/modals/DailyRewardModal';
-
 function App() {
   const [isDark, setIsDark] = useState(true);
-  const { user } = useAuth();
-  const {
-    isDailyFreeEligibleToClaim,
-    isDailyFreeClaimed,
-    claimDailyFreeDraw
-  } = useCredits();
-
-  // Daily Reward State
-  const [showRewardModal, setShowRewardModal] = useState(false);
-  const [rewardData, setRewardData] = useState({ streak: 0, checked_in_today: false });
 
   // Theme effect
   useEffect(() => {
@@ -33,31 +18,6 @@ function App() {
     }
   }, [isDark]);
 
-  // Check Daily Login Status
-  useEffect(() => {
-    const checkStatus = async () => {
-      if (!user) return;
-
-      try {
-        const { data, error } = await supabase.rpc('get_daily_checkin_status');
-        if (error) throw error;
-
-        // data: { streak: int, checked_in_today: boolean, is_streak_broken: boolean }
-        if (data) {
-          setRewardData({ streak: data.streak, checked_in_today: data.checked_in_today });
-          // Auto-open modal if not checked in today OR if free draw not claimed
-          if (!data.checked_in_today || isDailyFreeEligibleToClaim) {
-            setShowRewardModal(true);
-          }
-        }
-      } catch (err) {
-        console.error('Error checking status:', err);
-      }
-    };
-
-    checkStatus();
-  }, [user, isDailyFreeEligibleToClaim]);
-
   return (
     <>
       <Routes>
@@ -66,16 +26,6 @@ function App() {
         <Route path="/history" element={<HistoryPage isDark={isDark} />} />
         <Route path="/admin/*" element={<AdminPage isDark={isDark} />} />
       </Routes>
-
-      <DailyRewardModal
-        isOpen={showRewardModal}
-        onClose={() => setShowRewardModal(false)}
-        streak={rewardData.streak}
-        checked_in_today={rewardData.checked_in_today}
-        isFreeClaimedToday={isDailyFreeClaimed}
-        onClaimFree={claimDailyFreeDraw}
-        isDark={isDark}
-      />
     </>
   );
 }

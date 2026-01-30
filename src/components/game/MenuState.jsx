@@ -1,5 +1,5 @@
 import React from 'react';
-import { Coins, Sparkles } from 'lucide-react';
+import { Coins, Sparkles, Gift } from 'lucide-react';
 import { READING_TOPICS } from '../../constants/readingTopics';
 import { getReadingCost } from '../../constants/costs';
 import { GoogleAdSlot } from '../ui/GoogleAdSlot';
@@ -13,7 +13,7 @@ import { Testimonials } from '../ui/Testimonials';
 import { WhyChooseUs } from '../ui/WhyChooseUs';
 import { HowItWorks } from '../ui/HowItWorks';
 
-export const MenuState = ({ topic, setTopic, readingType, setReadingType, startReading, isDark, openArticle, credits, isDailyFreeAvailable }) => (
+export const MenuState = ({ topic, setTopic, readingType, setReadingType, startReading, isDark, openArticle, credits, isDailyFreeAvailable, openDailyReward }) => (
     <div className="w-full flex flex-col items-center animate-in fade-in slide-in-from-bottom-4 duration-700">
         {/* Floating Cards Background */}
         <FloatingCards />
@@ -28,6 +28,15 @@ export const MenuState = ({ topic, setTopic, readingType, setReadingType, startR
                 ตั้งจิตอธิษฐานถึงเรื่องที่ต้องการทราบ แล้วเลือกหัวข้อเพื่อเริ่มทำนาย
             </p>
         </header>
+
+        {/* Daily Check-in Button */}
+        <button
+            onClick={openDailyReward}
+            className="mb-6 px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold shadow-lg shadow-amber-500/30 hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
+        >
+            <Gift size={20} className="animate-bounce" />
+            <span>เช็คอินรายวัน</span>
+        </button>
 
         {/* Topic Selection */}
         <div className="w-full max-w-3xl mx-auto mb-8">
@@ -66,7 +75,7 @@ export const MenuState = ({ topic, setTopic, readingType, setReadingType, startR
             <div className="w-full flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 mb-10 flex-wrap">
                 {(() => {
                     const { cost } = getReadingCost(topic);
-                    const celticCost = cost * 5; // Celtic cross costs 5x base (approx 50-100 credits)
+                    const { cost: celticCost } = getReadingCost('celtic');
 
                     return (
                         <>
@@ -118,14 +127,21 @@ export const MenuState = ({ topic, setTopic, readingType, setReadingType, startR
         {/* Start Button */}
         {/* Start Button */}
         {(() => {
-            const { cost, isDaily } = topic ? getReadingCost(topic) : { cost: 0, isDaily: false };
+            const { cost: baseCost, isDaily } = topic ? getReadingCost(topic) : { cost: 0, isDaily: false };
+            // Adjust cost based on readingType
+            let cost = baseCost;
+            if (readingType === 'celtic-cross') {
+                cost = getReadingCost('celtic').cost;
+            } else if (readingType === '2-cards') {
+                cost = baseCost * 2;
+            }
             const isFreeDaily = isDaily && isDailyFreeAvailable;
             const canAfford = isFreeDaily || credits >= cost;
             const isDisabled = !topic || !canAfford;
 
             return (
                 <button
-                    onClick={startReading}
+                    onClick={() => startReading(cost, readingType)}
                     disabled={isDisabled}
                     className={`group relative w-full sm:w-auto px-10 sm:px-16 py-4 sm:py-5 rounded-full font-bold text-lg sm:text-xl transition-all shadow-xl flex flex-col items-center gap-1 ${isDisabled
                         ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
