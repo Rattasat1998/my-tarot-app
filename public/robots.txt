@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://rattasat1998.github.io/my-tarot-app/sitemap.xml
+
+# Disallow admin pages (if any)
+Disallow: /admin/
+
+# Allow all crawlers
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
