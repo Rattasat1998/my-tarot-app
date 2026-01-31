@@ -7,6 +7,7 @@ import { HistoryPage } from './pages/HistoryPage';
 import { AdminPage } from './pages/AdminPage';
 import { LottoInsightPage } from './pages/LottoInsightPage';
 import { LottoDetailPage } from './pages/LottoDetailPage';
+import { LottoCheckPage } from './pages/LottoCheckPage';
 import { ZodiacPage } from './pages/ZodiacPage';
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
         <Route path="/profile" element={<ProfilePage isDark={isDark} />} />
         <Route path="/history" element={<HistoryPage isDark={isDark} />} />
         <Route path="/lotto" element={<LottoInsightPage />} />
+        <Route path="/lotto/check" element={<LottoCheckPage />} />
         <Route path="/lotto/:drawId" element={<LottoDetailPage />} />
         <Route path="/zodiac" element={<ZodiacPage />} />
         <Route path="/admin/*" element={<AdminPage isDark={isDark} />} />

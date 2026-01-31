@@ -1,5 +1,114 @@
 import { supabase } from '../lib/supabase';
 
+// API Endpoints
+const API_BASE_URL = 'https://lotto.api.rayriffy.com';
+
+/**
+ * Fetch the latest lottery draw from RayRiffy API
+ */
+export const fetchLatestDrawFromApi = async () => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/latest`);
+        if (!response.ok) throw new Error('Failed to fetch latest draw');
+        const data = await response.json();
+        return data.response;
+    } catch (error) {
+        console.error('Error fetching latest draw from API:', error);
+        return null;
+    }
+};
+
+/**
+ * Fetch draw history list from API
+ * @param {number} page - Page number (default 1)
+ */
+export const fetchDrawHistory = async (page = 1) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/list/${page}`);
+        if (!response.ok) throw new Error('Failed to fetch draw history');
+        const data = await response.json();
+        return data.response; // Returns array of { id, date, url }
+    } catch (error) {
+        console.error('Error fetching draw history:', error);
+        return [];
+    }
+};
+
+/**
+ * Fetch specific draw by ID from API
+ * @param {string} id - Draw ID
+ */
+export const fetchDrawByIdFromApi = async (id) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/lotto/${id}`);
+        if (!response.ok) throw new Error('Failed to fetch draw details');
+        const data = await response.json();
+        return data.response;
+    } catch (error) {
+        console.error('Error fetching specific draw:', error);
+        return null;
+    }
+};
+
+/**
+ * Check if a number won any prize in the draw
+ * @param {string} lotteryNumber - 6 digit lottery number
+ * @param {object} drawData - Draw data from API
+ */
+export const checkLotteryWin = (lotteryNumber, drawData) => {
+    if (!lotteryNumber || lotteryNumber.length !== 6 || !drawData) return null;
+
+    const results = [];
+
+    // Helper to check standard prizes
+    const checkPrize = (prizeKey, prizeName) => {
+        const prize = drawData.prizes.find(p => p.id === prizeKey);
+        if (prize && prize.number.includes(lotteryNumber)) {
+            results.push({
+                name: prizeName || prize.name,
+                reward: prize.reward,
+                amount: prize.amount
+            });
+        }
+    };
+
+    // Check specific prizes
+    checkPrize('prizeFirst', 'รางวัลที่ 1');
+    checkPrize('prizeFirstNear', 'รางวัลข้างเคียงรางวัลที่ 1');
+    checkPrize('prizeSecond', 'รางวัลที่ 2');
+    checkPrize('prizeThird', 'รางวัลที่ 3');
+    checkPrize('prizeForth', 'รางวัลที่ 4');
+    checkPrize('prizeFifth', 'รางวัลที่ 5');
+
+    // Check Running Numbers (Front 3, Back 3, Back 2)
+    if (drawData.runningNumbers) {
+        drawData.runningNumbers.forEach(rn => {
+            let matched = false;
+
+            if (rn.id === 'runningNumberFrontThree') {
+                const frontThree = lotteryNumber.slice(0, 3);
+                if (rn.number.includes(frontThree)) matched = true;
+            } else if (rn.id === 'runningNumberBackThree') {
+                const backThree = lotteryNumber.slice(3);
+                if (rn.number.includes(backThree)) matched = true;
+            } else if (rn.id === 'runningNumberBackTwo') {
+                const backTwo = lotteryNumber.slice(4);
+                if (rn.number.includes(backTwo)) matched = true;
+            }
+
+            if (matched) {
+                results.push({
+                    name: rn.name,
+                    reward: rn.reward,
+                    amount: rn.amount
+                });
+            }
+        });
+    }
+
+    return results.length > 0 ? results : null;
+};
+
 /**
  * Get all lotto draws sorted by date (newest first)
  */

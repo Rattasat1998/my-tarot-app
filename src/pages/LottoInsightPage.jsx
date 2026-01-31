@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, TrendingUp, Users, Flame, ChevronRight, Calendar, Trophy, Sparkles, FileText } from 'lucide-react';
+import { ArrowLeft, TrendingUp, Users, Flame, ChevronRight, Calendar, Trophy, Sparkles, FileText, Search } from 'lucide-react';
 import { LuckyGeneratorModal } from '../components/modals/LuckyGeneratorModal';
 import * as lottoService from '../services/lottoService';
 // Fallback to static data if database is not available
@@ -133,13 +133,22 @@ export const LottoInsightPage = () => {
                             </p>
                         </div>
                     </div>
-                    <button
-                        onClick={() => setShowLuckyModal(true)}
-                        className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-2 rounded-full font-medium flex items-center gap-2 hover:scale-105 transition-transform shadow-lg"
-                    >
-                        <Sparkles size={16} />
-                        สุ่มเลขมงคล
-                    </button>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => setShowLuckyModal(true)}
+                            className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-2 rounded-full font-medium flex items-center gap-2 hover:scale-105 transition-transform shadow-lg"
+                        >
+                            <Sparkles size={16} />
+                            <span className="hidden sm:inline">สุ่มเลขมงคล</span>
+                        </button>
+                        <button
+                            onClick={() => navigate('/lotto/check')}
+                            className={`px-4 py-2 rounded-full font-medium flex items-center gap-2 hover:scale-105 transition-transform shadow-sm border ${isDark ? 'bg-slate-800 border-slate-700 text-white hover:bg-slate-700' : 'bg-white border-amber-200 text-amber-600 hover:bg-amber-50'}`}
+                        >
+                            <Search size={16} />
+                            <span className="hidden sm:inline">ตรวจหวย</span>
+                        </button>
+                    </div>
                 </div>
             </header>
 
@@ -346,8 +355,11 @@ export const LottoInsightPage = () => {
                 onClose={() => setShowLuckyModal(false)}
                 isDark={isDark}
             />
+
+
         </div>
     );
 };
 
 export default LottoInsightPage;
+

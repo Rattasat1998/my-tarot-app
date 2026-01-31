@@ -85,14 +85,12 @@ BEGIN
      new_streak := 1;
   END IF;
 
-  -- 7-Day Cycle Logic
-  -- If new_streak is 8, it typically starts a new cycle or keeps counting?
-  -- Requirement says "Stamp 7 days". Usually resets or loops.
-  -- Let's assume it keeps counting but the "Stamp Sheet" shows (streak % 7).
-  -- Reward every 7 days.
+  -- Daily reward: 1 credit every day
+  reward_amount := 1;
   
+  -- Bonus: Day 7 (every 7 days) gives 3 extra credits (total 4)
   IF (new_streak % 7) = 0 THEN
-     reward_amount := 20;
+     reward_amount := reward_amount + 3;
   END IF;
 
   UPDATE public.profiles
