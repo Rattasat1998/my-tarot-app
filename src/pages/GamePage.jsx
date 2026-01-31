@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { READING_TOPICS } from '../constants/readingTopics';
 import { Navbar } from '../components/navigation/Navbar';
 import { MenuState } from '../components/game/MenuState';
@@ -43,6 +43,8 @@ export function GamePage({ isDark, setIsDark }) {
     const [calendarType, setCalendarType] = useState('lunar');
     const [articleId, setArticleId] = useState(null);
 
+    const [searchParams, setSearchParams] = useSearchParams();
+
     // Initial BGM Start
     useEffect(() => {
         const handleInteraction = () => {
@@ -58,6 +60,8 @@ export function GamePage({ isDark, setIsDark }) {
             window.removeEventListener('touchstart', handleInteraction);
         };
     }, [playBGM]);
+
+
     const [isTopUpOpen, setIsTopUpOpen] = useState(false);
     const [showFutureDialog, setShowFutureDialog] = useState(false);
     const [isTermsOpen, setIsTermsOpen] = useState(false);
@@ -103,6 +107,16 @@ export function GamePage({ isDark, setIsDark }) {
         isDrawingFuture,
         setIsDrawingFuture
     } = useTarotGame();
+
+    // Check for topic param (e.g. from Soulmate Page)
+    useEffect(() => {
+        const topicParam = searchParams.get('topic');
+        if (topicParam === 'love' && setTopic) {
+            setTopic('love');
+            // Clear param to clean URL
+            setSearchParams({});
+        }
+    }, [searchParams, setTopic, setSearchParams]);
 
     const {
         credits,

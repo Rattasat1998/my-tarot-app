@@ -40,7 +40,7 @@ export const ZodiacPage = () => {
 
             {/* Header */}
             <header className="sticky top-0 z-40 bg-slate-950/90 backdrop-blur-md border-b border-slate-800">
-                <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+                <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-start gap-8">
                     <div className="flex items-center gap-4">
                         <button
                             onClick={() => navigate('/')}
