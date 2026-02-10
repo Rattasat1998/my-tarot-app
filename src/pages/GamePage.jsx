@@ -27,6 +27,7 @@ import { useTarotGame } from '../hooks/useTarotGame';
 import { useCredits } from '../hooks/useCredits';
 import { useAuth } from '../contexts/AuthContext';
 import { useSound } from '../contexts/SoundContext'; // Import useSound
+import { usePageTitle } from '../hooks/usePageTitle';
 import { supabase } from '../lib/supabase';
 
 // Helper to determine cost
@@ -38,6 +39,7 @@ const getReadingCost = (topic) => {
 };
 
 export function GamePage({ isDark, setIsDark }) {
+    usePageTitle('ดูดวงไพ่ทาโรต์ แม่นๆ');
     const navigate = useNavigate();
     const { isMuted, toggleMute, playBGM, playSFX } = useSound(); // Initialize Hook
     const [calendarType, setCalendarType] = useState('lunar');

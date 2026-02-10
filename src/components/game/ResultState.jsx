@@ -69,6 +69,15 @@ export const ResultState = ({
         }
     };
 
+    const getCardMeaning = (card, topic) => {
+        if (!card) return '';
+        if (topic === 'love' && card.meaningLove) return card.meaningLove;
+        if (topic === 'work' && card.meaningWork) return card.meaningWork;
+        if (topic === 'finance' && card.meaningFinance) return card.meaningFinance;
+        if (card.meaningUpright) return card.meaningUpright;
+        return card.description;
+    };
+
     const handleShare = async () => {
         if (!shareTemplateRef.current) return;
         setIsSharing(true);
@@ -182,6 +191,7 @@ export const ResultState = ({
                     onClose={closeDetailModal}
                     card={selectedDetailCard}
                     label={detailLabel}
+                    topic={topic}
                 />
 
                 <div className="mb-8 text-center">
@@ -236,7 +246,7 @@ export const ResultState = ({
                                             <span className="text-sm text-slate-400">({card.nameThai})</span>
                                         </div>
                                     </div>
-                                    <p className="text-sm md:text-base text-slate-300 leading-relaxed text-center md:text-left">{card.description}</p>
+                                    <p className="text-sm md:text-base text-slate-300 leading-relaxed text-center md:text-left">{getCardMeaning(card, topic)}</p>
                                 </div>
                             </div>
                         ))}
@@ -501,6 +511,7 @@ export const ResultState = ({
                     onClose={closeDetailModal}
                     card={selectedDetailCard}
                     label={detailLabel}
+                    topic={topic}
                 />
             </div>
         </div>

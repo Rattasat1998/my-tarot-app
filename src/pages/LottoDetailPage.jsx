@@ -4,12 +4,15 @@ import { ArrowLeft, TrendingUp, Users, Flame, Calendar, Trophy, Sparkles, Star, 
 import { getDrawById } from '../services/lottoService';
 // Fallback to static data
 import { LOTTO_DRAWS } from '../data/lottoData';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 export const LottoDetailPage = () => {
     const { drawId } = useParams();
     const navigate = useNavigate();
     // Use 'loading' string as initial state to distinguish from "not found"
     const [draw, setDraw] = useState('loading');
+
+    usePageTitle(draw && draw !== 'loading' ? `ตรวจหวย ${draw.label}` : 'รายละเอียดงวดหวย');
     const [expandedSections, setExpandedSections] = useState({
         historical: true,
         sunday: false,

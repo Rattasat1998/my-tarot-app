@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Loader2, AlertCircle, FileText, Search, Calendar } from 'lucide-react';
 import * as lottoService from '../services/lottoService';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 export const LottoCheckPage = () => {
+    usePageTitle('ตรวจหวยรัฐบาล งวดล่าสุด');
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [draw, setDraw] = useState(null);
@@ -474,6 +476,42 @@ export const LottoCheckPage = () => {
                         color="slate"
                     />
                 </div>
+
+                {/* Information / SEO Section */}
+                <section className="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-slate-100 space-y-6">
+                    <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
+                        <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600">
+                            <FileText size={20} />
+                        </div>
+                        <h2 className="text-xl font-bold text-slate-800">เกร็ดความรู้สลากกินแบ่งรัฐบาล</h2>
+                    </div>
+
+                    <div className="space-y-4 text-slate-600 leading-relaxed">
+                        <div>
+                            <h3 className="font-bold text-slate-800 mb-2">วิธีตรวจผลสลากกินแบ่งอย่างถูกวิธี</h3>
+                            <p>การตรวจผลสลากกินแบ่งรัฐบาลควรตรวจสอบจากแหล่งข้อมูลที่เชื่อถือได้ โดยปกติแล้วหวยจะออกรางวัลเดือนละ 2 ครั้ง คือวันที่ 1 และ 16 ของทุกเดือน (ยกเว้นงวดพิเศษ) เพื่อความแม่นยำ ควรตรวจทานตัวเลขให้ครบถ้วนทั้ง 6 หลัก และตรวจสอบรางวัลข้างเคียง, เลขท้าย 2 ตัว, เลขหน้า 3 ตัว และเลขท้าย 3 ตัวด้วย</p>
+                        </div>
+
+                        <div>
+                            <h3 className="font-bold text-slate-800 mb-2">ข้อควรระวังและการเก็บรักษาสลาก</h3>
+                            <ul className="list-disc pl-5 space-y-1">
+                                <li>สลากกินแบ่งรัฐบาลมีอายุการขึ้นเงินรางวัล 2 ปีนับจากงวดที่ออกรางวัล</li>
+                                <li>ห้ามขีดเขียน แก้ไข หรือทำให้สลากชำรุด โดยเฉพาะบริเวณบาร์โค้ดเนื่องจากอาจมีปัญหาตอนขึ้นเงิน</li>
+                                <li>ควรเซ็นชื่อหลังสลากทันทีเมื่อซื้อ เพื่อยืนยันความเป็นเจ้าของ</li>
+                                <li>เก็บสลากไว้ในที่แห้ง ไม่โดนความร้อนหรือแสงแดดโดยตรง</li>
+                            </ul>
+                        </div>
+
+                        <div>
+                            <h3 className="font-bold text-slate-800 mb-2">ทำอย่างไรเมื่อถูกรางวัล?</h3>
+                            <p>หากท่านโชคดีถูกรางวัล สามารถนำสลากไปขึ้นเงินได้ที่สำนักงานสลากกินแบ่งรัฐบาล หรือธนาคารที่รับขึ้นเงินรางวัล (เช่น ธ.ก.ส., ออมสิน, กรุงไทย) โดยจะมีค่าธรรมเนียมอากรแสตมป์หรือภาษีหัก ณ ที่จ่าย (ประมาณ 0.5% - 1%) ควรเตรียมบัตรประชาชนตัวจริงไปด้วยทุกครั้ง</p>
+                        </div>
+
+                        <div className="bg-amber-50 border border-amber-100 rounded-xl p-4 text-sm text-amber-800 mt-4">
+                            <strong>หมายเหตุ:</strong> ข้อมูลผลรางวัลในแอปพลิเคชันนี้เป็นเพียงการอำนวยความสะดวก โปรดตรวจสอบความถูกต้องอีกครั้งกับสำนักงานสลากกินแบ่งรัฐบาล หรือใบตรวจหวยฉบับมาตรฐาน
+                        </div>
+                    </div>
+                </section>
             </main>
         </div>
     );

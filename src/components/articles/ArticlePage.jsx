@@ -1,9 +1,11 @@
 import React from 'react';
 import { ArrowLeft, Clock, BookOpen, ChevronRight } from 'lucide-react';
 import { getArticleById, ARTICLES } from '../../data/articles';
+import { usePageTitle } from '../../hooks/usePageTitle';
 
 export const ArticlePage = ({ articleId, resetGame, openArticle }) => {
     const article = getArticleById(articleId);
+    usePageTitle(article ? article.title : 'บทความดูดวง');
 
     if (!article) {
         return (

@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Heart, Sparkles, Stars, Calculator, User, Zap, MessageCircle, Smile, Clock, MapPin, Search, Calendar, Briefcase, Gem } from 'lucide-react';
+import { ArrowLeft, Heart, Sparkles, Stars, Calculator, User, Zap, MessageCircle, Smile, Clock, MapPin, Search, Calendar, Briefcase, Gem, BookOpen } from 'lucide-react';
 import { ZODIAC_SIGNS, ELEMENTS, DAYS_OF_WEEK, LOVE_TIMING_DATA, SOULMATE_DATA, getZodiacByDate } from '../data/zodiacData';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 export const SoulmatePage = () => {
+    usePageTitle('เช็คดวงเนื้อคู่ สมพงษ์');
     const navigate = useNavigate();
 
     // User Inputs
@@ -347,6 +349,36 @@ export const SoulmatePage = () => {
                     </div>
                 </section>
 
+                {/* Information / Article Section */}
+                <section className="bg-slate-900/50 rounded-3xl p-6 md:p-8 border border-slate-800 space-y-6 mt-12 mb-8">
+                    <div className="flex items-center gap-3 border-b border-slate-800 pb-4">
+                        <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-pink-400">
+                            <BookOpen size={20} />
+                        </div>
+                        <h2 className="text-xl font-bold text-white">ศาสตร์แห่งการทำนายเนื้อคู่</h2>
+                    </div>
+
+                    <div className="space-y-4 text-slate-300 leading-relaxed font-light">
+                        <div>
+                            <h3 className="font-bold text-pink-200 mb-2">สมพงษ์และดวงสมพงษ์คืออะไร?</h3>
+                            <p>"สมพงษ์" ตามความเชื่อโหราศาสตร์ไทย หมายถึงความเข้ากันได้ของดวงชะตาระหว่างบุคคลสองคน โดยพิจารณาจากปีเกิด (นักษัตร) วันเกิด (ดวงวัน) และธาตุเดือนเกิด (ดิน น้ำ ลม ไฟ) หากดวงสมพงษ์กัน เชื่อว่าจะช่วยส่งเสริมให้ชีวิตคู่ราบรื่น มีความสุข และเกื้อกูลกัน</p>
+                        </div>
+
+                        <div>
+                            <h3 className="font-bold text-pink-200 mb-2">หลักการธาตุทั้ง 4 กับความรัก</h3>
+                            <ul className="list-disc pl-5 space-y-1 text-sm">
+                                <li><strong className="text-orange-300">ธาตุไฟ (เมษ, สิงห์, ธนู):</strong> รักอิสระ ร้อนแรง มักเข้ากันได้ดีกับธาตุลมที่ช่วยกระพือไฟ</li>
+                                <li><strong className="text-emerald-300">ธาตุดิน (พฤษภ, กันย์, มังกร):</strong> มั่นคง จริงจัง เข้ากันได้ดีกับธาตุน้ำที่ช่วยให้ดินชุ่มชื้น</li>
+                                <li><strong className="text-blue-300">ธาตุลม (เมถุน, ตุลย์, กุมภ์):</strong> ช่างเจรจา ปรับตัวเก่ง เข้ากันได้ดีกับธาตุไฟ</li>
+                                <li><strong className="text-cyan-300">ธาตุน้ำ (กรกฎ, พิจิก, มีน):</strong> อ่อนโยน ลึกซึ้ง เข้ากันได้ดีกับธาตุดิน</li>
+                            </ul>
+                        </div>
+
+                        <div className="bg-indigo-900/20 border border-indigo-500/20 rounded-xl p-4 text-xs text-indigo-200 mt-4 italic">
+                            <strong>หมายเหตุ:</strong> การทำนายนี้ใช้หลักการโหราศาสตร์เบื้องต้นประกอบกับการวิเคราะห์สถิติ เพื่อความบันเทิงและแนวทางในการดำเนินชีวิต ความรักที่ดีเกิดจากความเข้าใจและการปรับตัวเข้าหากันของคนสองคน
+                        </div>
+                    </div>
+                </section>
             </main>
         </div>
     );

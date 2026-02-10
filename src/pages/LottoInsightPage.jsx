@@ -5,6 +5,7 @@ import { LuckyGeneratorModal } from '../components/modals/LuckyGeneratorModal';
 import * as lottoService from '../services/lottoService';
 // Fallback to static data if database is not available
 import { LOTTO_DRAWS, getUpcomingDraw as getStaticUpcoming, getPastDraws as getStaticPast } from '../data/lottoData';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 // Module-level cache to persist data across navigations
 let cachedUpcoming = null;
@@ -12,6 +13,7 @@ let cachedPast = [];
 let dataLoaded = false;
 
 export const LottoInsightPage = () => {
+    usePageTitle('วิเคราะห์หวย สถิติย้อนหลัง');
     const navigate = useNavigate();
     const location = useLocation();
 

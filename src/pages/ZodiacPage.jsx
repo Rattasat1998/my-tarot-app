@@ -4,8 +4,10 @@ import { ArrowLeft, Stars, Sparkles, Calendar } from 'lucide-react';
 import { ZODIAC_SIGNS, getZodiacFortune, ELEMENTS } from '../data/zodiacData';
 import { ZodiacCard } from '../components/zodiac/ZodiacCard';
 import { ZodiacFortune } from '../components/zodiac/ZodiacFortune';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 export const ZodiacPage = () => {
+    usePageTitle('ดูดวงราศี 12 ราศี');
     const navigate = useNavigate();
     const [selectedZodiac, setSelectedZodiac] = useState(null);
     const [fortune, setFortune] = useState(null);

@@ -2,8 +2,23 @@ import React from 'react';
 import { X, Sparkles, BookOpen } from 'lucide-react';
 import { HolographicCard } from '../ui/HolographicCard';
 
-export const CardDetailModal = ({ isOpen, onClose, card, label }) => {
+export const CardDetailModal = ({ isOpen, onClose, card, label, topic }) => {
     if (!isOpen || !card) return null;
+
+    const getMeaning = () => {
+        if (topic === 'love' && card.meaningLove) return card.meaningLove;
+        if (topic === 'work' && card.meaningWork) return card.meaningWork;
+        if (topic === 'finance' && card.meaningFinance) return card.meaningFinance;
+        if (card.meaningUpright) return card.meaningUpright;
+        return card.description;
+    };
+
+    const getMeaningTitle = () => {
+        if (topic === 'love') return 'ความหมายด้านความรัก';
+        if (topic === 'work') return 'ความหมายด้านการงาน';
+        if (topic === 'finance') return 'ความหมายด้านการเงิน';
+        return 'ความหมายโดยรวม';
+    };
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-in fade-in duration-300">
@@ -60,10 +75,10 @@ export const CardDetailModal = ({ isOpen, onClose, card, label }) => {
                     <div className="w-full bg-slate-800/50 p-6 rounded-xl border border-slate-700/50">
                         <div className="flex items-center gap-2 mb-3 text-purple-300 font-bold border-b border-purple-500/20 pb-2">
                             <BookOpen size={18} />
-                            <span>ความหมาย</span>
+                            <span>{getMeaningTitle()}</span>
                         </div>
                         <p className="text-slate-300 leading-relaxed font-light text-lg">
-                            {card.description}
+                            {getMeaning()}
                         </p>
                     </div>
 
