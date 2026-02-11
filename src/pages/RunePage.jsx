@@ -56,9 +56,11 @@ export const RunePage = () => {
         const isFreeDaily = isDaily && isDailyFreeAvailable;
         const effectiveCost = isFreeDaily ? 0 : cost;
 
-        // Require login for paid readings
-        if (!isFreeDaily && !user) {
-            setErrorMsg('กรุณาเข้าสู่ระบบก่อนเพื่อใช้เครดิต');
+        // Require login for ALL readings (including free daily)
+        if (!user) {
+            setErrorMsg(isFreeDaily
+                ? 'กรุณาเข้าสู่ระบบเพื่อบันทึกสิทธิ์รูนรายวัน'
+                : 'กรุณาเข้าสู่ระบบก่อนเพื่อใช้เครดิต');
             return;
         }
 
@@ -245,7 +247,8 @@ export const RunePage = () => {
                                     {(() => {
                                         const { cost, isDaily } = getModeCost(selectedMode);
                                         const isFreeDaily = isDaily && isDailyFreeAvailable;
-                                        const needsLogin = !isFreeDaily && !user;
+                                        // Always require login, even for free daily
+                                        const needsLogin = !user;
                                         const canAfford = isFreeDaily || credits >= cost;
 
                                         // Determine button action
