@@ -201,3 +201,117 @@ h1 {
     transform: rotate(360deg);
   }
 }
+
+/* Hero Section Animations */
+.glow-pulse {
+  animation: glowPulse 4s ease-in-out infinite;
+}
+
+.glow-pulse.delay-1000 {
+  animation-delay: 1s;
+}
+
+.glow-pulse.delay-2000 {
+  animation-delay: 2s;
+}
+
+@keyframes glowPulse {
+
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.6;
+    transform: scale(1.1);
+  }
+}
+
+/* ═══════════════════════════════════ */
+/* Rune Animations */
+/* ═══════════════════════════════════ */
+
+/* 3D Flip */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+.rune-front {
+  transform: rotateY(180deg);
+}
+
+.rune-revealed {
+  transform: rotateY(180deg);
+}
+
+.rune-hidden {
+  transform: rotateY(0deg);
+}
+
+/* Shake animation */
+.rune-shake {
+  animation: runeShake 0.5s ease-in-out infinite;
+}
+
+@keyframes runeShake {
+
+  0%,
+  100% {
+    transform: translateX(0) rotate(0deg);
+  }
+
+  25% {
+    transform: translateX(-4px) rotate(-2deg);
+  }
+
+  75% {
+    transform: translateX(4px) rotate(2deg);
+  }
+}
+
+/* Rune glow */
+.rune-glow {
+  animation: runeGlow 3s ease-in-out infinite;
+}
+
+@keyframes runeGlow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.1);
+  }
+
+  50% {
+    box-shadow: 0 0 25px rgba(16, 185, 129, 0.3);
+  }
+}
+
+/* Shimmer across rune face */
+@keyframes shimmer {
+  0% {
+    transform: skewX(-12deg) translateX(-200%);
+  }
+
+  100% {
+    transform: skewX(-12deg) translateX(200%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+/* Smooth scroll offset */
+.scroll-mt-24 {
+  scroll-margin-top: 6rem;
+}

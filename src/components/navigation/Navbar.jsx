@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, Sun, Moon, Coins, LogIn, LogOut, User, Menu, TrendingUp, Stars, Volume2, VolumeX, BookOpen, Calendar, FileText, Heart } from 'lucide-react';
+import { Sparkles, Sun, Moon, Coins, LogIn, LogOut, User, Menu, TrendingUp, Stars, Volume2, VolumeX, BookOpen, Calendar, FileText, Heart, Hexagon } from 'lucide-react';
 import { CalendarDropdown } from './CalendarDropdown';
 import { ArticleDropdown } from './ArticleDropdown';
 import { useAuth } from '../../contexts/AuthContext';
@@ -77,13 +77,21 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
                             <span className="text-sm font-medium">เนื้อคู่</span>
                         </button>
 
+                        <button
+                            onClick={() => navigate('/runes')}
+                            className="flex items-center gap-2 px-3 py-2 rounded-full text-slate-400 hover:text-white hover:bg-slate-800/50 transition-colors"
+                        >
+                            <Hexagon size={18} />
+                            <span className="text-sm font-medium">รูน</span>
+                        </button>
+
                         <CalendarDropdown isDark={isDark} openCalendar={openCalendar} />
                         <ArticleDropdown openArticle={openArticle} />
                     </div>
 
                     <div className="flex items-center gap-2 sm:gap-4 ml-6">
                         {/* Credit Display */}
-                        {(user || credits > 0) && (
+                        {user && (
                             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-500/10 to-yellow-500/10 border border-amber-500/30">
                                 <div className="w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center text-white shadow-lg shadow-amber-500/20">
                                     <Coins size={14} />
@@ -271,6 +279,16 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
                                     <Heart size={20} />
                                 </div>
                                 <span className="font-medium">เนื้อคู่ & ความรัก</span>
+                            </button>
+
+                            <button
+                                onClick={() => { navigate('/runes'); setIsDrawerOpen(false); }}
+                                className="w-full flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/30 rounded-xl text-emerald-400 hover:from-emerald-500/20 hover:to-teal-500/20 transition-all"
+                            >
+                                <div className="p-2 rounded-lg bg-emerald-500/20 text-emerald-400">
+                                    <Hexagon size={20} />
+                                </div>
+                                <span className="font-medium">รูนโบราณ</span>
                             </button>
                         </div>
                     </div>

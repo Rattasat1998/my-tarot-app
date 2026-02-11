@@ -9,6 +9,9 @@ export const READING_COSTS = {
     luck: { cost: 3, isDaily: false },
     future: { cost: 1, isDaily: false },
     celtic: { cost: 15, isDaily: false },
+    rune_single: { cost: 1, isDaily: true },
+    rune_three: { cost: 3, isDaily: false },
+    rune_five: { cost: 5, isDaily: false },
     default: { cost: 3, isDaily: false }
 };
 
