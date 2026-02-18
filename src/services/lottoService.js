@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { getNextDrawDate, formatThaiDrawLabel, formatDateISO, generateDrawId, getTodayISO } from '../utils/lottoDateUtils';
 
 // API Endpoints
 const API_BASE_URL = 'https://lotto.api.rayriffy.com';
@@ -126,30 +127,52 @@ export const getAllDraws = async () => {
 };
 
 /**
- * Get the upcoming draw (for main LottoInsight page)
+ * Get the upcoming draw (auto-detected by date)
+ * Tries DB first, then auto-generates based on next draw date
  */
 export const getUpcomingDraw = async () => {
-    const { data, error } = await supabase
-        .from('lotto_draws')
-        .select('*')
-        .eq('is_upcoming', true)
-        .single();
+    try {
+        const todayISO = formatDateISO(new Date());
 
-    if (error) {
-        console.error('Error fetching upcoming draw:', error);
-        return null;
+        // Try to find a draw in DB with date >= today
+        const { data, error } = await supabase
+            .from('lotto_draws')
+            .select('*')
+            .gte('date', todayISO)
+            .order('date', { ascending: true })
+            .limit(1);
+
+        if (!error && data && data.length > 0) {
+            return data[0];
+        }
+    } catch (err) {
+        console.error('Error fetching upcoming draw:', err);
     }
-    return data;
+
+    // Auto-generate upcoming draw entry
+    const nextDate = getNextDrawDate();
+    return {
+        id: generateDrawId(nextDate),
+        date: formatDateISO(nextDate),
+        label: formatThaiDrawLabel(nextDate),
+        is_upcoming: true,
+        kpi: null,
+        result: null,
+        lucky_pool: null,
+        conclusion: null
+    };
 };
 
 /**
- * Get past draws (for history section)
+ * Get past draws (auto-detected by date)
  */
 export const getPastDraws = async () => {
+    const todayISO = formatDateISO(new Date());
+
     const { data, error } = await supabase
         .from('lotto_draws')
         .select('id, date, label, is_upcoming, kpi, result')
-        .eq('is_upcoming', false)
+        .lt('date', todayISO)
         .order('date', { ascending: false });
 
     if (error) {
@@ -219,6 +242,7 @@ export const transformDrawForUI = (draw) => {
                 { label: '📅 เลขมงคลประจำเดือน', rank: 3 }
             ]
         } : null,
-        luckyPool: draw.lucky_pool
+        luckyPool: draw.lucky_pool,
+        conclusion: draw.conclusion || null
     };
 };

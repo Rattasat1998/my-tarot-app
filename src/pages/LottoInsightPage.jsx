@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, TrendingUp, Users, Flame, ChevronRight, Calendar, Trophy, Sparkles, FileText, Search } from 'lucide-react';
+import { ArrowLeft, TrendingUp, Users, Flame, ChevronRight, Calendar, Trophy, Sparkles, FileText, Search, Target, ChevronDown, ChevronUp } from 'lucide-react';
 import { LuckyGeneratorModal } from '../components/modals/LuckyGeneratorModal';
 import * as lottoService from '../services/lottoService';
 // Fallback to static data if database is not available
@@ -46,9 +46,10 @@ export const LottoInsightPage = () => {
 
                 let upcomingData, pastData;
 
-                if (upcoming) {
+                if (upcoming && upcoming.kpi) {
                     upcomingData = lottoService.transformDrawForUI(upcoming);
                 } else {
+                    // DB returned no data or auto-generated minimal entry — use static
                     upcomingData = getStaticUpcoming();
                 }
 
@@ -181,20 +182,22 @@ export const LottoInsightPage = () => {
                             </div>
 
                             {/* KPI Cards */}
-                            <div className="grid grid-cols-3 gap-4 mb-6">
-                                <div className={`p-4 rounded-xl text-center ${isDark ? 'bg-slate-800' : 'bg-amber-50'}`}>
-                                    <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'} mb-1`}>สถิติสูงสุด</p>
-                                    <p className="text-2xl font-bold text-amber-500">{upcomingDraw.kpi.historical}</p>
+                            {upcomingDraw.kpi && (
+                                <div className="grid grid-cols-3 gap-4 mb-6">
+                                    <div className={`p-4 rounded-xl text-center ${isDark ? 'bg-slate-800' : 'bg-amber-50'}`}>
+                                        <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'} mb-1`}>สถิติสูงสุด</p>
+                                        <p className="text-2xl font-bold text-amber-500">{upcomingDraw.kpi.historical}</p>
+                                    </div>
+                                    <div className={`p-4 rounded-xl text-center ${isDark ? 'bg-slate-800' : 'bg-blue-50'}`}>
+                                        <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'} mb-1`}>เลขชนสำนัก</p>
+                                        <p className="text-2xl font-bold text-blue-500">{upcomingDraw.kpi.sources}</p>
+                                    </div>
+                                    <div className={`p-4 rounded-xl text-center ${isDark ? 'bg-slate-800' : 'bg-red-50'}`}>
+                                        <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'} mb-1`}>กระแสมาแรง</p>
+                                        <p className="text-2xl font-bold text-red-500">{upcomingDraw.kpi.trending}</p>
+                                    </div>
                                 </div>
-                                <div className={`p-4 rounded-xl text-center ${isDark ? 'bg-slate-800' : 'bg-blue-50'}`}>
-                                    <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'} mb-1`}>เลขชนสำนัก</p>
-                                    <p className="text-2xl font-bold text-blue-500">{upcomingDraw.kpi.sources}</p>
-                                </div>
-                                <div className={`p-4 rounded-xl text-center ${isDark ? 'bg-slate-800' : 'bg-red-50'}`}>
-                                    <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'} mb-1`}>กระแสมาแรง</p>
-                                    <p className="text-2xl font-bold text-red-500">{upcomingDraw.kpi.trending}</p>
-                                </div>
-                            </div>
+                            )}
 
                             {/* Tabs */}
                             <div className={`flex gap-2 p-1 rounded-lg mb-6 ${isDark ? 'bg-slate-800' : 'bg-slate-100'}`}>
@@ -298,6 +301,125 @@ export const LottoInsightPage = () => {
                                     <FileText size={18} />
                                     ดูการวิเคราะห์แบบละเอียด
                                 </button>
+                            </div>
+                        </div>
+                    </section>
+                )}
+
+                {/* Section: คาดเดางวดถัดไป (Next Draw Prediction) */}
+                {upcomingDraw?.conclusion?.finalPicks && (
+                    <section>
+                        <div className="flex items-center gap-2 mb-4">
+                            <Target size={20} className="text-orange-500" />
+                            <h2 className="text-lg font-bold">🎯 คาดเดางวดถัดไป</h2>
+                        </div>
+
+                        {/* Main Prediction Card */}
+                        <div className="rounded-2xl overflow-hidden shadow-lg">
+                            <div className="bg-gradient-to-br from-amber-500 via-orange-500 to-red-500 p-6 text-white">
+                                <div className="text-center mb-1">
+                                    <p className="text-amber-100 text-sm font-medium">สรุปเลขเด่นประจำงวด</p>
+                                    <p className="text-amber-200 text-xs">{upcomingDraw.label}</p>
+                                </div>
+
+                                {/* 2-digit predictions */}
+                                <div className="mt-5">
+                                    <p className="text-xs text-amber-100 mb-2 text-center">เลขท้าย 2 ตัว</p>
+                                    <div className="flex flex-wrap justify-center gap-3">
+                                        {upcomingDraw.conclusion.finalPicks.twoDigit?.map((num, idx) => (
+                                            <div
+                                                key={idx}
+                                                className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg shadow-md transition-transform hover:scale-110 ${idx === 0
+                                                    ? 'bg-white text-orange-600 ring-2 ring-yellow-300'
+                                                    : 'bg-white/20 text-white backdrop-blur-sm border border-white/30'
+                                                    }`}
+                                            >
+                                                {num}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* 3-digit predictions */}
+                                <div className="mt-5">
+                                    <p className="text-xs text-amber-100 mb-2 text-center">เลข 3 ตัว</p>
+                                    <div className="flex flex-wrap justify-center gap-3">
+                                        {upcomingDraw.conclusion.finalPicks.threeDigit?.map((num, idx) => (
+                                            <div
+                                                key={idx}
+                                                className={`px-4 py-2 rounded-full font-bold text-sm shadow-md transition-transform hover:scale-110 ${idx === 0
+                                                    ? 'bg-white text-orange-600 ring-2 ring-yellow-300'
+                                                    : 'bg-white/20 text-white backdrop-blur-sm border border-white/30'
+                                                    }`}
+                                            >
+                                                {num}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Summary Analysis Cards */}
+                            <div className={`${isDark ? 'bg-slate-900' : 'bg-white'} p-4 space-y-3`}>
+                                {/* Statistical */}
+                                {upcomingDraw.conclusion.statistical && (
+                                    <div className="border border-amber-100 rounded-xl overflow-hidden">
+                                        <div className="bg-amber-50 px-4 py-2 flex items-center gap-2">
+                                            <span>{upcomingDraw.conclusion.statistical.icon}</span>
+                                            <span className="text-sm font-bold text-amber-800">{upcomingDraw.conclusion.statistical.title}</span>
+                                        </div>
+                                        <div className="px-4 py-3 space-y-2">
+                                            {upcomingDraw.conclusion.statistical.numbers?.slice(0, 3).map((item, idx) => (
+                                                <div key={idx} className="flex items-center gap-3">
+                                                    <span className="w-10 h-7 flex items-center justify-center bg-amber-100 text-amber-700 rounded font-bold text-sm">
+                                                        {item.num}
+                                                    </span>
+                                                    <span className="text-xs text-slate-500">{item.reason}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Event-driven */}
+                                {upcomingDraw.conclusion.eventDriven && (
+                                    <div className="border border-red-100 rounded-xl overflow-hidden">
+                                        <div className="bg-red-50 px-4 py-2 flex items-center gap-2">
+                                            <span>{upcomingDraw.conclusion.eventDriven.icon}</span>
+                                            <span className="text-sm font-bold text-red-800">{upcomingDraw.conclusion.eventDriven.title}</span>
+                                        </div>
+                                        <div className="px-4 py-3 space-y-2">
+                                            {upcomingDraw.conclusion.eventDriven.numbers?.slice(0, 3).map((item, idx) => (
+                                                <div key={idx} className="flex items-center gap-3">
+                                                    <span className="w-10 h-7 flex items-center justify-center bg-red-100 text-red-700 rounded font-bold text-sm">
+                                                        {item.num}
+                                                    </span>
+                                                    <span className="text-xs text-slate-500">{item.reason}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Consensus */}
+                                {upcomingDraw.conclusion.consensus && (
+                                    <div className="border border-purple-100 rounded-xl overflow-hidden">
+                                        <div className="bg-purple-50 px-4 py-2 flex items-center gap-2">
+                                            <span>{upcomingDraw.conclusion.consensus.icon}</span>
+                                            <span className="text-sm font-bold text-purple-800">{upcomingDraw.conclusion.consensus.title}</span>
+                                        </div>
+                                        <div className="px-4 py-3 space-y-2">
+                                            {upcomingDraw.conclusion.consensus.numbers?.slice(0, 3).map((item, idx) => (
+                                                <div key={idx} className="flex items-center gap-3">
+                                                    <span className="w-10 h-7 flex items-center justify-center bg-purple-100 text-purple-700 rounded font-bold text-sm">
+                                                        {item.num}
+                                                    </span>
+                                                    <span className="text-xs text-slate-500">{item.reason}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </section>
