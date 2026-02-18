@@ -11,6 +11,8 @@ import { LottoCheckPage } from './pages/LottoCheckPage';
 import { ZodiacPage } from './pages/ZodiacPage';
 import { SoulmatePage } from './pages/SoulmatePage';
 import { RunePage } from './pages/RunePage';
+import { PaymentSuccessPage } from './pages/PaymentSuccessPage';
+import { PaymentCancelPage } from './pages/PaymentCancelPage';
 
 function App() {
   const [isDark, setIsDark] = useState(true);
@@ -37,6 +39,8 @@ function App() {
         <Route path="/soulmate" element={<SoulmatePage />} />
         <Route path="/runes" element={<RunePage />} />
         <Route path="/admin/*" element={<AdminPage isDark={isDark} />} />
+        <Route path="/payment/success" element={<PaymentSuccessPage isDark={isDark} />} />
+        <Route path="/payment/cancel" element={<PaymentCancelPage isDark={isDark} />} />
       </Routes>
 
     </>

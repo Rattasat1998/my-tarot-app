@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { X, CreditCard, Coins, Upload, ArrowLeft, CheckCircle } from 'lucide-react';
+import { X, CreditCard, Coins, Upload, ArrowLeft, CheckCircle, QrCode, Building2, Loader2 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -17,18 +17,75 @@ const BANK_DETAILS = {
 
 export const TopUpModal = ({ isOpen, onClose, isDark }) => {
     const { user } = useAuth();
-    const [step, setStep] = useState('select'); // select, payment, success
+    const [step, setStep] = useState('select'); // select, method, payment, success
     const [selectedPkg, setSelectedPkg] = useState(null);
     const [uploading, setUploading] = useState(false);
     const [previewUrl, setPreviewUrl] = useState(null);
     const [fileToUpload, setFileToUpload] = useState(null);
+    const [stripeLoading, setStripeLoading] = useState(false);
     const fileInputRef = useRef(null);
 
     const handleSelectPackage = (pkg) => {
         setSelectedPkg(pkg);
-        setStep('payment');
+        setStep('method');
         setPreviewUrl(null);
         setFileToUpload(null);
+        // Go directly to PromptPay checkout
+        setTimeout(() => {
+            handleStripeCheckoutWithPkg(pkg);
+        }, 100);
+    };
+
+    const handleSelectMethod = (method) => {
+        handleStripeCheckout();
+    };
+
+    const handleStripeCheckoutWithPkg = async (pkg) => {
+        if (!pkg || !user) return;
+
+        setStripeLoading(true);
+        try {
+            const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                throw new Error('กรุณาเข้าสู่ระบบก่อนทำรายการ');
+            }
+
+            const response = await fetch(`${supabaseUrl}/functions/v1/create-checkout`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+                    'Authorization': `Bearer ${session.access_token}`,
+                },
+                body: JSON.stringify({
+                    packageId: pkg.id,
+                    userId: user.id,
+                    userEmail: user.email,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (data.error) {
+                throw new Error(data.error);
+            }
+
+            if (data.url) {
+                window.location.href = data.url;
+            }
+        } catch (error) {
+            console.error('Error creating checkout session:', error);
+            alert(`เกิดข้อผิดพลาด: ${error.message}`);
+        } finally {
+            setStripeLoading(false);
+        }
+    };
+
+
+    const handleStripeCheckout = async () => {
+        handleStripeCheckoutWithPkg(selectedPkg);
     };
 
     const handleFileSelect = (event) => {
@@ -82,7 +139,23 @@ export const TopUpModal = ({ isOpen, onClose, isDark }) => {
         setSelectedPkg(null);
         setPreviewUrl(null);
         setFileToUpload(null);
+        setStripeLoading(false);
         onClose();
+    };
+
+    const getHeaderTitle = () => {
+        switch (step) {
+            case 'select': return 'เติมเครดิต';
+            case 'method': return 'เลือกวิธีชำระ';
+            case 'payment': return 'แจ้งชำระเงิน';
+            case 'success': return 'สำเร็จ';
+            default: return 'เติมเครดิต';
+        }
+    };
+
+    const handleBack = () => {
+        if (step === 'method') setStep('select');
+        else if (step === 'payment') setStep('method');
     };
 
     if (!isOpen) return null;
@@ -94,16 +167,16 @@ export const TopUpModal = ({ isOpen, onClose, isDark }) => {
 
                 {/* Header */}
                 <div className={`p-6 text-center relative ${isDark ? 'bg-slate-800/50' : 'bg-purple-50'}`}>
-                    {step === 'payment' && (
+                    {(step === 'method' || step === 'payment') && (
                         <button
-                            onClick={() => setStep('select')}
+                            onClick={handleBack}
                             className={`absolute top-6 left-6 p-1 rounded-full ${isDark ? 'hover:bg-slate-700 text-slate-400' : 'hover:bg-slate-200 text-slate-500'}`}
                         >
                             <ArrowLeft size={20} />
                         </button>
                     )}
                     <h2 className={`text-2xl font-bold font-serif ${isDark ? 'text-white' : 'text-slate-800'}`}>
-                        {step === 'select' ? 'เติมเครดิต' : step === 'payment' ? 'แจ้งชำระเงิน' : 'สำเร็จ'}
+                        {getHeaderTitle()}
                     </h2>
                     <button
                         onClick={resetModal}
@@ -116,6 +189,7 @@ export const TopUpModal = ({ isOpen, onClose, isDark }) => {
 
                 {/* Content */}
                 <div className="p-6">
+                    {/* Step 1: Select Package */}
                     {step === 'select' && (
                         <div className="space-y-4">
                             {PACKAGES.map((pkg) => (
@@ -161,6 +235,46 @@ export const TopUpModal = ({ isOpen, onClose, isDark }) => {
                         </div>
                     )}
 
+                    {/* Step 2: Select Payment Method */}
+                    {step === 'method' && selectedPkg && (
+                        <div className="space-y-5">
+                            {/* Package Summary */}
+                            <div className={`p-4 rounded-xl text-center ${isDark ? 'bg-slate-800' : 'bg-slate-50'}`}>
+                                <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>แพ็คเกจที่เลือก</p>
+                                <p className="text-2xl font-bold text-purple-600 my-1">{selectedPkg.credits} เครดิต</p>
+                                <p className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-slate-800'}`}>฿{selectedPkg.price}</p>
+                            </div>
+
+                            {/* PromptPay Checkout */}
+                            <button
+                                onClick={() => handleSelectMethod('promptpay')}
+                                disabled={stripeLoading}
+                                className={`w-full p-4 rounded-2xl border-2 transition-all flex items-center gap-4 
+                                    ${isDark
+                                        ? 'border-emerald-500/50 bg-emerald-500/5 hover:bg-emerald-500/10 hover:border-emerald-400'
+                                        : 'border-emerald-200 bg-emerald-50 hover:border-emerald-400 hover:bg-emerald-100'
+                                    } disabled:opacity-50 disabled:cursor-not-allowed`}
+                            >
+                                <div className="w-12 h-12 rounded-xl bg-emerald-500 text-white flex items-center justify-center shrink-0">
+                                    {stripeLoading ? (
+                                        <Loader2 size={24} className="animate-spin" />
+                                    ) : (
+                                        <QrCode size={24} />
+                                    )}
+                                </div>
+                                <div className="text-left flex-1">
+                                    <div className={`font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>
+                                        PromptPay (QR Code)
+                                    </div>
+                                    <div className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                                        {stripeLoading ? 'กำลังสร้างลิงก์ชำระเงิน...' : 'สแกน QR จ่ายผ่านแอปธนาคาร • เครดิตเข้าอัตโนมัติ'}
+                                    </div>
+                                </div>
+                            </button>
+                        </div>
+                    )}
+
+                    {/* Step 3: Bank Transfer Payment (existing flow) */}
                     {step === 'payment' && selectedPkg && (
                         <div className="space-y-6">
                             <div className={`p-4 rounded-xl text-center ${isDark ? 'bg-slate-800' : 'bg-slate-50'}`}>
@@ -228,6 +342,7 @@ export const TopUpModal = ({ isOpen, onClose, isDark }) => {
                         </div>
                     )}
 
+                    {/* Success Step */}
                     {step === 'success' && (
                         <div className="text-center py-8">
                             <div className="w-16 h-16 rounded-full bg-green-500/10 text-green-500 flex items-center justify-center mx-auto mb-4">

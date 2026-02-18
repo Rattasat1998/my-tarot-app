@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, Sun, Moon, Coins, LogIn, LogOut, User, Menu, TrendingUp, Stars, Volume2, VolumeX, BookOpen, Calendar, FileText, Heart, Hexagon } from 'lucide-react';
+import { Sparkles, Sun, Moon, Coins, LogIn, LogOut, User, Menu, TrendingUp, Stars, Volume2, VolumeX, BookOpen, Calendar, FileText, Heart, Hexagon, Plus, Receipt } from 'lucide-react';
 import { CalendarDropdown } from './CalendarDropdown';
 import { ArticleDropdown } from './ArticleDropdown';
 import { useAuth } from '../../contexts/AuthContext';
@@ -92,12 +92,17 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
                     <div className="flex items-center gap-2 sm:gap-4 ml-6">
                         {/* Credit Display */}
                         {user && (
-                            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-500/10 to-yellow-500/10 border border-amber-500/30">
+                            <button
+                                onClick={onOpenTopUp}
+                                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-500/10 to-yellow-500/10 border border-amber-500/30 hover:from-amber-500/20 hover:to-yellow-500/20 hover:border-amber-500/50 transition-all cursor-pointer group"
+                                title="เติมเครดิต"
+                            >
                                 <div className="w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center text-white shadow-lg shadow-amber-500/20">
                                     <Coins size={14} />
                                 </div>
                                 <span className="font-bold text-amber-500">{credits}</span>
-                            </div>
+                                <Plus size={14} className="text-amber-500/60 group-hover:text-amber-400 transition-colors" />
+                            </button>
                         )}
 
                         <div className="h-6 w-px bg-slate-800 hidden sm:block"></div>
@@ -157,6 +162,28 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
                                                 >
                                                     <User size={16} />
                                                     แก้ไขข้อมูลส่วนตัว
+                                                </button>
+
+                                                <button
+                                                    onClick={() => {
+                                                        onOpenTopUp();
+                                                        setIsProfileOpen(false);
+                                                    }}
+                                                    className="w-full text-left px-4 py-2 text-sm text-amber-400 hover:bg-slate-800 flex items-center gap-2 transition-colors border-b border-slate-800"
+                                                >
+                                                    <Coins size={16} />
+                                                    เติมเครดิต
+                                                </button>
+
+                                                <button
+                                                    onClick={() => {
+                                                        setShowHistory(true);
+                                                        setIsProfileOpen(false);
+                                                    }}
+                                                    className="w-full text-left px-4 py-2 text-sm text-slate-300 hover:bg-slate-800 flex items-center gap-2 transition-colors border-b border-slate-800"
+                                                >
+                                                    <Receipt size={16} />
+                                                    ประวัติการเติมเงิน
                                                 </button>
 
                                                 <button
@@ -223,6 +250,18 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
                                             <p className="text-xs text-slate-400">สมาชิกทั่วไป</p>
                                         </div>
                                     </div>
+                                    <button
+                                        onClick={() => { onOpenTopUp(); setIsDrawerOpen(false); }}
+                                        className="w-full flex items-center justify-center gap-2 p-3 rounded-lg bg-gradient-to-r from-amber-500/20 to-yellow-500/20 text-amber-400 text-sm font-medium border border-amber-500/30 hover:from-amber-500/30 hover:to-yellow-500/30 transition-all"
+                                    >
+                                        <Coins size={16} /> เติมเครดิต ({credits} เครดิต)
+                                    </button>
+                                    <button
+                                        onClick={() => { setShowHistory(true); setIsDrawerOpen(false); }}
+                                        className="w-full flex items-center justify-center gap-2 p-2.5 rounded-lg bg-slate-800/50 text-slate-300 text-sm border border-slate-700 hover:bg-slate-700 transition-all"
+                                    >
+                                        <Receipt size={16} /> ประวัติการเติมเงิน
+                                    </button>
                                     <div className="grid grid-cols-2 gap-2">
                                         <button onClick={() => { navigate('/profile'); setIsDrawerOpen(false); }} className="flex items-center justify-center gap-2 p-2 rounded-lg bg-slate-800/50 text-slate-300 text-sm border border-slate-700">
                                             <User size={16} /> โปรไฟล์
