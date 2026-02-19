@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { palmistryData } from '../data/palmistryData';
+import { usePageSEO } from '../hooks/usePageTitle';
 
 const SectionTitle = ({ emoji, title, subtitle }) => (
     <div className="mb-8 mt-16">
@@ -17,6 +18,14 @@ const SectionTitle = ({ emoji, title, subtitle }) => (
 const PalmistryPage = () => {
     const navigate = useNavigate();
     const d = palmistryData;
+
+    usePageSEO({
+        title: 'ศาสตร์ลายมือ: หัตถศาสตร์เชิงบูรณาการ',
+        description: 'เรียนรู้ศาสตร์ลายมือครบทุกมิติ ประวัติศาสตร์ ประเภทมือตามธาตุ เนินฝ่ามือ 7 เนิน เส้นหลัก 4 เส้น เครื่องหมายพิเศษ หัตถศาสตร์ไทย ติตถิวิทยา AI กับอนาคตลายมือ',
+        keywords: 'ศาสตร์ลายมือ, ดูลายมือ, หัตถศาสตร์, เส้นชีวิต, เส้นสมอง, เส้นหัวใจ, เนินฝ่ามือ, palmistry, ลายนิ้วมือ',
+        ogImage: 'https://satduangdao.com/palmistry-hero.png',
+        path: '/palmistry-article',
+    });
 
     // State for interactive elements
     const [activeLineTab, setActiveLineTab] = useState(0);

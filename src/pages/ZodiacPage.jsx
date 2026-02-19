@@ -4,10 +4,15 @@ import { ArrowLeft, Stars, Sparkles, Calendar } from 'lucide-react';
 import { ZODIAC_SIGNS, getZodiacFortune, ELEMENTS } from '../data/zodiacData';
 import { ZodiacCard } from '../components/zodiac/ZodiacCard';
 import { ZodiacFortune } from '../components/zodiac/ZodiacFortune';
-import { usePageTitle } from '../hooks/usePageTitle';
+import { usePageSEO } from '../hooks/usePageTitle';
 
 export const ZodiacPage = () => {
-    usePageTitle('ดูดวงราศี 12 ราศี');
+    usePageSEO({
+        title: 'ดูดวงราศี 12 ราศี ประจำวัน',
+        description: 'ดูดวง 12 ราศีประจำวันฟรี ดูดวงความรัก การงาน การเงิน สุขภาพ จัดกลุ่มตามธาตุ ไฟ ดิน ลม น้ำ เลือกราศีเพื่อรับคำทำนายแม่นๆ',
+        keywords: 'ดูดวงราศี, ดวง 12 ราศี, ดวงรายวัน, ดวงความรัก, ราศีเมษ, ราศีพฤษภ, ธาตุ 4 ธาตุ, โหราศาสตร์',
+        path: '/zodiac',
+    });
     const navigate = useNavigate();
     const [selectedZodiac, setSelectedZodiac] = useState(null);
     const [fortune, setFortune] = useState(null);

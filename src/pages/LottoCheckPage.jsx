@@ -2,10 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Loader2, AlertCircle, FileText, Search, Calendar } from 'lucide-react';
 import * as lottoService from '../services/lottoService';
-import { usePageTitle } from '../hooks/usePageTitle';
+import { usePageSEO } from '../hooks/usePageTitle';
 
 export const LottoCheckPage = () => {
-    usePageTitle('ตรวจหวยรัฐบาล งวดล่าสุด');
+    usePageSEO({
+        title: 'ตรวจหวยรัฐบาล งวดล่าสุด',
+        description: 'ตรวจหวยรัฐบาลออนไลน์ ผลสลากกินแบ่งรัฐบาลงวดล่าสุด ตรวจได้ทุกงวด รางวัลที่ 1 เลขท้าย 2 ตัว เลขหน้า 3 ตัว เลขท้าย 3 ตัว ครบทุกรางวัล พร้อมย้อนหลัง',
+        keywords: 'ตรวจหวย, ผลสลากกินแบ่ง, หวยรัฐบาล, ตรวจลอตเตอรี่, ผลหวยงวดล่าสุด, รางวัลที่ 1, เลขท้าย 2 ตัว',
+        path: '/lotto/check',
+    });
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [draw, setDraw] = useState(null);

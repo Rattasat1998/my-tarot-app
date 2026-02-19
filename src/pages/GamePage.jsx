@@ -27,7 +27,7 @@ import { useTarotGame } from '../hooks/useTarotGame';
 import { useCredits } from '../hooks/useCredits';
 import { useAuth } from '../contexts/AuthContext';
 import { useSound } from '../contexts/SoundContext'; // Import useSound
-import { usePageTitle } from '../hooks/usePageTitle';
+import { usePageSEO } from '../hooks/usePageTitle';
 import { supabase } from '../lib/supabase';
 
 // Helper to determine cost
@@ -39,7 +39,14 @@ const getReadingCost = (topic) => {
 };
 
 export function GamePage({ isDark, setIsDark }) {
-    usePageTitle('ดูดวงไพ่ทาโรต์ แม่นๆ');
+    usePageSEO({
+        title: 'ดูดวงไพ่ทาโรต์ แม่นๆ ฟรี',
+        description: 'ดูดวงไพ่ทาโรต์ออนไลน์ฟรี ดวงรายวัน รายเดือน ความรัก การงาน การเงิน สุขภาพ ทำนายแม่นด้วยไพ่ Major Arcana 22 ใบ พร้อมคำแนะนำเชิงลึก',
+        keywords: 'ไพ่ทาโรต์, ดูดวงไพ่, ดวงรายวัน, ทำนายไพ่ทาโรต์, tarot reading, ดวงความรัก, ดวงการเงิน, Major Arcana',
+        ogImage: 'https://satduangdao.com/og-image.png',
+        path: '/',
+        type: 'website',
+    });
     const navigate = useNavigate();
     const { isMuted, toggleMute, playBGM, playSFX } = useSound(); // Initialize Hook
     const [calendarType, setCalendarType] = useState('lunar');

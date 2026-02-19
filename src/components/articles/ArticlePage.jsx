@@ -1,11 +1,15 @@
 import React from 'react';
 import { ArrowLeft, Clock, BookOpen, ChevronRight } from 'lucide-react';
 import { getArticleById, ARTICLES } from '../../data/articles';
-import { usePageTitle } from '../../hooks/usePageTitle';
+import { usePageSEO } from '../../hooks/usePageTitle';
 
 export const ArticlePage = ({ articleId, resetGame, openArticle }) => {
     const article = getArticleById(articleId);
-    usePageTitle(article ? article.title : 'บทความดูดวง');
+    usePageSEO({
+        title: article ? article.title : 'บทความดูดวง',
+        description: article ? (article.excerpt || article.title) : 'รวมบทความดูดวงและศาสตร์โบราณ ไพ่ทาโรต์ โหราศาสตร์ เลขศาสตร์ ฮวงจุ้ย และอีกมากมาย',
+        keywords: 'บทความดูดวง, โหราศาสตร์, ไพ่ทาโรต์, ศาสตร์โบราณ',
+    });
 
     if (!article) {
         return (

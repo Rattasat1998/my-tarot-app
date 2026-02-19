@@ -2,10 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Heart, Sparkles, Stars, Calculator, User, Zap, MessageCircle, Smile, Clock, MapPin, Search, Calendar, Briefcase, Gem, BookOpen } from 'lucide-react';
 import { ZODIAC_SIGNS, ELEMENTS, DAYS_OF_WEEK, LOVE_TIMING_DATA, SOULMATE_DATA, getZodiacByDate } from '../data/zodiacData';
-import { usePageTitle } from '../hooks/usePageTitle';
+import { usePageSEO } from '../hooks/usePageTitle';
 
 export const SoulmatePage = () => {
-    usePageTitle('เช็คดวงเนื้อคู่ สมพงษ์');
+    usePageSEO({
+        title: 'เช็คดวงเนื้อคู่ ทำนายคู่ครอง',
+        description: 'ทำนายเนื้อคู่จากดวงชะตา เช็คสมพงษ์ตามราศีเกิดและวันเกิด ดูรูปร่าง นิสัย อาชีพ ช่วงเวลา และสถานที่ที่จะพบคู่แท้ ศาสตร์ธาตุ 4 กับความรัก',
+        keywords: 'ดวงเนื้อคู่, ทำนายคู่ครอง, สมพงษ์, ดูดวงรัก, ราศีเกิด, ธาตุความรัก, พยากรณ์ความรัก',
+        path: '/soulmate',
+    });
     const navigate = useNavigate();
 
     // User Inputs

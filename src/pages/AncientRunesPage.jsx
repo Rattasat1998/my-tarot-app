@@ -6,6 +6,7 @@ import {
     ODIN_MYTH, AETTIR, RUNE_ARTIFACTS, ARTIFACTS_NOTE,
     RUNE_POEMS, POEMS_NOTE, GALDR, MODERN_REVIVAL, CONCLUSION,
 } from '../data/ancientRunesData';
+import { usePageSEO } from '../hooks/usePageTitle';
 
 /* ──────────────── helpers ──────────────── */
 const renderBold = (text) => {
@@ -94,6 +95,14 @@ const AettSection = ({ aett }) => {
 export function AncientRunesPage() {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('futhark');
+
+    usePageSEO({
+        title: 'รูนโบราณ Elder Futhark: อักษรศักดิ์สิทธิ์จากนอร์ส',
+        description: 'เรียนรู้รูนโบราณ Elder Futhark 24 ตัว ต้นกำเนิดจากยุคไวกิ้ง ตำนานโอดิน ระบบ 3 Ættir โบราณวัตถุทางรูน กวีนิพนธ์รูน กัลดร์ และการฟื้นฟูในยุคปัจจุบัน',
+        keywords: 'รูนโบราณ, Elder Futhark, ดูดวงรูน, อักษรรูน, ไวกิ้ง, โอดิน, Ættir, Norse runes, กัลดร์',
+        ogImage: 'https://satduangdao.com/rune-hero.png',
+        path: '/ancient-runes-article',
+    });
 
     const tabs = [
         { id: 'futhark', label: 'ᚠ Elder Futhark', icon: '☽' },
@@ -232,8 +241,8 @@ export function AncientRunesPage() {
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
                             className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${activeTab === tab.id
-                                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
-                                    : 'bg-slate-900/50 text-slate-500 border border-slate-800 hover:text-white'
+                                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                                : 'bg-slate-900/50 text-slate-500 border border-slate-800 hover:text-white'
                                 }`}
                         >
                             {tab.label}

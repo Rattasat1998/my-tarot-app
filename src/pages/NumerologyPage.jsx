@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, ChevronDown, ChevronUp, Star, Sparkles, Hash, Globe, BookOpen } from 'lucide-react';
+import { usePageSEO } from '../hooks/usePageTitle';
 import {
     NUM_OVERVIEW,
     WORLD_SYSTEMS,
@@ -105,6 +106,14 @@ export default function NumerologyPage() {
     const [activeTab, setActiveTab] = useState('meanings');
     const [showAllLucky, setShowAllLucky] = useState(false);
     const [openCore, setOpenCore] = useState(null);
+
+    usePageSEO({
+        title: 'เลขศาสตร์: ศาสตร์แห่งตัวเลขจากทั่วโลก',
+        description: 'เจาะลึกเลขศาสตร์ 4 ระบบโลก คาลเดียน พีทาโกรัส คับบาลาห์ จีน ความหมายเลข 1-9 Master Numbers เลขศาสตร์ไทย ตารางอักษรไทย ทะเบียนรถมงคล บ้านเลขที่มงคล',
+        keywords: 'เลขศาสตร์, ตัวเลขมงคล, คาลเดียน, พีทาโกรัส, เลขนำโชค, ทะเบียนรถ, บ้านเลขที่, Master Numbers, numerology',
+        ogImage: 'https://satduangdao.com/numerology-hero.png',
+        path: '/numerology-article',
+    });
 
     useEffect(() => { window.scrollTo(0, 0); }, []);
 
@@ -267,8 +276,8 @@ export default function NumerologyPage() {
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${activeTab === tab.id
-                                        ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
-                                        : 'bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10'
+                                    ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                                    : 'bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10'
                                     }`}
                             >
                                 {tab.icon} {tab.label}

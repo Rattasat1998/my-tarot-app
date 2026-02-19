@@ -4,7 +4,7 @@ import { ArrowLeft, TrendingUp, Users, Flame, Calendar, Trophy, Sparkles, Star, 
 import { getDrawById } from '../services/lottoService';
 // Fallback to static data
 import { LOTTO_DRAWS } from '../data/lottoData';
-import { usePageTitle } from '../hooks/usePageTitle';
+import { usePageSEO } from '../hooks/usePageTitle';
 
 export const LottoDetailPage = () => {
     const { drawId } = useParams();
@@ -12,7 +12,14 @@ export const LottoDetailPage = () => {
     // Use 'loading' string as initial state to distinguish from "not found"
     const [draw, setDraw] = useState('loading');
 
-    usePageTitle(draw && draw !== 'loading' ? `ตรวจหวย ${draw.label}` : 'รายละเอียดงวดหวย');
+    usePageSEO({
+        title: draw && draw !== 'loading' ? `วิเคราะห์หวย ${draw.label}` : 'รายงานวิเคราะห์เชิงลึก',
+        description: draw && draw !== 'loading'
+            ? `วิเคราะห์หวยงวด ${draw.label} เชิงลึก สถิติย้อนหลัง เลขเด็ดจากสำนักดัง เหตุการณ์สำคัญ โหราศาสตร์ บทสรุปเลขเด่นประจำงวด`
+            : 'รายงานวิเคราะห์หวยเชิงลึก สถิติย้อนหลัง แนวทางจากสำนักดัง กระแสสังคม',
+        keywords: 'วิเคราะห์หวย, สถิติหวย, เลขเด็ด, สำนักดัง, หวยรัฐบาล, เลขมงคล',
+        path: `/lotto/${drawId}`,
+    });
     const [expandedSections, setExpandedSections] = useState({
         historical: true,
         sunday: false,

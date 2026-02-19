@@ -2,10 +2,15 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, BookOpen, ChevronRight, ChevronDown, List, X } from 'lucide-react';
 import { CEREMONY_SECTIONS } from '../data/buddhistCeremonyData';
-import { usePageTitle } from '../hooks/usePageTitle';
+import { usePageSEO } from '../hooks/usePageTitle';
 
 export function BuddhistCeremonyPage() {
-    usePageTitle('ศาสนพิธีในพุทธศาสนาไทย | ศาสตร์ดวงดาว');
+    usePageSEO({
+        title: 'ศาสนพิธีในพุทธศาสนาไทย',
+        description: 'บทความเชิงลึกเกี่ยวกับศาสนพิธีในพุทธศาสนาไทย วิวัฒนาการจากรากฐานคัมภีร์สู่สังคมร่วมสมัย พิธีกรรมทำบุญ อุปสมบท ทอดกฐิน ลอยกระทง สัญลักษณ์ทางศาสนา',
+        keywords: 'ศาสนพิธี, พุทธศาสนา, พิธีกรรมไทย, ทำบุญ, อุปสมบท, ทอดกฐิน, ลอยกระทง, วัดไทย, พระพุทธศาสนา',
+        path: '/buddhist-ceremony-article',
+    });
     const navigate = useNavigate();
     const [activeSection, setActiveSection] = useState('intro');
     const [showTOC, setShowTOC] = useState(false);
@@ -121,8 +126,8 @@ export function BuddhistCeremonyPage() {
                                             key={section.id}
                                             onClick={() => scrollToSection(section.id)}
                                             className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all flex items-center gap-2 ${activeSection === section.id
-                                                    ? 'bg-amber-500/15 text-amber-300 border-l-2 border-amber-400'
-                                                    : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                                                ? 'bg-amber-500/15 text-amber-300 border-l-2 border-amber-400'
+                                                : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
                                                 }`}
                                         >
                                             <span className="text-base">{section.icon}</span>
@@ -162,8 +167,8 @@ export function BuddhistCeremonyPage() {
                                             key={section.id}
                                             onClick={() => scrollToSection(section.id)}
                                             className={`w-full text-left px-4 py-3 rounded-xl text-sm transition-all flex items-center gap-3 ${activeSection === section.id
-                                                    ? 'bg-amber-500/15 text-amber-300'
-                                                    : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                                                ? 'bg-amber-500/15 text-amber-300'
+                                                : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
                                                 }`}
                                         >
                                             <span className="text-lg">{section.icon}</span>

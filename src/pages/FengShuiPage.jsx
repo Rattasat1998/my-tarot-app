@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fengShuiData } from '../data/fengShuiData';
+import { usePageSEO } from '../hooks/usePageTitle';
 
 // ── Sub-components ──
 
@@ -38,6 +39,14 @@ const FengShuiPage = () => {
     const d = fengShuiData;
     const [activeSchool, setActiveSchool] = useState(0);
     const [activeRoom, setActiveRoom] = useState(0);
+
+    usePageSEO({
+        title: 'ฮวงจุ้ย: ศาสตร์จัดวางตำแหน่งเพื่อชีวิตที่ดี',
+        description: 'คู่มือฮวงจุ้ยฉบับสมบูรณ์ หยิน-หยาง ธาตุทั้ง 5 สำนักรูปทรง สำนักเข็มทิศ การเลือกที่ดิน จัดบ้าน เลขกั้ว กรณีศึกษา HSBC Apple Store ยุคที่ 9 กระจก สัตว์มงคล',
+        keywords: 'ฮวงจุ้ย, feng shui, หยิน หยาง, ธาตุทั้ง 5, เลขกั้ว, จัดบ้าน, ที่ดินมงคล, สัตว์มงคล, ยุคที่ 9',
+        ogImage: 'https://satduangdao.com/fengshui-hero.png',
+        path: '/feng-shui-article',
+    });
 
     return (
         <div className="min-h-screen bg-[#0B0D17] text-slate-200">

@@ -11,6 +11,7 @@ import {
     ZODIAC_GROUPS,
     CLOSING_MESSAGE
 } from '../data/zodiacHoroscopeData';
+import { usePageSEO } from '../hooks/usePageTitle';
 
 const ZodiacCard = ({ sign, isExpanded, onToggle }) => {
     return (
@@ -121,6 +122,14 @@ export function ZodiacHoroscopePage() {
     const navigate = useNavigate();
     const [expandedSigns, setExpandedSigns] = useState(new Set());
     const [activeTab, setActiveTab] = useState('zodiac');
+
+    usePageSEO({
+        title: 'ดูดวงราศี 12 ราศี ปี 2569 แม่นที่สุด',
+        description: 'พยากรณ์ดวงชะตา 12 ราศี ประจำปี 2569 วิเคราะห์อิทธิพลดาวประธาน สีมงคลประจำวัน เลขนำโชคตามปีนักษัตร พร้อมพยากรณ์รายเดือน การเงิน ความรัก สุขภาพ',
+        keywords: 'ดูดวงราศี, ดวง 12 ราศี 2569, พยากรณ์ดวงชะตา, สีมงคล, เลขนำโชค, โหราศาสตร์ไทย, ดวงรายเดือน',
+        ogImage: 'https://satduangdao.com/zodiac-hero.png',
+        path: '/zodiac-horoscope',
+    });
 
     const toggleSign = (id) => {
         setExpandedSigns(prev => {
@@ -261,8 +270,8 @@ export function ZodiacHoroscopePage() {
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
                             className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${activeTab === tab.id
-                                    ? 'bg-amber-500/20 border border-amber-500/40 text-amber-300'
-                                    : 'bg-slate-800/50 border border-slate-800 text-slate-400 hover:text-white'
+                                ? 'bg-amber-500/20 border border-amber-500/40 text-amber-300'
+                                : 'bg-slate-800/50 border border-slate-800 text-slate-400 hover:text-white'
                                 }`}
                         >
                             {tab.label}

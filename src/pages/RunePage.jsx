@@ -6,7 +6,7 @@ import { RuneStone } from '../components/runes/RuneStone';
 import { RuneReading } from '../components/runes/RuneReading';
 import { RuneHistory } from '../components/runes/RuneHistory';
 import { TopUpModal } from '../components/modals/TopUpModal';
-import { usePageTitle } from '../hooks/usePageTitle';
+import { usePageSEO } from '../hooks/usePageTitle';
 import { useCredits } from '../hooks/useCredits';
 import { useAuth } from '../contexts/AuthContext';
 import { getReadingCost } from '../constants/costs';
@@ -19,7 +19,12 @@ const MODE_COST_KEY = {
 };
 
 export const RunePage = () => {
-    usePageTitle('ดูดวงรูนโบราณ | Elder Futhark');
+    usePageSEO({
+        title: 'ดูดวงรูนโบราณ Elder Futhark',
+        description: 'ดูดวงรูนโบราณ Elder Futhark 24 ตัว สุ่มรูน 1, 3, 5 ก้อน ทำนายดวงชะตาด้วยศาสตร์ไวกิ้ง พร้อมความหมายเชิงลึกและคำแนะนำ',
+        keywords: 'ดูดวงรูน, Elder Futhark, รูนโบราณ, ไวกิ้ง, ทำนายรูน, สุ่มรูน, Norse runes',
+        path: '/runes',
+    });
     const navigate = useNavigate();
     const [selectedMode, setSelectedMode] = useState(null);
     const [drawnRunes, setDrawnRunes] = useState(null);

@@ -5,7 +5,7 @@ import { LuckyGeneratorModal } from '../components/modals/LuckyGeneratorModal';
 import * as lottoService from '../services/lottoService';
 // Fallback to static data if database is not available
 import { LOTTO_DRAWS, getUpcomingDraw as getStaticUpcoming, getPastDraws as getStaticPast } from '../data/lottoData';
-import { usePageTitle } from '../hooks/usePageTitle';
+import { usePageSEO } from '../hooks/usePageTitle';
 
 // Module-level cache to persist data across navigations
 let cachedUpcoming = null;
@@ -13,7 +13,12 @@ let cachedPast = [];
 let dataLoaded = false;
 
 export const LottoInsightPage = () => {
-    usePageTitle('วิเคราะห์หวย สถิติย้อนหลัง');
+    usePageSEO({
+        title: 'วิเคราะห์หวย สถิติย้อนหลัง',
+        description: 'วิเคราะห์หวยรัฐบาล สถิติย้อนหลัง 22 ปี แนวทางจากสำนักดัง กระแสเลขเด็ดโซเชียล เลขมงคล สรุปเลขเด่นประจำงวด พร้อมระบบสุ่มเลขนำโชค',
+        keywords: 'วิเคราะห์หวย, สถิติหวย, เลขเด็ด, สำนักดัง, หวยรัฐบาล, เลขมงคล, แนวทางหวย, สถิติย้อนหลัง',
+        path: '/lotto',
+    });
     const navigate = useNavigate();
     const location = useLocation();
 
