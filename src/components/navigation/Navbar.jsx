@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, Sun, Moon, Coins, LogIn, LogOut, User, Menu, TrendingUp, Stars, Volume2, VolumeX, BookOpen, Calendar, FileText, Heart, Hexagon, Plus, Receipt } from 'lucide-react';
+import { Sparkles, Sun, Moon, Coins, LogIn, LogOut, User, Menu, TrendingUp, Stars, Volume2, VolumeX, BookOpen, Calendar, FileText, Heart, Hexagon, Plus, Receipt, Landmark } from 'lucide-react';
 import { CalendarDropdown } from './CalendarDropdown';
-import { ArticleDropdown } from './ArticleDropdown';
+import { KnowledgeDropdown } from './KnowledgeDropdown';
 import { useAuth } from '../../contexts/AuthContext';
 import { TransactionHistoryModal } from '../modals/TransactionHistoryModal';
 import { ReadingHistoryModal } from '../modals/ReadingHistoryModal';
@@ -86,7 +86,7 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
                         </button>
 
                         <CalendarDropdown isDark={isDark} openCalendar={openCalendar} />
-                        <ArticleDropdown openArticle={openArticle} />
+                        <KnowledgeDropdown openArticle={openArticle} />
                     </div>
 
                     <div className="flex items-center gap-2 sm:gap-4 ml-6">
@@ -329,14 +329,24 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
                                 </div>
                                 <span className="font-medium">รูนโบราณ</span>
                             </button>
+
+                            <button
+                                onClick={() => { navigate('/ceremony'); setIsDrawerOpen(false); }}
+                                className="w-full flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-yellow-500/10 to-amber-500/10 border border-yellow-500/30 rounded-xl text-yellow-400 hover:from-yellow-500/20 hover:to-amber-500/20 transition-all"
+                            >
+                                <div className="p-2 rounded-lg bg-yellow-500/20 text-yellow-400">
+                                    <Landmark size={20} />
+                                </div>
+                                <span className="font-medium">ศาสนพิธี</span>
+                            </button>
                         </div>
                     </div>
 
                     <div>
-                        <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">ปฏิทิน & บทความ</h3>
+                        <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">ปฏิทิน & ความรู้</h3>
                         <div className="space-y-2">
                             <CalendarDropdown isDark={isDark} openCalendar={handleOpenCalendar} isMobile={true} />
-                            <ArticleDropdown openArticle={handleOpenArticle} isMobile={true} />
+                            <KnowledgeDropdown openArticle={handleOpenArticle} isMobile={true} />
                         </div>
                     </div>
 

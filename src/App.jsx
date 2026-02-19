@@ -13,6 +13,12 @@ import { SoulmatePage } from './pages/SoulmatePage';
 import { RunePage } from './pages/RunePage';
 import { PaymentSuccessPage } from './pages/PaymentSuccessPage';
 import { PaymentCancelPage } from './pages/PaymentCancelPage';
+import { BuddhistCeremonyPage } from './pages/BuddhistCeremonyPage';
+import { ZodiacHoroscopePage } from './pages/ZodiacHoroscopePage';
+import { AncientRunesPage } from './pages/AncientRunesPage';
+import NumerologyPage from './pages/NumerologyPage';
+import FengShuiPage from './pages/FengShuiPage';
+import PalmistryPage from './pages/PalmistryPage';
 
 function App() {
   const [isDark, setIsDark] = useState(true);
@@ -38,6 +44,12 @@ function App() {
         <Route path="/zodiac" element={<ZodiacPage />} />
         <Route path="/soulmate" element={<SoulmatePage />} />
         <Route path="/runes" element={<RunePage />} />
+        <Route path="/ceremony" element={<BuddhistCeremonyPage />} />
+        <Route path="/horoscope-2569" element={<ZodiacHoroscopePage />} />
+        <Route path="/ancient-runes" element={<AncientRunesPage />} />
+        <Route path="/numerology-article" element={<NumerologyPage />} />
+        <Route path="/feng-shui-article" element={<FengShuiPage />} />
+        <Route path="/palmistry-article" element={<PalmistryPage />} />
         <Route path="/admin/*" element={<AdminPage isDark={isDark} />} />
         <Route path="/payment/success" element={<PaymentSuccessPage isDark={isDark} />} />
         <Route path="/payment/cancel" element={<PaymentCancelPage isDark={isDark} />} />
