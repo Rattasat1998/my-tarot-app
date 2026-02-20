@@ -1,47 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <!-- หน้าหลัก -->
+  <!-- หน้าหลัก: ดูดวงไพ่ทาโรต์ -->
   <url>
     <loc>https://satduangdao.com/</loc>
-    <lastmod>2026-02-19</lastmod>
+    <lastmod>2026-02-20</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
+  </url>
+
+  <!-- ดูดวงราศี 12 ราศี -->
+  <url>
+    <loc>https://satduangdao.com/zodiac</loc>
+    <lastmod>2026-02-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
   </url>
 
   <!-- หวย & วิเคราะห์หวย -->
   <url>
     <loc>https://satduangdao.com/lotto</loc>
-    <lastmod>2026-02-19</lastmod>
+    <lastmod>2026-02-20</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://satduangdao.com/lotto/check</loc>
-    <lastmod>2026-02-19</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-
-  <!-- ดูดวงราศี -->
-  <url>
-    <loc>https://satduangdao.com/zodiac</loc>
-    <lastmod>2026-02-19</lastmod>
+    <lastmod>2026-02-20</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
 
-  <!-- เนื้อคู่ -->
+  <!-- ดูดวงเนื้อคู่ -->
   <url>
     <loc>https://satduangdao.com/soulmate</loc>
-    <lastmod>2026-02-19</lastmod>
+    <lastmod>2026-02-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
 
-  <!-- ดวงรูน -->
+  <!-- ดูดวงรูน -->
   <url>
     <loc>https://satduangdao.com/runes</loc>
-    <lastmod>2026-02-19</lastmod>
+    <lastmod>2026-02-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -49,15 +49,31 @@
   <!-- พิธีกรรม -->
   <url>
     <loc>https://satduangdao.com/ceremony</loc>
-    <lastmod>2026-02-19</lastmod>
+    <lastmod>2026-02-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+  </url>
+
+  <!-- เกี่ยวกับเรา -->
+  <url>
+    <loc>https://satduangdao.com/about</loc>
+    <lastmod>2026-02-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- คำถามที่พบบ่อย -->
+  <url>
+    <loc>https://satduangdao.com/faq</loc>
+    <lastmod>2026-02-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
 
   <!-- บทความ: ดวงราศี 2569 -->
   <url>
     <loc>https://satduangdao.com/horoscope-2569</loc>
-    <lastmod>2026-02-19</lastmod>
+    <lastmod>2026-02-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -65,7 +81,7 @@
   <!-- บทความ: รูนโบราณ -->
   <url>
     <loc>https://satduangdao.com/ancient-runes</loc>
-    <lastmod>2026-02-19</lastmod>
+    <lastmod>2026-02-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -73,7 +89,7 @@
   <!-- บทความ: เลขศาสตร์ -->
   <url>
     <loc>https://satduangdao.com/numerology-article</loc>
-    <lastmod>2026-02-19</lastmod>
+    <lastmod>2026-02-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -81,7 +97,7 @@
   <!-- บทความ: ฮวงจุ้ย -->
   <url>
     <loc>https://satduangdao.com/feng-shui-article</loc>
-    <lastmod>2026-02-19</lastmod>
+    <lastmod>2026-02-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -89,7 +105,7 @@
   <!-- บทความ: ศาสตร์ลายมือ -->
   <url>
     <loc>https://satduangdao.com/palmistry-article</loc>
-    <lastmod>2026-02-19</lastmod>
+    <lastmod>2026-02-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>

@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 export const usePageTitle = (title) => {
     useEffect(() => {
         const prevTitle = document.title;
-        document.title = `${title} | ศาสตร์ดวงดาว`;
+        document.title = `${title} | ศาสตร์ดวงดาว - ดูดวงออนไลน์`;
 
         return () => {
             document.title = prevTitle;
@@ -27,7 +27,8 @@ export const usePageSEO = ({ title, description, keywords, ogImage, path, type =
         const baseUrl = 'https://satduangdao.com';
 
         // Title
-        document.title = `${title} | ศาสตร์ดวงดาว`;
+        const siteSuffix = 'ศาสตร์ดวงดาว - ดูดวงออนไลน์';
+        document.title = `${title} | ${siteSuffix}`;
 
         // Helper: set or create meta tag
         const setMeta = (attr, key, content) => {
@@ -54,7 +55,7 @@ export const usePageSEO = ({ title, description, keywords, ogImage, path, type =
         }
 
         // Open Graph
-        createdElements.push(setMeta('property', 'og:title', `${title} | ศาสตร์ดวงดาว`));
+        createdElements.push(setMeta('property', 'og:title', `${title} | ${siteSuffix}`));
         createdElements.push(setMeta('property', 'og:type', type));
         if (description) {
             createdElements.push(setMeta('property', 'og:description', description));
@@ -67,7 +68,7 @@ export const usePageSEO = ({ title, description, keywords, ogImage, path, type =
         }
 
         // Twitter Card
-        createdElements.push(setMeta('property', 'twitter:title', `${title} | ศาสตร์ดวงดาว`));
+        createdElements.push(setMeta('property', 'twitter:title', `${title} | ${siteSuffix}`));
         if (description) {
             createdElements.push(setMeta('property', 'twitter:description', description));
         }
