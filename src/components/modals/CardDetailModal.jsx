@@ -1,14 +1,21 @@
 import React from 'react';
-import { X, Sparkles, BookOpen } from 'lucide-react';
+import { X, Sparkles, BookOpen, Volume2, VolumeX } from 'lucide-react';
 import { HolographicCard } from '../ui/HolographicCard';
+import { useCardAudio } from '../../hooks/useCardAudio';
 
 export const CardDetailModal = ({ isOpen, onClose, card, label, topic }) => {
+    const { playDescription, playingCardId } = useCardAudio();
+    const isPlayingThis = playingCardId === card?.id;
+
     if (!isOpen || !card) return null;
 
     const getMeaning = () => {
         if (topic === 'love' && card.meaningLove) return card.meaningLove;
         if (topic === 'work' && card.meaningWork) return card.meaningWork;
         if (topic === 'finance' && card.meaningFinance) return card.meaningFinance;
+        if (topic === 'health' && card.meaningHealth) return card.meaningHealth;
+        if (topic === 'social' && card.meaningSocial) return card.meaningSocial;
+        if (topic === 'luck' && card.meaningLuck) return card.meaningLuck;
         if (card.meaningUpright) return card.meaningUpright;
         return card.description;
     };
@@ -17,6 +24,9 @@ export const CardDetailModal = ({ isOpen, onClose, card, label, topic }) => {
         if (topic === 'love') return 'ความหมายด้านความรัก';
         if (topic === 'work') return 'ความหมายด้านการงาน';
         if (topic === 'finance') return 'ความหมายด้านการเงิน';
+        if (topic === 'health') return 'ความหมายด้านสุขภาพ';
+        if (topic === 'social') return 'ความหมายด้านสังคม/บริวาร';
+        if (topic === 'luck') return 'ความหมายด้านโชคลาภ';
         return 'ความหมายโดยรวม';
     };
 
@@ -69,6 +79,20 @@ export const CardDetailModal = ({ isOpen, onClose, card, label, topic }) => {
                             {card.name}
                         </h2>
                         <div className="text-slate-400 text-sm">{card.nameThai}</div>
+                        <button
+                            onClick={() => playDescription(card.id)}
+                            className={`mt-3 inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm transition-all ${
+                                isPlayingThis
+                                    ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/30 animate-pulse'
+                                    : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600'
+                            }`}
+                        >
+                            {isPlayingThis ? (
+                                <><VolumeX size={16} /><span>หยุดฟัง</span></>
+                            ) : (
+                                <><Volume2 size={16} /><span>ฟังคำอธิบายไพ่</span></>
+                            )}
+                        </button>
                     </div>
 
                     {/* Meaning */}

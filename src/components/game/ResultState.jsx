@@ -10,6 +10,7 @@ import { MysticBackground } from '../ui/MysticBackground';
 import { ShareCardTemplate } from './ShareCardTemplate';
 import { SaveMemoModal } from '../modals/SaveMemoModal';
 import { CardDetailModal } from '../modals/CardDetailModal';
+import { useCardAudio } from '../../hooks/useCardAudio';
 
 export const ResultState = ({
     topic,
@@ -21,6 +22,7 @@ export const ResultState = ({
     isDark
 }) => {
     const { speak, stop, toggle, isSpeaking, isPaused } = useSpeech();
+    const { playDescription, playingCardId, stopAudio } = useCardAudio();
     const [isSharing, setIsSharing] = useState(false);
     const [showSaveModal, setShowSaveModal] = useState(false);
     const [selectedDetailCard, setSelectedDetailCard] = useState(null);
@@ -35,6 +37,18 @@ export const ResultState = ({
     const closeDetailModal = () => {
         setSelectedDetailCard(null);
         setDetailLabel('');
+    };
+
+    const getCardMeaning = (card, topic) => {
+        if (!card) return '';
+        if (topic === 'love' && card.meaningLove) return card.meaningLove;
+        if (topic === 'work' && card.meaningWork) return card.meaningWork;
+        if (topic === 'finance' && card.meaningFinance) return card.meaningFinance;
+        if (topic === 'health' && card.meaningHealth) return card.meaningHealth;
+        if (topic === 'social' && card.meaningSocial) return card.meaningSocial;
+        if (topic === 'luck' && card.meaningLuck) return card.meaningLuck;
+        if (card.meaningUpright) return card.meaningUpright;
+        return card.description;
     };
 
     // Create full reading text for TTS
@@ -54,7 +68,7 @@ export const ResultState = ({
             } else {
                 label = idx === 0 ? 'อดีต' : idx === 1 ? 'ปัจจุบัน' : 'อนาคต';
             }
-            text += ` ${label}。 ไพ่ ${card.nameThai}。 ${card.description}。`;
+            text += ` ${label}。 ไพ่ ${card.nameThai}。 ${getCardMeaning(card, topic)}。`;
         });
 
         text += ' ขอให้โชคดี';
@@ -67,15 +81,6 @@ export const ResultState = ({
         } else {
             speak(fullReadingText);
         }
-    };
-
-    const getCardMeaning = (card, topic) => {
-        if (!card) return '';
-        if (topic === 'love' && card.meaningLove) return card.meaningLove;
-        if (topic === 'work' && card.meaningWork) return card.meaningWork;
-        if (topic === 'finance' && card.meaningFinance) return card.meaningFinance;
-        if (card.meaningUpright) return card.meaningUpright;
-        return card.description;
     };
 
     const handleShare = async () => {
@@ -245,6 +250,13 @@ export const ResultState = ({
                                             <span className="font-bold text-yellow-500 text-lg">{card.name}</span>
                                             <span className="text-sm text-slate-400">({card.nameThai})</span>
                                         </div>
+                                        <button
+                                            onClick={() => playDescription(card.id)}
+                                            className={`shrink-0 p-1.5 rounded-full transition-all ${playingCardId === card.id ? 'bg-purple-600 text-white animate-pulse' : 'bg-slate-700 hover:bg-slate-600 text-slate-300'}`}
+                                            title={playingCardId === card.id ? 'หยุดฟัง' : 'ฟังคำอธิบายไพ่'}
+                                        >
+                                            {playingCardId === card.id ? <VolumeX size={14} /> : <Volume2 size={14} />}
+                                        </button>
                                     </div>
                                     <p className="text-sm md:text-base text-slate-300 leading-relaxed text-center md:text-left">{getCardMeaning(card, topic)}</p>
                                 </div>
@@ -482,8 +494,15 @@ export const ResultState = ({
                                             <span className="font-bold text-yellow-500 text-lg">{card.name}</span>
                                             <span className="text-sm text-slate-400">({card.nameThai})</span>
                                         </div>
+                                        <button
+                                            onClick={() => playDescription(card.id)}
+                                            className={`shrink-0 p-1.5 rounded-full transition-all ${playingCardId === card.id ? 'bg-purple-600 text-white animate-pulse' : 'bg-slate-700 hover:bg-slate-600 text-slate-300'}`}
+                                            title={playingCardId === card.id ? 'หยุดฟัง' : 'ฟังคำอธิบายไพ่'}
+                                        >
+                                            {playingCardId === card.id ? <VolumeX size={14} /> : <Volume2 size={14} />}
+                                        </button>
                                     </div>
-                                    <p className="text-sm md:text-base text-slate-300 leading-relaxed text-center md:text-left">{card.description}</p>
+                                    <p className="text-sm md:text-base text-slate-300 leading-relaxed text-center md:text-left">{getCardMeaning(card, topic)}</p>
                                 </div>
                             </div>
                         );

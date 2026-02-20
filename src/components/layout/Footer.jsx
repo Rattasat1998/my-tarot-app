@@ -1,7 +1,9 @@
 import React from 'react';
-import { Info, History, Sparkles, Brain, Zap, Heart, Search, Target, Compass, BookOpen, Star, Moon, Calendar, FileText, Shield } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Info, History, Sparkles, Brain, Zap, Heart, Search, Target, Compass, BookOpen, Star, Moon, Calendar, FileText, Shield, Users } from 'lucide-react';
 
 export const Footer = ({ gameState, onOpenAdmin, isAdmin, onOpenTerms, onOpenPrivacy }) => {
+    const navigate = useNavigate();
     const getContent = () => {
         switch (gameState) {
             case 'SHUFFLING':
@@ -77,6 +79,16 @@ export const Footer = ({ gameState, onOpenAdmin, isAdmin, onOpenTerms, onOpenPri
                         นโยบายความเป็นส่วนตัว
                     </button>
                 )}
+
+                <button onClick={() => navigate('/about')} className="flex items-center gap-1 opacity-70 hover:opacity-100 transition-opacity cursor-pointer normal-case">
+                    <Users size={12} />
+                    เกี่ยวกับเรา
+                </button>
+
+                <button onClick={() => navigate('/faq')} className="flex items-center gap-1 opacity-70 hover:opacity-100 transition-opacity cursor-pointer normal-case">
+                    <Info size={12} />
+                    FAQ
+                </button>
 
                 {onOpenAdmin && isAdmin && (
                     <button onClick={onOpenAdmin} className="opacity-50 hover:opacity-100 transition-opacity cursor-pointer p-2">

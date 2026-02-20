@@ -46,23 +46,20 @@ export const SoundProvider = ({ children }) => {
     const playBGM = (src) => {
         if (!bgmRef.current) return;
 
-        // Use a mystical ambient track
-        const bgmUrl = src || 'https://assets.mixkit.co/music/preview/mixkit-ethereal-fairy-win-628.mp3'; // Placeholder ambient
+        const bgmUrl = src || '/audio/sound-background.mp3';
 
-        if (bgmRef.current.src !== bgmUrl) {
+        // Browser resolves relative URLs to absolute, so use endsWith for comparison
+        if (!bgmRef.current.src || !bgmRef.current.src.endsWith(bgmUrl)) {
             bgmRef.current.src = bgmUrl;
             bgmRef.current.loop = true;
             bgmRef.current.volume = isMuted ? 0 : volume * 0.6;
 
-            // Try autoplay, handle browser block
             const playPromise = bgmRef.current.play();
             if (playPromise !== undefined) {
-                playPromise.catch(error => {
-                    // console.log("Auto-play prevented (user interaction needed):", error);
-                });
+                playPromise.catch(() => {});
             }
         } else if (bgmRef.current.paused && !isMuted) {
-            bgmRef.current.play();
+            bgmRef.current.play().catch(() => {});
         }
     };
 
@@ -84,7 +81,14 @@ export const SoundProvider = ({ children }) => {
     };
 
     const toggleMute = () => {
-        setIsMuted(prev => !prev);
+        setIsMuted(prev => {
+            const newMuted = !prev;
+            // Resume BGM when unmuting
+            if (!newMuted && bgmRef.current && bgmRef.current.src && bgmRef.current.paused) {
+                bgmRef.current.play().catch(() => {});
+            }
+            return newMuted;
+        });
     };
 
     return (

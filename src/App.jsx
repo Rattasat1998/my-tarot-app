@@ -19,6 +19,8 @@ import { AncientRunesPage } from './pages/AncientRunesPage';
 import NumerologyPage from './pages/NumerologyPage';
 import FengShuiPage from './pages/FengShuiPage';
 import PalmistryPage from './pages/PalmistryPage';
+import AboutPage from './pages/AboutPage';
+import FAQPage from './pages/FAQPage';
 
 function App() {
   const [isDark, setIsDark] = useState(true);
@@ -50,6 +52,8 @@ function App() {
         <Route path="/numerology-article" element={<NumerologyPage />} />
         <Route path="/feng-shui-article" element={<FengShuiPage />} />
         <Route path="/palmistry-article" element={<PalmistryPage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/faq" element={<FAQPage />} />
         <Route path="/admin/*" element={<AdminPage isDark={isDark} />} />
         <Route path="/payment/success" element={<PaymentSuccessPage isDark={isDark} />} />
         <Route path="/payment/cancel" element={<PaymentCancelPage isDark={isDark} />} />
