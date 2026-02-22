@@ -22,6 +22,7 @@ import PalmistryPage from './pages/PalmistryPage';
 import AboutPage from './pages/AboutPage';
 import FAQPage from './pages/FAQPage';
 import { LineCallbackPage } from './pages/LineCallbackPage';
+import { ShopPage } from './pages/ShopPage';
 
 function App() {
   const [isDark, setIsDark] = useState(true);
@@ -55,6 +56,7 @@ function App() {
         <Route path="/palmistry-article" element={<PalmistryPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/faq" element={<FAQPage />} />
+        <Route path="/shop" element={<ShopPage />} />
         <Route path="/admin/*" element={<AdminPage isDark={isDark} />} />
         <Route path="/auth/line-callback" element={<LineCallbackPage />} />
         <Route path="/payment/success" element={<PaymentSuccessPage isDark={isDark} />} />

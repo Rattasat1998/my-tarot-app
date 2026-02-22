@@ -1,9 +1,10 @@
 import React from 'react';
 import { Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { LayoutDashboard, History, LogOut, ArrowLeft, Home } from 'lucide-react';
+import { LayoutDashboard, History, LogOut, ArrowLeft, Home, ShoppingBag } from 'lucide-react';
 import { PendingApprovals } from '../components/admin/PendingApprovals';
 import { ApprovalHistory } from '../components/admin/ApprovalHistory';
+import { ManageProducts } from '../components/admin/ManageProducts';
 
 export const AdminPage = ({ isDark }) => {
     const { user, isAdmin, signOut } = useAuth();
@@ -21,6 +22,7 @@ export const AdminPage = ({ isDark }) => {
     const navItems = [
         { path: '/admin', label: 'รอตรวจสอบ', icon: <LayoutDashboard size={20} /> },
         { path: '/admin/history', label: 'ประวัติการอนุมัติ', icon: <History size={20} /> },
+        { path: '/admin/products', label: 'จัดการสินค้า', icon: <ShoppingBag size={20} /> },
     ];
 
     const isActive = (path) => {
@@ -82,6 +84,7 @@ export const AdminPage = ({ isDark }) => {
                 <Routes>
                     <Route path="/" element={<PendingApprovals isDark={isDark} />} />
                     <Route path="/history" element={<ApprovalHistory isDark={isDark} />} />
+                    <Route path="/products" element={<ManageProducts isDark={isDark} />} />
                 </Routes>
             </main>
         </div>
