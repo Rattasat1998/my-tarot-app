@@ -3,10 +3,12 @@ import { RuneStone } from './RuneStone';
 import { ArrowLeft, RotateCcw, Heart, Briefcase, Lightbulb, Save, LogIn } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { SaveMemoModal } from '../modals/SaveMemoModal';
+import { LoginModal } from '../modals/LoginModal';
 
 export const RuneReading = ({ drawnRunes, positions, mode, onReset }) => {
-    const { user, signInWithGoogle } = useAuth();
+    const { user } = useAuth();
     const [showSaveModal, setShowSaveModal] = useState(false);
+    const [showLoginModal, setShowLoginModal] = useState(false);
 
     if (!drawnRunes || drawnRunes.length === 0) return null;
 
@@ -165,7 +167,7 @@ export const RuneReading = ({ drawnRunes, positions, mode, onReset }) => {
                     </button>
                 ) : (
                     <button
-                        onClick={signInWithGoogle}
+                        onClick={() => setShowLoginModal(true)}
                         className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-slate-800 hover:bg-slate-700 text-emerald-400 font-bold border border-slate-700 hover:border-emerald-500/30 transition-all"
                     >
                         <LogIn size={18} />
@@ -181,6 +183,11 @@ export const RuneReading = ({ drawnRunes, positions, mode, onReset }) => {
                 readingType={mode}
                 cards={drawnRunes}
                 isDark={true}
+            />
+
+            <LoginModal
+                isOpen={showLoginModal}
+                onClose={() => setShowLoginModal(false)}
             />
 
             {/* Disclaimer */}

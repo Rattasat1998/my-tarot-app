@@ -6,10 +6,12 @@ import { KnowledgeDropdown } from './KnowledgeDropdown';
 import { useAuth } from '../../contexts/AuthContext';
 import { TransactionHistoryModal } from '../modals/TransactionHistoryModal';
 import { ReadingHistoryModal } from '../modals/ReadingHistoryModal';
+import { LoginModal } from '../modals/LoginModal';
 import { Drawer } from '../ui/Drawer';
 
 export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle, credits, onOpenTopUp, isMuted, toggleMute }) => {
-    const { user, signInWithGoogle, signOut, loading } = useAuth();
+    const { user, signOut, loading } = useAuth();
+    const [showLoginModal, setShowLoginModal] = useState(false);
     const navigate = useNavigate();
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [showHistory, setShowHistory] = useState(false);
@@ -213,7 +215,7 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
                                 </div>
                             ) : (
                                 <button
-                                    onClick={signInWithGoogle}
+                                    onClick={() => setShowLoginModal(true)}
                                     className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full bg-white text-slate-900 font-bold text-sm hover:bg-slate-200 transition-all shadow-lg shadow-white/10"
                                 >
                                     <LogIn size={16} />
@@ -274,7 +276,7 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
                             ) : (
                                 <button
                                     onClick={() => {
-                                        signInWithGoogle();
+                                        setShowLoginModal(true);
                                         setIsDrawerOpen(false);
                                     }}
                                     className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-white text-slate-900 font-bold shadow-lg"
@@ -382,6 +384,11 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
                 isOpen={showReadingHistory}
                 onClose={() => setShowReadingHistory(false)}
                 isDark={isDark}
+            />
+
+            <LoginModal
+                isOpen={showLoginModal}
+                onClose={() => setShowLoginModal(false)}
             />
         </>
     );

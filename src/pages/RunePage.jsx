@@ -6,6 +6,7 @@ import { RuneStone } from '../components/runes/RuneStone';
 import { RuneReading } from '../components/runes/RuneReading';
 import { RuneHistory } from '../components/runes/RuneHistory';
 import { TopUpModal } from '../components/modals/TopUpModal';
+import { LoginModal } from '../components/modals/LoginModal';
 import { usePageSEO } from '../hooks/usePageTitle';
 import { useCredits } from '../hooks/useCredits';
 import { useAuth } from '../contexts/AuthContext';
@@ -40,7 +41,8 @@ export const RunePage = () => {
         useCredit,
         isDailyFreeAvailable,
     } = useCredits();
-    const { user, signInWithGoogle } = useAuth();
+    const { user } = useAuth();
+    const [showLoginModal, setShowLoginModal] = useState(false);
 
     const getModeCost = (mode) => {
         if (!mode) return { cost: 0, isDaily: false };
@@ -258,7 +260,7 @@ export const RunePage = () => {
 
                                         // Determine button action
                                         const handleClick = needsLogin
-                                            ? signInWithGoogle
+                                            ? () => setShowLoginModal(true)
                                             : canAfford
                                                 ? handleDraw
                                                 : () => setIsTopUpOpen(true);
@@ -383,6 +385,11 @@ export const RunePage = () => {
                     isOpen={isTopUpOpen}
                     onClose={() => setIsTopUpOpen(false)}
                     isDark={true}
+                />
+
+                <LoginModal
+                    isOpen={showLoginModal}
+                    onClose={() => setShowLoginModal(false)}
                 />
             </div>
         </div>
