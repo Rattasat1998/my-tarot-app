@@ -135,7 +135,7 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
                                         className="p-1 pl-2 pr-1 rounded-full bg-slate-800 border border-slate-700 flex items-center gap-2 hover:bg-slate-700 transition-all"
                                     >
                                         <span className="text-xs text-slate-300 font-medium truncate max-w-[80px]">
-                                            {user.email?.split('@')[0]}
+                                            {user?.user_metadata?.name}
                                         </span>
                                         <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold border-2 border-slate-900">
                                             {user.user_metadata?.avatar_url ? (
