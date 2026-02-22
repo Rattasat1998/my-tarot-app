@@ -88,32 +88,9 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const signInWithPhone = async (phone) => {
-        try {
-            const { error } = await supabase.auth.signInWithOtp({
-                phone,
-            });
-            if (error) throw error;
-            return { success: true };
-        } catch (error) {
-            console.error('Error sending OTP:', error.message);
-            return { success: false, error: error.message };
-        }
-    };
-
-    const verifyPhoneOTP = async (phone, token) => {
-        try {
-            const { data, error } = await supabase.auth.verifyOtp({
-                phone,
-                token,
-                type: 'sms',
-            });
-            if (error) throw error;
-            return { success: true, data };
-        } catch (error) {
-            console.error('Error verifying OTP:', error.message);
-            return { success: false, error: error.message };
-        }
+    const signInWithLine = () => {
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://your-project-url.supabase.co';
+        window.location.href = `${supabaseUrl}/functions/v1/line-auth?action=login`;
     };
 
     const signOut = async () => {
@@ -129,7 +106,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, isAdmin, signInWithGoogle, signInWithPhone, verifyPhoneOTP, signOut, loading }}>
+        <AuthContext.Provider value={{ user, isAdmin, signInWithGoogle, signInWithLine, signOut, loading }}>
             {children}
         </AuthContext.Provider>
     );

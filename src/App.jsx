@@ -21,6 +21,7 @@ import FengShuiPage from './pages/FengShuiPage';
 import PalmistryPage from './pages/PalmistryPage';
 import AboutPage from './pages/AboutPage';
 import FAQPage from './pages/FAQPage';
+import { LineCallbackPage } from './pages/LineCallbackPage';
 
 function App() {
   const [isDark, setIsDark] = useState(true);
@@ -55,6 +56,7 @@ function App() {
         <Route path="/about" element={<AboutPage />} />
         <Route path="/faq" element={<FAQPage />} />
         <Route path="/admin/*" element={<AdminPage isDark={isDark} />} />
+        <Route path="/auth/line-callback" element={<LineCallbackPage />} />
         <Route path="/payment/success" element={<PaymentSuccessPage isDark={isDark} />} />
         <Route path="/payment/cancel" element={<PaymentCancelPage isDark={isDark} />} />
       </Routes>
