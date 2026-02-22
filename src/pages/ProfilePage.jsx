@@ -204,7 +204,7 @@ export const ProfilePage = ({ isDark }) => {
                             className="hidden"
                         />
 
-                        <h1 className="text-2xl font-bold font-serif mt-4">{user?.email}</h1>
+                        <h1 className="text-2xl font-bold font-serif mt-4">{user?.name}</h1>
                         <p className={`text-sm mt-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>จัดการข้อมูลส่วนตัว</p>
                     </div>
 
