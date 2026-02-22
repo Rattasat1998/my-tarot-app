@@ -151,7 +151,7 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
                                             <div className="fixed inset-0 z-10" onClick={() => setIsProfileOpen(false)}></div>
                                             <div className="absolute right-0 mt-2 w-48 bg-slate-900 border border-slate-800 rounded-xl shadow-xl py-1 z-20 animate-in fade-in slide-in-from-top-2 duration-200">
                                                 <div className="px-4 py-3 border-b border-slate-800">
-                                                    <p className="text-sm font-medium text-white truncate">{user.email}</p>
+                                                    <p className="text-sm font-medium text-white truncate">{user?.user_metadata?.name}</p>
                                                     <p className="text-xs text-slate-500 mt-0.5">สมาชิกทั่วไป</p>
                                                 </div>
 
@@ -248,7 +248,7 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
                                             )}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <p className="font-medium text-white truncate">{user.email}</p>
+                                            <p className="font-medium text-white truncate">{user?.user_metadata?.name}</p>
                                             <p className="text-xs text-slate-400">สมาชิกทั่วไป</p>
                                         </div>
                                     </div>
