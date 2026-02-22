@@ -86,38 +86,34 @@ Deno.serve(async (req: Request) => {
             // Construct a unique email for this LINE user
             const email = `line_${profile.userId}@satduangdao.com`
 
-            // Check if user already exists
-            const { data: { users } } = await supabase.auth.admin.listUsers()
-            const existingUser = users?.find((u: any) => u.email === email)
+            const userMetadata = {
+                name: profile.displayName,
+                full_name: profile.displayName,
+                avatar_url: profile.pictureUrl,
+                line_user_id: profile.userId,
+                provider: 'line',
+            }
 
-            if (existingUser) {
-                // Update user metadata (name/avatar might change)
-                await supabase.auth.admin.updateUserById(existingUser.id, {
-                    user_metadata: {
-                        name: profile.displayName,
-                        full_name: profile.displayName,
-                        avatar_url: profile.pictureUrl,
-                        line_user_id: profile.userId,
-                        provider: 'line',
-                    }
-                })
-            } else {
-                // Create new user
-                const { error: createError } = await supabase.auth.admin.createUser({
-                    email,
-                    email_confirm: true,
-                    user_metadata: {
-                        name: profile.displayName,
-                        full_name: profile.displayName,
-                        avatar_url: profile.pictureUrl,
-                        line_user_id: profile.userId,
-                        provider: 'line',
-                    }
-                })
+            // Try to create user first
+            const { data: createData, error: createError } = await supabase.auth.admin.createUser({
+                email,
+                email_confirm: true,
+                user_metadata: userMetadata,
+            })
 
-                if (createError) {
-                    console.error('Create user error:', createError)
-                    return Response.redirect(`${SITE_URL}?login_error=create_user_failed`, 302)
+            if (createError) {
+                // User already exists — update metadata instead
+                const { data: { users } } = await supabase.auth.admin.listUsers({
+                    page: 1,
+                    perPage: 1,
+                    filter: email,
+                })
+                const existingUser = users?.[0]
+
+                if (existingUser) {
+                    await supabase.auth.admin.updateUserById(existingUser.id, {
+                        user_metadata: userMetadata,
+                    })
                 }
             }
 
