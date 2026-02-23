@@ -18,6 +18,34 @@ Deno.serve(async (req: Request) => {
         return new Response('ok', { headers: corsHeaders })
     }
 
+    // Check authentication
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return new Response(
+            JSON.stringify({ error: 'Missing or invalid authorization header' }),
+            { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+    }
+
+    const token = authHeader.replace('Bearer ', '')
+    
+    // Verify JWT token with Supabase
+    const jwtResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/auth/v1/user`, {
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'apikey': Deno.env.get('SUPABASE_ANON_KEY')!
+        }
+    })
+
+    if (!jwtResponse.ok) {
+        return new Response(
+            JSON.stringify({ error: 'Invalid authentication token' }),
+            { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+    }
+
+    const user = await jwtResponse.json()
+
     try {
         const { packageId, userId, userEmail } = await req.json()
 
@@ -25,6 +53,14 @@ Deno.serve(async (req: Request) => {
             return new Response(
                 JSON.stringify({ error: 'Missing packageId or userId' }),
                 { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            )
+        }
+
+        // Verify that the authenticated user matches the userId from request
+        if (user.id !== userId) {
+            return new Response(
+                JSON.stringify({ error: 'User ID mismatch' }),
+                { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
             )
         }
 
