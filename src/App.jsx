@@ -22,7 +22,12 @@ import PalmistryPage from './pages/PalmistryPage';
 import AboutPage from './pages/AboutPage';
 import FAQPage from './pages/FAQPage';
 import { LineCallbackPage } from './pages/LineCallbackPage';
-import { ShopPage } from './pages/ShopPage';
+import { MeditationPage } from './pages/MeditationPage';
+import { MembershipPage } from './pages/MembershipPage';
+import { ZodiacReportPage } from './pages/ZodiacReportPage';
+import { JournalPage } from './pages/JournalPage';
+import { SearchPage } from './pages/SearchPage';
+import { CommunityPage } from './pages/CommunityPage';
 
 function App() {
   const [isDark, setIsDark] = useState(true);
@@ -56,7 +61,12 @@ function App() {
         <Route path="/palmistry-article" element={<PalmistryPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/faq" element={<FAQPage />} />
-        <Route path="/shop" element={<ShopPage />} />
+        <Route path="/meditation" element={<MeditationPage isDark={isDark} />} />
+        <Route path="/zodiac-report" element={<ZodiacReportPage isDark={isDark} />} />
+        <Route path="/journal" element={<JournalPage isDark={isDark} />} />
+        <Route path="/community" element={<CommunityPage isDark={isDark} />} />
+        <Route path="/search" element={<SearchPage isDark={isDark} />} />
+        <Route path="/membership" element={<MembershipPage isDark={isDark} />} />
         <Route path="/admin/*" element={<AdminPage isDark={isDark} />} />
         <Route path="/auth/line-callback" element={<LineCallbackPage />} />
         <Route path="/payment/success" element={<PaymentSuccessPage isDark={isDark} />} />

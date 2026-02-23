@@ -83,7 +83,7 @@ export const ZodiacFortune = ({ fortune, onClose }) => {
                         <div className="flex items-center justify-between mb-3">
                             <div className="flex items-center gap-2">
                                 <Sparkles className="text-purple-400" size={20} />
-                                <span className="font-bold text-lg text-white">ดวงโดยรวม</span>
+                                <span className="font-bold text-lg text-white">ค้นหาแนะนำ/วิเคราะห์โดยรวม</span>
                             </div>
                             <StarRating score={overall.score} />
                         </div>
@@ -160,7 +160,7 @@ export const ZodiacFortune = ({ fortune, onClose }) => {
                 {/* Footer */}
                 <div className="p-4 border-t border-slate-800 text-center">
                     <p className="text-xs text-slate-500">
-                        ดวงนี้เป็นเพียงคำทำนายเพื่อความบันเทิง โปรดใช้วิจารณญาณ ✨
+                        บริการค้นหาแนะนำเพื่อความบันเทิงและพัฒนาตนเอง โปรดใช้วิจารณญาณ ✨
                     </p>
                 </div>
             </div>

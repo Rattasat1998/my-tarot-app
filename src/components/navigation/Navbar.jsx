@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, Sun, Moon, Coins, LogIn, LogOut, User, Menu, TrendingUp, Stars, Volume2, VolumeX, BookOpen, Calendar, FileText, Heart, Hexagon, Plus, Receipt, Landmark, ShoppingBag, Shield } from 'lucide-react';
+import { Sparkles, Sun, Moon, Coins, LogIn, LogOut, User, Menu, TrendingUp, Stars, Volume2, VolumeX, BookOpen, Calendar, FileText, Heart, Hexagon, Plus, Receipt, Landmark, ShoppingBag, Shield, Crown, Users, Search } from 'lucide-react';
 import { CalendarDropdown } from './CalendarDropdown';
 import { KnowledgeDropdown } from './KnowledgeDropdown';
 import { useAuth } from '../../contexts/AuthContext';
 import { TransactionHistoryModal } from '../modals/TransactionHistoryModal';
 import { ReadingHistoryModal } from '../modals/ReadingHistoryModal';
 import { LoginModal } from '../modals/LoginModal';
+import { HybridTopUpModal } from '../modals/HybridTopUpModal';
+import { PremiumGate } from '../ui/PremiumGate';
 import { Drawer } from '../ui/Drawer';
 
 export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle, credits, onOpenTopUp, isMuted, toggleMute }) => {
@@ -16,7 +18,9 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [showHistory, setShowHistory] = useState(false);
     const [showReadingHistory, setShowReadingHistory] = useState(false);
+    const [showHybridTopUp, setShowHybridTopUp] = useState(false);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleOpenCalendar = (type) => {
         openCalendar(type);
@@ -28,29 +32,111 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
         setIsDrawerOpen(false);
     };
 
+    const handleUpgrade = async () => {
+        if (!user) {
+            setShowLoginModal(true);
+            return;
+        }
+
+        try {
+            setIsLoading(true);
+            const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+            const { data: { session } } = await supabase.auth.getSession();
+            
+            const response = await fetch(`${supabaseUrl}/functions/v1/create-checkout`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${session?.access_token}`
+                },
+                body: JSON.stringify({
+                    packageId: 'premium_monthly',
+                    userId: user.id,
+                    userEmail: user.email
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.error) throw new Error(data.error);
+            if (data.url) {
+                window.location.href = data.url;
+            }
+        } catch (error) {
+            console.error('Error starting checkout:', error);
+            alert('เกิดข้อผิดพลาดในการเชื่อมต่อระบบชำระเงิน กรุณาลองใหม่อีกครั้ง');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleTopUp = async (amount, totalCredits) => {
+        if (!user) {
+            setShowLoginModal(true);
+            return;
+        }
+
+        try {
+            setIsLoading(true);
+            const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+            const { data: { session } } = await supabase.auth.getSession();
+            
+            // Determine packageId based on amount
+            let packageId = 'starter';
+            if (amount === 100) packageId = 'popular';
+            if (amount >= 200) packageId = 'pro';
+
+            const response = await fetch(`${supabaseUrl}/functions/v1/create-checkout`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${session?.access_token}`
+                },
+                body: JSON.stringify({
+                    packageId,
+                    userId: user.id,
+                    userEmail: user.email
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.error) throw new Error(data.error);
+            if (data.url) {
+                window.location.href = data.url;
+            }
+        } catch (error) {
+            console.error('Error starting checkout:', error);
+            alert('เกิดข้อผิดพลาดในการเชื่อมต่อระบบชำระเงิน กรุณาลองใหม่อีกครั้ง');
+        } finally {
+            setIsLoading(false);
+            setShowHybridTopUp(false);
+        }
+    };
+
     return (
         <>
-            <nav className="fixed top-0 left-0 right-0 z-40 bg-slate-950/80 backdrop-blur-md border-b border-slate-800/50">
+            <nav className={`relative z-[99997] ${isDark ? 'bg-slate-950/90 backdrop-blur-md border-b border-slate-800/50' : 'bg-white/90 backdrop-blur-md border-b border-slate-200/50'} sticky top-0 transition-all duration-300`}>
                 <div className="w-full px-4 sm:px-6 h-16 flex items-center">
                     <div className="flex items-center gap-4">
-                        {/* Drawer Toggle Button - Visible only on Mobile */}
-                        <button
-                            onClick={() => setIsDrawerOpen(true)}
-                            className="p-2 -ml-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors md:hidden"
-                        >
-                            <Menu size={24} />
-                        </button>
+                    {/* Drawer Toggle Button - Visible only on Mobile */}
+                    <button
+                        onClick={() => setIsDrawerOpen(true)}
+                        className="p-2 -ml-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors md:hidden"
+                    >
+                        <Menu size={24} />
+                    </button>
 
-                        <div className="flex items-center gap-2 cursor-pointer" onClick={resetGame}>
-                            <img
-                                src="/favicon.png"
-                                alt="Tarot Oracle Logo"
-                                className="w-8 h-8 sm:w-10 sm:h-10 drop-shadow-lg rounded-xl"
-                            />
-                            <span className="font-serif text-lg sm:text-xl font-bold tracking-tight bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
-                                ศาสตร์ดวงดาว
-                            </span>
-                        </div>
+                    <div className="flex items-center gap-2 cursor-pointer" onClick={resetGame}>
+                        <img
+                            src="/favicon.png"
+                            alt="Tarot Oracle Logo"
+                            className="w-8 h-8 sm:w-10 sm:h-10 drop-shadow-lg rounded-xl"
+                        />
+                        <span className="font-serif text-lg sm:text-xl md:text-2xl font-bold tracking-tight bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
+                            Tarot Wisdom
+                        </span>
+                    </div>
                     </div>
 
                     {/* Desktop Navigation */}
@@ -64,11 +150,19 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
                         </button>
 
                         <button
+                            onClick={() => navigate('/meditation')}
+                            className="flex items-center gap-2 px-3 py-2 rounded-full text-slate-400 hover:text-white hover:bg-slate-800/50 transition-colors"
+                        >
+                            <Sparkles size={18} />
+                            <span className="text-sm font-medium">Meditation</span>
+                        </button>
+
+                        <button
                             onClick={() => navigate('/lotto')}
                             className="flex items-center gap-2 px-3 py-2 rounded-full text-slate-400 hover:text-white hover:bg-slate-800/50 transition-colors"
                         >
                             <TrendingUp size={18} />
-                            <span className="text-sm font-medium">LottoInsight</span>
+                            <span className="text-sm font-medium">Lotto Insight</span>
                         </button>
 
                         <button
@@ -88,11 +182,19 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
                         </button>
 
                         <button
-                            onClick={() => navigate('/shop')}
+                            onClick={() => navigate('/membership')}
+                            className="flex items-center gap-2 px-3 py-2 rounded-full bg-gradient-to-r from-purple-500/10 to-indigo-500/10 border border-purple-500/30 text-purple-400 hover:text-white hover:bg-purple-500/20 transition-all"
+                        >
+                            <Crown size={18} />
+                            <span className="text-sm font-medium">Premium</span>
+                        </button>
+
+                        <button
+                            onClick={() => navigate('/search')}
                             className="flex items-center gap-2 px-3 py-2 rounded-full text-slate-400 hover:text-white hover:bg-slate-800/50 transition-colors"
                         >
-                            <ShoppingBag size={18} />
-                            <span className="text-sm font-medium">ร้านค้า</span>
+                            <Search size={18} />
+                            <span className="text-sm font-medium">ค้นหา</span>
                         </button>
 
                         <CalendarDropdown isDark={isDark} openCalendar={openCalendar} />
@@ -100,17 +202,27 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
                     </div>
 
                     <div className="flex items-center gap-2 sm:gap-4 ml-6">
-                        {/* Credit Display */}
+                        {/* Credit/Premium Display */}
                         {user && (
                             <button
-                                onClick={onOpenTopUp}
+                                onClick={() => {
+                                    // Check if user is premium, if not show top up, if yes show membership info
+                                    const isPremium = user?.user_metadata?.is_premium || user?.user_metadata?.subscription_status === 'active';
+                                    if (isPremium) {
+                                        navigate('/membership');
+                                    } else {
+                                        setShowHybridTopUp(true);
+                                    }
+                                }}
                                 className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-500/10 to-yellow-500/10 border border-amber-500/30 hover:from-amber-500/20 hover:to-yellow-500/20 hover:border-amber-500/50 transition-all cursor-pointer group"
-                                title="เติมเครดิต"
+                                title={user?.user_metadata?.is_premium ? "สมาชิก Premium" : "เติมเครดิต"}
                             >
                                 <div className="w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center text-white shadow-lg shadow-amber-500/20">
-                                    <Coins size={14} />
+                                    {user?.user_metadata?.is_premium ? <Crown size={14} /> : <Coins size={14} />}
                                 </div>
-                                <span className="font-bold text-amber-500">{credits}</span>
+                                <span className="font-bold text-amber-500">
+                                    {user?.user_metadata?.is_premium ? 'Premium' : credits}
+                                </span>
                                 <Plus size={14} className="text-amber-500/60 group-hover:text-amber-400 transition-colors" />
                             </button>
                         )}
@@ -156,8 +268,8 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
 
                                     {isProfileOpen && (
                                         <>
-                                            <div className="fixed inset-0 z-10" onClick={() => setIsProfileOpen(false)}></div>
-                                            <div className="absolute right-0 mt-2 w-48 bg-slate-900 border border-slate-800 rounded-xl shadow-xl py-1 z-20 animate-in fade-in slide-in-from-top-2 duration-200">
+                                            <div className="fixed inset-0 z-[99998]" onClick={() => setIsProfileOpen(false)}></div>
+                                            <div className="absolute right-0 mt-2 w-48 bg-slate-900 border border-slate-800 rounded-xl shadow-xl py-1 z-[100000] animate-in fade-in slide-in-from-top-2 duration-200">
                                                 <div className="px-4 py-3 border-b border-slate-800">
                                                     <p className="text-sm font-medium text-white truncate">{user?.user_metadata?.name}</p>
                                                     <p className="text-xs text-slate-500 mt-0.5">สมาชิกทั่วไป</p>
@@ -176,13 +288,13 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
 
                                                 <button
                                                     onClick={() => {
-                                                        onOpenTopUp();
+                                                        setShowHybridTopUp(true);
                                                         setIsProfileOpen(false);
                                                     }}
                                                     className="w-full text-left px-4 py-2 text-sm text-amber-400 hover:bg-slate-800 flex items-center gap-2 transition-colors border-b border-slate-800"
                                                 >
-                                                    <Coins size={16} />
-                                                    เติมเครดิต
+                                                    <Crown size={16} />
+                                                    {user?.user_metadata?.is_premium ? 'จัดการ Premium' : 'เติมเครดิต/อัปเกรด'}
                                                 </button>
 
                                                 <button
@@ -270,14 +382,27 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <p className="font-medium text-white truncate">{user?.user_metadata?.name}</p>
-                                            <p className="text-xs text-slate-400">สมาชิกทั่วไป</p>
+                                    <p className="text-xs text-slate-400">
+                                        {user?.user_metadata?.is_premium ? 'สมาชิก Premium' : 'สมาชิกทั่วไป'}
+                                    </p>
                                         </div>
                                     </div>
                                     <button
-                                        onClick={() => { onOpenTopUp(); setIsDrawerOpen(false); }}
+                                        onClick={() => {
+                                            const isPremium = user?.user_metadata?.is_premium || user?.user_metadata?.subscription_status === 'active';
+                                            if (isPremium) {
+                                                navigate('/membership');
+                                            } else {
+                                                setShowHybridTopUp(true);
+                                            }
+                                            setIsDrawerOpen(false);
+                                        }}
                                         className="w-full flex items-center justify-center gap-2 p-3 rounded-lg bg-gradient-to-r from-amber-500/20 to-yellow-500/20 text-amber-400 text-sm font-medium border border-amber-500/30 hover:from-amber-500/30 hover:to-yellow-500/30 transition-all"
                                     >
-                                        <Coins size={16} /> เติมเครดิต ({credits} เครดิต)
+                                        <div className="w-5 h-5 rounded-full bg-amber-500 flex items-center justify-center text-white">
+                                            {user?.user_metadata?.is_premium ? <Crown size={12} /> : <Coins size={12} />}
+                                        </div>
+                                        {user?.user_metadata?.is_premium ? 'จัดการสมาชิก Premium' : `เติมเครดิต (${credits} เครดิต)`}
                                     </button>
                                     <button
                                         onClick={() => { setShowHistory(true); setIsDrawerOpen(false); }}
@@ -319,7 +444,7 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
 
                     {/* Menu Items */}
                     <div>
-                        <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">การทำนาย</h3>
+                        <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Spiritual Tools</h3>
                         <div className="space-y-2">
                             <button
                                 onClick={() => { navigate('/zodiac'); setIsDrawerOpen(false); }}
@@ -332,14 +457,39 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
                             </button>
 
                             <button
-                                onClick={() => { navigate('/lotto'); setIsDrawerOpen(false); }}
-                                className="w-full flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 rounded-xl text-amber-400 hover:from-amber-500/20 hover:to-orange-500/20 transition-all"
+                                onClick={() => { navigate('/meditation'); setIsDrawerOpen(false); }}
+                                className="w-full flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-indigo-500/10 to-blue-500/10 border border-indigo-500/30 rounded-xl text-indigo-400 hover:from-indigo-500/20 hover:to-blue-500/20 transition-all"
                             >
-                                <div className="p-2 rounded-lg bg-amber-500/20 text-amber-400">
-                                    <TrendingUp size={20} />
+                                <div className="p-2 rounded-lg bg-indigo-500/20 text-indigo-400">
+                                    <Sparkles size={20} />
                                 </div>
-                                <span className="font-medium">LottoInsight</span>
+                                <span className="font-medium">Meditation & Reflection</span>
                             </button>
+
+                            <button
+                                onClick={() => { navigate('/search'); setIsDrawerOpen(false); }}
+                                className="w-full flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border border-blue-500/30 rounded-xl text-blue-400 hover:from-blue-500/20 hover:to-indigo-500/20 transition-all"
+                            >
+                                <div className="p-2 rounded-lg bg-blue-500/20 border border-blue-500/30 text-blue-400">
+                                    <Search size={20} />
+                                </div>
+                                <span className="font-medium">ค้นหาขั้นข้อมูล</span>
+                            </button>
+
+                            <PremiumGate feature="lottoInsight" fallback={null}>
+                                <button
+                                    onClick={() => { navigate('/lotto'); setIsDrawerOpen(false); }}
+                                    className="w-full flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 rounded-xl text-amber-400 hover:from-amber-500/20 hover:to-orange-500/20 transition-all"
+                                >
+                                    <div className="p-2 rounded-lg bg-amber-500/20 border border-amber-500/30 text-amber-400">
+                                        <TrendingUp size={20} />
+                                    </div>
+                                    <span className="font-medium">Lotto Insight</span>
+                                    <div className="ml-2 px-2 py-1 bg-purple-500/10 border border-purple-500/30 rounded-full text-purple-300 text-xs">
+                                        👑 Premium
+                                    </div>
+                                </button>
+                            </PremiumGate>
 
                             <button
                                 onClick={() => { navigate('/soulmate'); setIsDrawerOpen(false); }}
@@ -372,13 +522,13 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
                             </button>
 
                             <button
-                                onClick={() => { navigate('/shop'); setIsDrawerOpen(false); }}
-                                className="w-full flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-orange-500/10 to-amber-500/10 border border-orange-500/30 rounded-xl text-orange-400 hover:from-orange-500/20 hover:to-amber-500/20 transition-all"
+                                onClick={() => { navigate('/membership'); setIsDrawerOpen(false); }}
+                                className="w-full flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-purple-500/10 to-indigo-500/10 border border-purple-500/30 rounded-xl text-purple-400 hover:from-purple-500/20 hover:to-indigo-500/20 transition-all"
                             >
-                                <div className="p-2 rounded-lg bg-orange-500/20 text-orange-400">
-                                    <ShoppingBag size={20} />
+                                <div className="p-2 rounded-lg bg-purple-500/20 text-purple-400">
+                                    <Crown size={20} />
                                 </div>
-                                <span className="font-medium">ร้านค้ามงคล</span>
+                                <span className="font-medium">Tarot Wisdom Premium</span>
                             </button>
                         </div>
                     </div>
@@ -428,6 +578,16 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
             <LoginModal
                 isOpen={showLoginModal}
                 onClose={() => setShowLoginModal(false)}
+            />
+
+            <HybridTopUpModal
+                isOpen={showHybridTopUp}
+                onClose={() => setShowHybridTopUp(false)}
+                isDark={isDark}
+                user={user}
+                onTopUp={handleTopUp}
+                onUpgrade={handleUpgrade}
+                isLoading={isLoading}
             />
         </>
     );

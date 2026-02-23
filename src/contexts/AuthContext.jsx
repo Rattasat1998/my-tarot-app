@@ -21,21 +21,34 @@ export const AuthProvider = ({ children }) => {
                 return;
             }
 
-            setUser(session.user);
-
-            // Check admin status
+            // Fetch profile data including premium status
             try {
                 const { data, error } = await supabase
                     .from('profiles')
-                    .select('is_admin')
+                    .select('is_admin, is_premium, subscription_status, premium_until')
                     .eq('id', session.user.id)
                     .single();
 
                 if (data) {
                     setIsAdmin(data.is_admin || false);
+                    
+                    // Attach premium data to user object for easy access throughout the app
+                    const enhancedUser = {
+                        ...session.user,
+                        user_metadata: {
+                            ...session.user.user_metadata,
+                            is_premium: data.is_premium || false,
+                            subscription_status: data.subscription_status || 'inactive',
+                            premium_until: data.premium_until || null
+                        }
+                    };
+                    setUser(enhancedUser);
+                } else {
+                    setUser(session.user);
                 }
             } catch (err) {
                 console.error('Error fetching profile:', err);
+                setUser(session.user);
             } finally {
                 setLoading(false);
             }

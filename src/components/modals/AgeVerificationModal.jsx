@@ -20,11 +20,11 @@ export const AgeVerificationModal = ({ isOpen, onAccept, onDecline }) => {
                     />
 
                     <h2 className="text-2xl font-bold text-white mb-2">
-                        ศาสตร์ดวงดาว ออนไลน์
+                        Tarot Wisdom ออนไลน์
                     </h2>
 
                     <p className="text-slate-400 text-sm mb-6">
-                        บริการดูดวงเพื่อความบันเทิง
+                        บริการค้นหาคำแนะนำเพื่อความบันเทิงและพัฒนาตนเอง
                     </p>
 
                     {/* Age Warning */}

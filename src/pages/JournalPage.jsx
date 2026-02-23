@@ -1,0 +1,305 @@
+import React, { useState, useEffect } from 'react';
+import { BookOpen, Heart, Brain, TrendingUp, Calendar, Plus, Search, Filter, Crown, Download, Share2, Edit, Trash2, Star } from 'lucide-react';
+import { PremiumGate } from '../components/ui/PremiumGate';
+import { usePremium } from '../hooks/usePremium';
+
+export const JournalPage = ({ isDark }) => {
+    const { isPremium } = usePremium();
+    const [entries, setEntries] = useState([]);
+    const [isWriting, setIsWriting] = useState(false);
+    const [currentEntry, setCurrentEntry] = useState({
+        title: '',
+        content: '',
+        mood: '',
+        tags: [],
+        date: new Date().toISOString()
+    });
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filterMood, setFilterMood] = useState('all');
+
+    const moods = [
+        { id: 'grateful', name: 'ซาบซึ้ง', icon: '🙏', color: 'yellow' },
+        { id: 'peaceful', name: 'สงบ', icon: '😌', color: 'blue' },
+        { id: 'excited', name: 'ตื่นเต้น', icon: '🎉', color: 'orange' },
+        { id: 'thoughtful', name: 'คิดมาก', icon: '🤔', color: 'purple' },
+        { id: 'challenged', name: 'ท้าทาย', icon: '💪', color: 'red' },
+        { id: 'inspired', name: 'ได้แรงบันดาลใจ', icon: '✨', color: 'pink' }
+    ];
+
+    const sampleEntries = [
+        {
+            id: 1,
+            title: 'การสำนึกถึงความสำเร็จ',
+            content: 'วันนี้ผมสำเร็จในการทำสมาธิครบ 15 นาที รู้สึกสงบและมีสมาธิมากขึ้น การฝึกนี้ช่วยให้ผมเข้าใจตนเองได้ลึกซึ้งขึ้น...',
+            mood: 'grateful',
+            tags: ['meditation', 'growth', 'mindfulness'],
+            date: new Date(Date.now() - 86400000).toISOString(),
+            insights: ['การสมาธิช่วยลดความเครียด', 'ความสงบในชีวิตประจำวัน']
+        },
+        {
+            id: 2,
+            title: 'บทเรียนจากไพ่ทาโรต์',
+            content: 'ไพ่ The Hermit สอนให้ผมรู้จักการอยู่คนเดียวและหาคำตอบภายใน บางครั้งคำตอบที่ดีที่สุดอยู่ในตัวเราเสมอ...',
+            mood: 'thoughtful',
+            tags: ['tarot', 'wisdom', 'self-discovery'],
+            date: new Date(Date.now() - 172800000).toISOString(),
+            insights: ['การเรียนรู้จากภายใน', 'ความเข้าใจตนเอง']
+        }
+    ];
+
+    useEffect(() => {
+        // Load sample entries
+        setEntries(isPremium ? sampleEntries : sampleEntries.slice(0, 1));
+    }, [isPremium]);
+
+    const saveEntry = () => {
+        if (!currentEntry.title || !currentEntry.content) return;
+
+        const newEntry = {
+            ...currentEntry,
+            id: Date.now(),
+            insights: generateInsights(currentEntry.content)
+        };
+
+        setEntries([newEntry, ...entries]);
+        setCurrentEntry({
+            title: '',
+            content: '',
+            mood: '',
+            tags: [],
+            date: new Date().toISOString()
+        });
+        setIsWriting(false);
+    };
+
+    const generateInsights = (content) => {
+        // Simple insight generation based on content
+        const insights = [];
+        if (content.includes('สำเร็จ') || content.includes('สำเร็จ')) {
+            insights.push('การยอมรับความสำเร็จนำไปสู่ความมั่นใจ');
+        }
+        if (content.includes('เรียนรู้') || content.includes('บทเรียน')) {
+            insights.push('ทุกประสบการณ์เป็นบทเรียนที่มีค่า');
+        }
+        if (content.includes('สงบ') || content.includes('สมาธิ')) {
+            insights.push('การสงบสติอาจเป็นกุญแจสู่ความสุข');
+        }
+        return insights;
+    };
+
+    const filteredEntries = entries.filter(entry => {
+        const matchesSearch = entry.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           entry.content.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesMood = filterMood === 'all' || entry.mood === filterMood;
+        return matchesSearch && matchesMood;
+    });
+
+    return (
+        <div className={`min-h-screen ${isDark ? 'dark' : ''}`}>
+            <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-950 text-white">
+                {/* Header */}
+                <div className="p-6">
+                    <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center gap-3">
+                            <div className="p-3 rounded-full bg-gradient-to-r from-purple-500/20 to-indigo-500/20 border border-purple-500/30">
+                                <BookOpen className="w-8 h-8 text-purple-400" />
+                            </div>
+                            <div>
+                                <h1 className="text-4xl font-serif font-bold bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent">
+                                    Personal Growth Journal
+                                </h1>
+                                <p className="text-slate-300">บันทึกการเดินทางสู่การพัฒนาตนเอง</p>
+                            </div>
+                        </div>
+                        
+                        <PremiumGate feature="personalGrowthJournal" fallback={
+                            <div className="inline-flex items-center gap-3 px-6 py-3 bg-purple-500/10 border border-purple-500/30 rounded-xl">
+                                <Crown className="w-5 h-5 text-purple-400" />
+                                <span className="text-purple-300 font-medium">Premium</span>
+                            </div>
+                        }>
+                            <button
+                                onClick={() => setIsWriting(true)}
+                                className="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl hover:scale-105 transition-all shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 flex items-center gap-2"
+                            >
+                                <Plus size={20} />
+                                เขียนบันทึกใหม่
+                            </button>
+                        </PremiumGate>
+                    </div>
+
+                    {/* Search and Filter */}
+                    <PremiumGate feature="personalGrowthJournal" fallback={null}>
+                        <div className="flex flex-col sm:flex-row gap-4 mb-6">
+                            <div className="flex-1 relative">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+                                <input
+                                    type="text"
+                                    placeholder="ค้นหาบันทึก..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className={`w-full pl-10 pr-4 py-3 rounded-xl ${isDark ? 'bg-slate-800/50 border border-slate-700 text-white' : 'bg-slate-100 border border-slate-300'} focus:outline-none focus:border-purple-500`}
+                                />
+                            </div>
+                            
+                            <div className="flex items-center gap-2">
+                                <Filter className="text-slate-400" size={20} />
+                                <select
+                                    value={filterMood}
+                                    onChange={(e) => setFilterMood(e.target.value)}
+                                    className={`px-4 py-3 rounded-xl ${isDark ? 'bg-slate-800/50 border border-slate-700 text-white' : 'bg-slate-100 border border-slate-300'} focus:outline-none focus:border-purple-500`}
+                                >
+                                    <option value="all">ทุกอารมณ์</option>
+                                    {moods.map(mood => (
+                                        <option key={mood.id} value={mood.id}>{mood.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+                    </PremiumGate>
+                </div>
+
+                {/* Writing Interface */}
+                {isWriting && (
+                    <PremiumGate feature="personalGrowthJournal" fallback={null}>
+                        <div className="max-w-4xl mx-auto px-6 pb-8">
+                            <div className={`rounded-2xl ${isDark ? 'bg-slate-900/50 border border-slate-800' : 'bg-slate-100 border border-slate-300'} p-8`}>
+                                <div className="mb-6">
+                                    <input
+                                        type="text"
+                                        placeholder="หัวข้อบันทึก..."
+                                        value={currentEntry.title}
+                                        onChange={(e) => setCurrentEntry({...currentEntry, title: e.target.value})}
+                                        className={`w-full text-2xl font-bold bg-transparent border-none outline-none text-white placeholder-slate-400 mb-4`}
+                                    />
+                                    
+                                    {/* Mood Selection */}
+                                    <div className="flex items-center gap-4 mb-4">
+                                        <span className="text-slate-400">อารมณ์:</span>
+                                        <div className="flex gap-2">
+                                            {moods.map(mood => (
+                                                <button
+                                                    key={mood.id}
+                                                    onClick={() => setCurrentEntry({...currentEntry, mood: mood.id})}
+                                                    className={`px-3 py-2 rounded-lg border transition-all flex items-center gap-2 ${
+                                                        currentEntry.mood === mood.id
+                                                            ? 'bg-purple-500/20 border-purple-400 text-purple-300'
+                                                            : 'bg-slate-800/50 border-slate-700 text-slate-300 hover:bg-slate-700'
+                                                    }`}
+                                                >
+                                                    <span>{mood.icon}</span>
+                                                    <span className="text-sm">{mood.name}</span>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <textarea
+                                    placeholder="เขียนบันทึกของคุณที่นี่... สิ่งที่คุณเรียนรู้ ความรู้สึก หรือความคิดที่เกิดขึ้น..."
+                                    value={currentEntry.content}
+                                    onChange={(e) => setCurrentEntry({...currentEntry, content: e.target.value})}
+                                    className={`w-full h-64 p-4 rounded-xl resize-none outline-none ${isDark ? 'bg-slate-800/50 border border-slate-700 text-white placeholder-slate-500' : 'bg-slate-100 border border-slate-300 placeholder-slate-500'}`}
+                                />
+
+                                <div className="flex justify-between items-center mt-6">
+                                    <button
+                                        onClick={() => setIsWriting(false)}
+                                        className={`px-6 py-3 rounded-xl border transition-all font-medium ${isDark ? 'bg-slate-800/50 border-slate-700 text-slate-300 hover:bg-slate-700' : 'bg-slate-100 border-slate-300 text-slate-600 hover:bg-slate-200'}`}
+                                    >
+                                        ยกเลิก
+                                    </button>
+                                    
+                                    <button
+                                        onClick={saveEntry}
+                                        disabled={!currentEntry.title || !currentEntry.content}
+                                        className="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl hover:scale-105 transition-all shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        บันทึก
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </PremiumGate>
+                )}
+
+                {/* Journal Entries */}
+                <div className="max-w-4xl mx-auto px-6 pb-12">
+                    <div className="space-y-6">
+                        {filteredEntries.length === 0 ? (
+                            <div className="text-center py-12">
+                                <BookOpen className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+                                <p className="text-slate-400 text-lg">
+                                    {isPremium ? 'ยังไม่มีบันทึก เริ่มเขียนบันทึกแรกของคุณได้เลย!' : 'อัปเกรดเป็น Premium เพื่อเริ่มบันทึกการเดินทางของคุณ'}
+                                </p>
+                            </div>
+                        ) : (
+                            filteredEntries.map(entry => {
+                                const mood = moods.find(m => m.id === entry.mood);
+                                return (
+                                    <div key={entry.id} className={`rounded-2xl ${isDark ? 'bg-slate-900/50 border border-slate-800' : 'bg-slate-100 border border-slate-300'} p-6`}>
+                                        <div className="flex items-start justify-between mb-4">
+                                            <div className="flex-1">
+                                                <h3 className="text-xl font-bold text-white mb-2">{entry.title}</h3>
+                                                <div className="flex items-center gap-4 text-sm text-slate-400">
+                                                    <div className="flex items-center gap-1">
+                                                        <Calendar size={14} />
+                                                        {new Date(entry.date).toLocaleDateString('th-TH')}
+                                                    </div>
+                                                    {mood && (
+                                                        <div className="flex items-center gap-1">
+                                                            <span>{mood.icon}</span>
+                                                            <span>{mood.name}</span>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            
+                                            <div className="flex gap-2">
+                                                <button className="p-2 rounded-lg bg-slate-800/50 border border-slate-700 text-slate-400 hover:bg-slate-700">
+                                                    <Edit size={16} />
+                                                </button>
+                                                <button className="p-2 rounded-lg bg-slate-800/50 border border-slate-700 text-slate-400 hover:bg-slate-700">
+                                                    <Download size={16} />
+                                                </button>
+                                                <button className="p-2 rounded-lg bg-slate-800/50 border border-slate-700 text-slate-400 hover:bg-slate-700">
+                                                    <Share2 size={16} />
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <p className="text-slate-300 mb-4 leading-relaxed">{entry.content}</p>
+
+                                        {entry.tags && entry.tags.length > 0 && (
+                                            <div className="flex flex-wrap gap-2 mb-4">
+                                                {entry.tags.map(tag => (
+                                                    <span key={tag} className="px-3 py-1 bg-purple-500/10 border border-purple-500/30 rounded-full text-purple-300 text-sm">
+                                                        #{tag}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        )}
+
+                                        {entry.insights && entry.insights.length > 0 && (
+                                            <div className="mt-4 p-4 bg-gradient-to-r from-purple-500/10 to-indigo-500/10 border border-purple-500/30 rounded-xl">
+                                                <h4 className="text-purple-300 font-bold mb-2 flex items-center gap-2">
+                                                    <Star className="w-4 h-4" />
+                                                    ความเข้าใจที่ได้รับ
+                                                </h4>
+                                                <ul className="space-y-1">
+                                                    {entry.insights.map((insight, index) => (
+                                                        <li key={index} className="text-purple-200 text-sm">• {insight}</li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })
+                        )}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};

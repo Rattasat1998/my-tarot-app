@@ -1,9 +1,10 @@
 const STRIPE_SECRET_KEY = Deno.env.get('STRIPE_SECRET_KEY')!
 
-const PACKAGES: Record<string, { label: string; price: number; credits: number }> = {
-    starter: { label: 'Starter - 5 เครดิต', price: 2900, credits: 5 },
-    popular: { label: 'Standard - 15 เครดิต', price: 7900, credits: 15 },
-    pro: { label: 'Pro - 30 เครดิต', price: 14900, credits: 30 },
+const PACKAGES: Record<string, { label: string; price: number; credits?: number; type: 'one_time' | 'subscription' }> = {
+    starter: { label: 'Starter - 5 เครดิต', price: 2900, credits: 5, type: 'one_time' },
+    popular: { label: 'Standard - 15 เครดิต', price: 7900, credits: 15, type: 'one_time' },
+    pro: { label: 'Pro - 30 เครดิต', price: 14900, credits: 30, type: 'one_time' },
+    premium_monthly: { label: 'Premium Membership (Monthly)', price: 29900, type: 'subscription' }
 }
 
 const corsHeaders = {
@@ -40,17 +41,33 @@ Deno.serve(async (req: Request) => {
 
         // Create Stripe Checkout Session using REST API
         const params = new URLSearchParams()
-        params.append('payment_method_types[]', 'promptpay')
-        params.append('mode', 'payment')
-        params.append('success_url', `${origin}/payment/success?session_id={CHECKOUT_SESSION_ID}`)
+        
+        if (pkg.type === 'subscription') {
+            params.append('payment_method_types[]', 'card')
+            params.append('mode', 'subscription')
+            params.append('line_items[0][price_data][currency]', 'thb')
+            params.append('line_items[0][price_data][product_data][name]', pkg.label)
+            params.append('line_items[0][price_data][unit_amount]', pkg.price.toString())
+            params.append('line_items[0][price_data][recurring][interval]', 'month')
+            params.append('line_items[0][quantity]', '1')
+            params.append('success_url', `${origin}/payment/success?session_id={CHECKOUT_SESSION_ID}&type=subscription`)
+        } else {
+            params.append('payment_method_types[]', 'promptpay')
+            params.append('mode', 'payment')
+            params.append('line_items[0][price_data][currency]', 'thb')
+            params.append('line_items[0][price_data][product_data][name]', pkg.label)
+            params.append('line_items[0][price_data][unit_amount]', pkg.price.toString())
+            params.append('line_items[0][quantity]', '1')
+            params.append('success_url', `${origin}/payment/success?session_id={CHECKOUT_SESSION_ID}`)
+        }
+
         params.append('cancel_url', `${origin}/payment/cancel`)
-        params.append('line_items[0][price_data][currency]', 'thb')
-        params.append('line_items[0][price_data][product_data][name]', pkg.label)
-        params.append('line_items[0][price_data][unit_amount]', pkg.price.toString())
-        params.append('line_items[0][quantity]', '1')
         params.append('metadata[userId]', userId)
-        params.append('metadata[credits]', pkg.credits.toString())
+        if (pkg.credits) {
+            params.append('metadata[credits]', pkg.credits.toString())
+        }
         params.append('metadata[packageId]', packageId)
+        params.append('metadata[type]', pkg.type)
         if (userEmail) {
             params.append('customer_email', userEmail)
         }

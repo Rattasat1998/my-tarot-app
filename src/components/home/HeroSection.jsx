@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Sparkles, Eye, RotateCcw, Gift, ChevronDown, Users, Clock, Award, Coins, ArrowRight } from 'lucide-react';
+import { QuickDrawButton } from '../ui/QuickDrawButton';
 import { getDailyFortune, getDailyCard } from '../../data/dailyFortune';
 import { TAROT_CARDS } from '../../data/tarotCards';
 import { READING_TOPICS } from '../../constants/readingTopics';
@@ -92,28 +93,38 @@ export const HeroSection = ({
                 {/* Main Title */}
                 <h1 className="text-4xl sm:text-5xl md:text-7xl font-serif font-bold mb-5 leading-tight">
                     <span className="bg-gradient-to-r from-white via-purple-100 to-white bg-clip-text text-transparent">
-                        ศาสตร์ดวงดาว
+                        Tarot Wisdom
                     </span>
                     <br />
                     <span className="text-2xl sm:text-3xl md:text-4xl bg-gradient-to-r from-purple-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent font-normal">
-                        ดูดวงไพ่ทาโรต์ออนไลน์ แม่นที่สุด
+                        ค้นหาคำตอบภายในตนเอง
                     </span>
                 </h1>
 
                 {/* Subtitle */}
                 <p className="text-lg sm:text-xl text-slate-300 max-w-2xl mx-auto mb-8 leading-relaxed">
-                    ค้นหาคำตอบจากจิตวิญญาณด้วยไพ่ทาโรต์ 78 ใบ
+                    ค้นหาคำแนะนำจากจิตวิญญาณด้วยไพ่ทาโรต์ 78 ใบ
                     <br className="hidden sm:block" />
-                    ตั้งจิตอธิษฐานถึงเรื่องที่ต้องการทราบ แล้วให้ไพ่นำทางคุณ
+                    สงบจิตใจ แล้วให้ไพ่นำทางคุณสู่ความเข้าใจตนเอง
                 </p>
 
-                {/* Daily Fortune Card */}
+                {/* Quick Draw Button - Hero CTA */}
+                <div className="mb-12">
+                    <QuickDrawButton 
+                        onStartReading={(topic, readingType) => {
+                            setTopic(topic);
+                            setReadingType(readingType);
+                            setTimeout(() => startReading(0, readingType), 300);
+                        }}
+                        isDark={isDark}
+                    />
+                </div>
                 <div className="relative max-w-xl mx-auto mb-8">
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-purple-500/5 to-transparent blur-xl" />
                     <div className="relative bg-slate-900/60 backdrop-blur-sm rounded-2xl p-6 border border-purple-500/15 shadow-xl shadow-purple-900/10">
                         <div className="text-sm uppercase tracking-widest text-purple-400 mb-3 flex items-center justify-center gap-2 font-medium">
                             <Sparkles size={14} className="text-yellow-400" />
-                            คำพยากรณ์วันนี้
+                            คำแนะนำวันนี้
                             <Sparkles size={14} className="text-yellow-400" />
                         </div>
                         <p className="text-base sm:text-lg text-slate-200 font-medium leading-relaxed">
@@ -178,7 +189,7 @@ export const HeroSection = ({
                     </div>
                 </div>
 
-                {/* Check-in Button */}
+                {/* Daily Fortune Card */}
                 <button
                     onClick={openDailyReward}
                     className="px-8 py-4 rounded-full bg-gradient-to-r from-amber-500/15 to-orange-500/15 border border-amber-500/30 text-amber-400 font-bold text-lg hover:scale-105 active:scale-95 transition-all flex items-center gap-3 mx-auto mb-10 shadow-lg shadow-amber-900/10"
@@ -239,10 +250,10 @@ export const HeroSection = ({
                         <span className="text-purple-300 text-sm font-medium">ขั้นตอนที่ 1</span>
                     </div>
                     <h2 className="text-3xl sm:text-4xl font-serif text-white mb-4">
-                        เลือก<span className="text-purple-400">หัวข้อ</span>ที่ต้องการคำทำนาย
+                        เลือก<span className="text-purple-400">หัวข้อ</span>ที่ต้องการคำแนะนำ
                     </h2>
                     <p className="text-slate-300 text-base sm:text-lg max-w-lg mx-auto">
-                        ตั้งจิตอธิษฐานถึงเรื่องที่ต้องการทราบ แล้วเลือกหัวข้อด้านล่าง
+                        สงบจิตใจถึงเรื่องที่ต้องการค้นหา แล้วเลือกหัวข้อด้านล่าง
                     </p>
                 </div>
 
@@ -388,7 +399,7 @@ export const HeroSection = ({
                                         <span className="flex items-center gap-3">
                                             {isDisabled && !topic ? 'กรุณาเลือกหัวข้อก่อน' :
                                                 isDisabled && !canAfford ? 'เครดิตไม่เพียงพอ' :
-                                                    '🔮 เริ่มดูดวงเลย'}
+                                                    '🔮 เริ่มค้นหาแนะนำเลย'}
                                             {topic && isFreeDaily && (
                                                 <span className="bg-green-500 text-white text-sm px-3 py-1 rounded-full font-bold animate-bounce">
                                                     ฟรี!
@@ -402,7 +413,7 @@ export const HeroSection = ({
                                                 {isFreeDaily ? (
                                                     <>
                                                         <Sparkles size={16} className="text-yellow-300" />
-                                                        <span>ใช้สิทธิ์ดูดวงฟรีประจำวัน</span>
+                                                        <span>ใช้สิทธิ์ค้นหาแนะนำฟรีประจำวัน</span>
                                                     </>
                                                 ) : canAfford ? (
                                                     <>
