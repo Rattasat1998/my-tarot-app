@@ -22,7 +22,13 @@ export const SoundProvider = ({ children }) => {
     // Volume control (0.0 to 1.0)
     const [volume, setVolume] = useState(0.5);
 
-    // BGM Ref
+    // BGM Playlist
+    const bgmPlaylist = useRef([
+        '/audio/sound-background.mp3',
+        '/audio/sound-background2.mp3',
+        '/audio/sound-background3.mp3',
+    ]);
+    const bgmTrackIndex = useRef(0);
     const bgmRef = useRef(new Audio());
 
     // SFX Refs (Preloading common sounds)
@@ -43,15 +49,40 @@ export const SoundProvider = ({ children }) => {
         }
     }, [isMuted, volume]);
 
+    // Play next track in the playlist when current one ends
+    useEffect(() => {
+        const audio = bgmRef.current;
+        if (!audio) return;
+
+        const handleEnded = () => {
+            bgmTrackIndex.current = (bgmTrackIndex.current + 1) % bgmPlaylist.current.length;
+            audio.src = bgmPlaylist.current[bgmTrackIndex.current];
+            audio.volume = isMuted ? 0 : volume * 0.6;
+            audio.play().catch(() => {});
+        };
+
+        audio.addEventListener('ended', handleEnded);
+        return () => audio.removeEventListener('ended', handleEnded);
+    }, [isMuted, volume]);
+
     const playBGM = (src) => {
         if (!bgmRef.current) return;
 
-        const bgmUrl = src || '/audio/sound-background.mp3';
+        if (src) {
+            // Play a specific track if provided
+            bgmRef.current.src = src;
+            bgmRef.current.loop = false;
+            bgmRef.current.volume = isMuted ? 0 : volume * 0.6;
+            bgmRef.current.play().catch(() => {});
+            return;
+        }
 
-        // Browser resolves relative URLs to absolute, so use endsWith for comparison
+        // Start playlist from current index
+        const bgmUrl = bgmPlaylist.current[bgmTrackIndex.current];
+
         if (!bgmRef.current.src || !bgmRef.current.src.endsWith(bgmUrl)) {
             bgmRef.current.src = bgmUrl;
-            bgmRef.current.loop = true;
+            bgmRef.current.loop = false;
             bgmRef.current.volume = isMuted ? 0 : volume * 0.6;
 
             const playPromise = bgmRef.current.play();

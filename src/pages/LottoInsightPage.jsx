@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, TrendingUp, Users, Flame, ChevronRight, Calendar, Trophy, Sparkles, FileText, Search, Target, ChevronDown, ChevronUp } from 'lucide-react';
+import { ArrowLeft, TrendingUp, Users, Flame, ChevronRight, Calendar, Trophy, Sparkles, FileText, Search, Target, ChevronDown, ChevronUp, Moon, Cake } from 'lucide-react';
 import { LuckyGeneratorModal } from '../components/modals/LuckyGeneratorModal';
+import { DreamNumberModal } from '../components/modals/DreamNumberModal';
+import { BirthdayNumberModal } from '../components/modals/BirthdayNumberModal';
+import { TarotLottoModal } from '../components/modals/TarotLottoModal';
 import * as lottoService from '../services/lottoService';
 // Fallback to static data if database is not available
 import { LOTTO_DRAWS, getUpcomingDraw as getStaticUpcoming, getPastDraws as getStaticPast } from '../data/lottoData';
@@ -30,6 +33,9 @@ export const LottoInsightPage = () => {
     const isDark = false;
     const [activeTab, setActiveTab] = useState('historical');
     const [showLuckyModal, setShowLuckyModal] = useState(false);
+    const [showDreamModal, setShowDreamModal] = useState(false);
+    const [showBirthdayModal, setShowBirthdayModal] = useState(false);
+    const [showTarotLottoModal, setShowTarotLottoModal] = useState(false);
     const [selectedDraw, setSelectedDraw] = useState(null);
     // Initialize from cache if coming from detail page
     const [loading, setLoading] = useState(!shouldUseCache);
@@ -161,6 +167,119 @@ export const LottoInsightPage = () => {
             </header>
 
             <main className="max-w-6xl mx-auto px-4 py-8 space-y-8">
+                {/* Section: Tools / Features */}
+                <section>
+                    <div className="flex items-center gap-2 mb-4">
+                        <Sparkles size={20} className="text-purple-500" />
+                        <h2 className="text-lg font-bold">เครื่องมือเสริมดวง</h2>
+                    </div>
+
+                    {/* Hero Feature: Tarot × Lotto */}
+                    <button
+                        onClick={() => setShowTarotLottoModal(true)}
+                        className="group relative overflow-hidden rounded-2xl p-6 text-left transition-all hover:scale-[1.01] active:scale-[0.99] shadow-xl mb-4 w-full"
+                    >
+                        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-900" />
+                        <div className="absolute top-0 right-0 -mr-10 -mt-10 w-40 h-40 rounded-full bg-purple-500/15" />
+                        <div className="absolute bottom-0 left-0 -ml-10 -mb-10 w-32 h-32 rounded-full bg-indigo-500/10" />
+                        {/* Floating cards deco */}
+                        <div className="absolute top-3 right-4 text-4xl opacity-20 rotate-12">🃏</div>
+                        <div className="absolute bottom-3 right-16 text-2xl opacity-15 -rotate-6">🔮</div>
+                        <div className="relative z-10">
+                            <div className="flex items-center gap-2 mb-1">
+                                <span className="bg-amber-400 text-black text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide">แนะนำ</span>
+                            </div>
+                            <div className="flex items-center gap-3 mb-2">
+                                <span className="text-3xl">🃏</span>
+                                <div>
+                                    <h3 className="text-xl font-bold text-white">ไพ่ทาโรต์ทำนายเลขเด็ด</h3>
+                                    <p className="text-indigo-300 text-sm">เปิดไพ่ 3 ใบ รับเลขมงคลประจำงวด</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-4 mt-3">
+                                <div className="flex -space-x-2">
+                                    <div className="w-8 h-11 rounded bg-gradient-to-br from-purple-500 to-indigo-600 border border-purple-400/50 shadow-md" />
+                                    <div className="w-8 h-11 rounded bg-gradient-to-br from-indigo-500 to-blue-600 border border-indigo-400/50 shadow-md" />
+                                    <div className="w-8 h-11 rounded bg-gradient-to-br from-violet-500 to-purple-600 border border-violet-400/50 shadow-md" />
+                                </div>
+                                <div className="flex items-center gap-1 bg-white/10 px-3 py-1.5 rounded-full">
+                                    <Sparkles size={14} className="text-amber-400" />
+                                    <span className="text-white text-sm font-medium">เปิดไพ่เลย</span>
+                                    <ChevronRight size={14} className="text-white/70" />
+                                </div>
+                            </div>
+                        </div>
+                    </button>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        {/* Dream to Number */}
+                        <button
+                            onClick={() => setShowDreamModal(true)}
+                            className="group relative overflow-hidden rounded-2xl p-5 text-left transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg"
+                        >
+                            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-600" />
+                            <div className="absolute top-0 right-0 -mr-6 -mt-6 w-24 h-24 rounded-full bg-white/10" />
+                            <div className="relative z-10">
+                                <div className="flex items-center gap-3 mb-2">
+                                    <Moon size={24} className="text-yellow-300" />
+                                    <h3 className="text-lg font-bold text-white">ทำนายฝัน</h3>
+                                </div>
+                                <p className="text-indigo-200 text-sm leading-relaxed">
+                                    ฝันเห็นอะไร? แปลงเป็นเลขเด็ดตามตำราโบราณ
+                                </p>
+                                <div className="mt-3 flex items-center gap-1 text-white/80 text-xs font-medium">
+                                    <span>เปิดเลย</span>
+                                    <ChevronRight size={14} />
+                                </div>
+                            </div>
+                        </button>
+
+                        {/* Birthday Number */}
+                        <button
+                            onClick={() => setShowBirthdayModal(true)}
+                            className="group relative overflow-hidden rounded-2xl p-5 text-left transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg"
+                        >
+                            <div className="absolute inset-0 bg-gradient-to-br from-amber-500 to-orange-600" />
+                            <div className="absolute top-0 right-0 -mr-6 -mt-6 w-24 h-24 rounded-full bg-white/10" />
+                            <div className="relative z-10">
+                                <div className="flex items-center gap-3 mb-2">
+                                    <Cake size={24} className="text-yellow-200" />
+                                    <h3 className="text-lg font-bold text-white">เลขวันเกิด</h3>
+                                </div>
+                                <p className="text-amber-100 text-sm leading-relaxed">
+                                    คำนวณเลขมงคลส่วนตัวจากวันเกิดและราศี
+                                </p>
+                                <div className="mt-3 flex items-center gap-1 text-white/80 text-xs font-medium">
+                                    <span>เปิดเลย</span>
+                                    <ChevronRight size={14} />
+                                </div>
+                            </div>
+                        </button>
+
+                        {/* Lucky Generator */}
+                        <button
+                            onClick={() => setShowLuckyModal(true)}
+                            className="group relative overflow-hidden rounded-2xl p-5 text-left transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg"
+                        >
+                            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-600" />
+                            <div className="absolute top-0 right-0 -mr-6 -mt-6 w-24 h-24 rounded-full bg-white/10" />
+                            <div className="relative z-10">
+                                <div className="flex items-center gap-3 mb-2">
+                                    <Sparkles size={24} className="text-yellow-300" />
+                                    <h3 className="text-lg font-bold text-white">สุ่มเลขมงคล</h3>
+                                </div>
+                                <p className="text-emerald-100 text-sm leading-relaxed">
+                                    สุ่มเลขจากน้ำหนักสถิติและเลขชนสำนัก
+                                </p>
+                                <div className="mt-3 flex items-center gap-1 text-white/80 text-xs font-medium">
+                                    <span>เปิดเลย</span>
+                                    <ChevronRight size={14} />
+                                </div>
+                            </div>
+                        </button>
+                    </div>
+                </section>
+
                 {/* Section: Upcoming Draw */}
                 {upcomingDraw && (
                     <section>
@@ -485,6 +604,20 @@ export const LottoInsightPage = () => {
                 isDark={isDark}
             />
 
+            <DreamNumberModal
+                isOpen={showDreamModal}
+                onClose={() => setShowDreamModal(false)}
+            />
+
+            <BirthdayNumberModal
+                isOpen={showBirthdayModal}
+                onClose={() => setShowBirthdayModal(false)}
+            />
+
+            <TarotLottoModal
+                isOpen={showTarotLottoModal}
+                onClose={() => setShowTarotLottoModal(false)}
+            />
 
         </div>
     );
