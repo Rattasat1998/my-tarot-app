@@ -215,10 +215,10 @@ Deno.serve(async (req: Request) => {
                     console.log(`✅ Renewed premium for user ${profile.id}`)
                 }
             }
-        } else if (event.type === 'customer.subscription.deleted' || event.type === 'customer.subscription.updated') {
+        } else if (event.type === 'customer.subscription.deleted') {
+            // Subscription cancelled or expired
             const subscription = event.data.object
             
-            // Find user by subscription_id
             const { data: profile } = await supabaseAdmin
                 .from('profiles')
                 .select('id')
@@ -226,19 +226,38 @@ Deno.serve(async (req: Request) => {
                 .single()
                 
             if (profile) {
-                const status = subscription.status
-                const isPremium = status === 'active' || status === 'trialing'
-                
                 await supabaseAdmin
                     .from('profiles')
                     .update({ 
-                        is_premium: isPremium,
-                        subscription_status: status,
-                        premium_until: new Date(subscription.current_period_end * 1000).toISOString()
+                        is_premium: false,
+                        subscription_status: 'cancelled',
                     })
                     .eq('id', profile.id)
                     
-                console.log(`✅ Updated subscription status for user ${profile.id} to ${status}`)
+                console.log(`✅ Cancelled subscription for user ${profile.id}`)
+            }
+        } else if (event.type === 'invoice.payment_failed') {
+            // Recurring payment failed
+            const invoice = event.data.object
+            const subscriptionId = invoice.subscription
+            
+            if (subscriptionId) {
+                const { data: profile } = await supabaseAdmin
+                    .from('profiles')
+                    .select('id')
+                    .eq('subscription_id', subscriptionId)
+                    .single()
+                    
+                if (profile) {
+                    await supabaseAdmin
+                        .from('profiles')
+                        .update({ 
+                            subscription_status: 'past_due',
+                        })
+                        .eq('id', profile.id)
+                        
+                    console.log(`⚠️ Payment failed for user ${profile.id}, set to past_due`)
+                }
             }
         }
 

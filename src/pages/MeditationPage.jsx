@@ -225,28 +225,26 @@ export const MeditationPage = ({ isDark }) => {
                             </div>
                         </div>
 
-                        {/* Sound Selection - Premium Only */}
-                        <PremiumGate feature="premiumMeditation" fallback={null}>
-                            <div className="flex items-center gap-4">
-                                <span className="text-slate-400">เสียงพื้นหลัง:</span>
-                                <div className="flex gap-2">
-                                    {soundOptions.map((sound) => (
-                                        <button
-                                            key={sound.id}
-                                            onClick={() => setSelectedSound(sound.id)}
-                                            className={`px-3 py-2 rounded-lg border transition-all flex items-center gap-2 ${
-                                                selectedSound === sound.id
-                                                    ? 'bg-purple-500/20 border-purple-400 text-purple-300'
-                                                    : 'bg-slate-800/50 border-slate-700 text-slate-400 hover:bg-slate-700'
-                                            }`}
-                                        >
-                                            {sound.icon}
-                                            <span className="text-sm">{sound.name}</span>
-                                        </button>
-                                    ))}
-                                </div>
+                        {/* Sound Selection */}
+                        <div className="flex items-center gap-4">
+                            <span className="text-slate-400">เสียงพื้นหลัง:</span>
+                            <div className="flex gap-2">
+                                {soundOptions.map((sound) => (
+                                    <button
+                                        key={sound.id}
+                                        onClick={() => setSelectedSound(sound.id)}
+                                        className={`px-3 py-2 rounded-lg border transition-all flex items-center gap-2 ${
+                                            selectedSound === sound.id
+                                                ? 'bg-purple-500/20 border-purple-400 text-purple-300'
+                                                : 'bg-slate-800/50 border-slate-700 text-slate-400 hover:bg-slate-700'
+                                        }`}
+                                    >
+                                        {sound.icon}
+                                        <span className="text-sm">{sound.name}</span>
+                                    </button>
+                                ))}
                             </div>
-                        </PremiumGate>
+                        </div>
                         {/* Play Controls */}
                         <div className="flex items-center gap-4">
                             <button
