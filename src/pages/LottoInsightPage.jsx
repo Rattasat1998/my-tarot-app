@@ -5,11 +5,13 @@ import { LuckyGeneratorModal } from '../components/modals/LuckyGeneratorModal';
 import { DreamNumberModal } from '../components/modals/DreamNumberModal';
 import { BirthdayNumberModal } from '../components/modals/BirthdayNumberModal';
 import { TarotLottoModal } from '../components/modals/TarotLottoModal';
+import { LoginModal } from '../components/modals/LoginModal';
 import * as lottoService from '../services/lottoService';
 // Fallback to static data if database is not available
-import { LOTTO_DRAWS, getUpcomingDraw as getStaticUpcoming, getPastDraws as getStaticPast } from '../data/lottoData';
+import { getUpcomingDraw as getStaticUpcoming, getPastDraws as getStaticPast } from '../data/lottoData';
 import { usePageSEO } from '../hooks/usePageTitle';
-import { PremiumGate } from '../components/ui/PremiumGate';
+import { useAuth } from '../contexts/AuthContext';
+import { usePremium } from '../hooks/usePremium';
 
 // Module-level cache to persist data across navigations
 let cachedUpcoming = null;
@@ -25,6 +27,8 @@ export const LottoInsightPage = () => {
     });
     const navigate = useNavigate();
     const location = useLocation();
+    const { user, loading: authLoading } = useAuth();
+    const { isPremium, isLoading: premiumLoading } = usePremium();
 
     // Check if coming back from detail page (use cache) or from home (reload)
     const fromDetail = location.state?.fromDetail === true;
@@ -37,6 +41,7 @@ export const LottoInsightPage = () => {
     const [showDreamModal, setShowDreamModal] = useState(false);
     const [showBirthdayModal, setShowBirthdayModal] = useState(false);
     const [showTarotLottoModal, setShowTarotLottoModal] = useState(false);
+    const [showLoginModal, setShowLoginModal] = useState(false);
     const [selectedDraw, setSelectedDraw] = useState(null);
     // Initialize from cache if coming from detail page
     const [loading, setLoading] = useState(!shouldUseCache);
@@ -46,6 +51,11 @@ export const LottoInsightPage = () => {
     // Fetch data from database, fallback to static data
     // Only skip fetch if coming from detail page and cache exists
     useEffect(() => {
+        if (authLoading || premiumLoading) return;
+        if (!user || !isPremium) {
+            setLoading(false);
+            return;
+        }
         if (shouldUseCache) return; // Skip if coming from detail and cache exists
 
         const fetchData = async () => {
@@ -94,7 +104,7 @@ export const LottoInsightPage = () => {
             setLoading(false);
         };
         fetchData();
-    }, []);
+    }, [authLoading, premiumLoading, user, isPremium, shouldUseCache]);
 
     const currentDraw = selectedDraw || upcomingDraw;
 
@@ -111,6 +121,82 @@ export const LottoInsightPage = () => {
     };
 
     // Loading state
+    if (authLoading || (user && premiumLoading)) {
+        return (
+            <div className="min-h-screen bg-amber-50 flex flex-col items-center justify-center">
+                <div className="relative">
+                    <div className="w-16 h-16 border-4 border-amber-200 border-t-amber-500 rounded-full animate-spin"></div>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="text-2xl">🔐</span>
+                    </div>
+                </div>
+                <p className="mt-4 text-amber-600 font-medium animate-pulse">กำลังตรวจสอบการเข้าสู่ระบบ...</p>
+            </div>
+        );
+    }
+
+    if (!user) {
+        return (
+            <div className="min-h-screen bg-amber-50 text-slate-800 flex flex-col items-center justify-center p-6">
+                <div className="max-w-md text-center">
+                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 mb-6">
+                        <span className="text-4xl">🔐</span>
+                    </div>
+                    <h2 className="text-2xl font-bold text-slate-800 mb-3">LottoInsight ต้องเข้าสู่ระบบก่อน</h2>
+                    <p className="text-slate-500 mb-6">
+                        กรุณาเข้าสู่ระบบก่อนใช้งานเครื่องมือวิเคราะห์หวยและเลขมงคล
+                    </p>
+                    <button
+                        onClick={() => setShowLoginModal(true)}
+                        className="px-8 py-3 bg-gradient-to-r from-indigo-600 to-blue-600 text-white font-bold rounded-xl hover:scale-105 transition-all shadow-lg flex items-center justify-center gap-2 mx-auto"
+                    >
+                        เข้าสู่ระบบ
+                    </button>
+                    <button
+                        onClick={() => navigate('/')}
+                        className="mt-4 px-6 py-2 text-slate-500 hover:text-slate-700 transition-colors text-sm"
+                    >
+                        ← กลับหน้าหลัก
+                    </button>
+                </div>
+
+                <LoginModal
+                    isOpen={showLoginModal}
+                    onClose={() => setShowLoginModal(false)}
+                />
+            </div>
+        );
+    }
+
+    if (!isPremium) {
+        return (
+            <div className="min-h-screen bg-amber-50 text-slate-800 flex flex-col items-center justify-center p-6">
+                <div className="max-w-md text-center">
+                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-r from-purple-500/20 to-indigo-500/20 border border-purple-500/30 mb-6">
+                        <Crown className="w-10 h-10 text-purple-600" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-slate-800 mb-3">LottoInsight สำหรับสมาชิก Premium</h2>
+                    <p className="text-slate-500 mb-6">
+                        กรุณาอัปเกรดเป็น Premium ก่อนเข้าใช้งาน LottoInsight
+                    </p>
+                    <button
+                        onClick={() => navigate('/membership')}
+                        className="px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl hover:scale-105 transition-all shadow-lg flex items-center justify-center gap-2 mx-auto"
+                    >
+                        <Crown className="w-5 h-5" />
+                        อัปเกรดเป็น Premium
+                    </button>
+                    <button
+                        onClick={() => navigate('/')}
+                        className="mt-4 px-6 py-2 text-slate-500 hover:text-slate-700 transition-colors text-sm"
+                    >
+                        ← กลับหน้าหลัก
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
     if (loading) {
         return (
             <div className="min-h-screen bg-amber-50 flex flex-col items-center justify-center">
@@ -128,35 +214,6 @@ export const LottoInsightPage = () => {
     }
 
     return (
-        <PremiumGate feature="lottoInsight" fallback={
-            <div className="min-h-screen bg-amber-50 text-slate-800 flex flex-col items-center justify-center p-6">
-                <div className="max-w-md text-center">
-                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 mb-6">
-                        <span className="text-4xl">🔮</span>
-                    </div>
-                    <h2 className="text-2xl font-bold text-slate-800 mb-3 flex items-center justify-center gap-2">
-                        <Crown className="w-6 h-6 text-purple-500" />
-                        LottoInsight Premium
-                    </h2>
-                    <p className="text-slate-500 mb-6">
-                        วิเคราะห์หวย สถิติย้อนหลัง 22 ปี แนวทางจากสำนักดัง สุ่มเลขมงคล<br/>เฉพาะสมาชิก Premium เท่านั้น
-                    </p>
-                    <button
-                        onClick={() => navigate('/membership')}
-                        className="px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl hover:scale-105 transition-all shadow-lg shadow-purple-500/25 flex items-center justify-center gap-2 mx-auto"
-                    >
-                        <Crown className="w-5 h-5" />
-                        อัปเกรดเป็น Premium
-                    </button>
-                    <button
-                        onClick={() => navigate('/')}
-                        className="mt-4 px-6 py-2 text-slate-500 hover:text-slate-700 transition-colors text-sm"
-                    >
-                        ← กลับหน้าหลัก
-                    </button>
-                </div>
-            </div>
-        }>
         <div className={`min-h-screen ${isDark ? 'bg-slate-950 text-white' : 'bg-amber-50 text-slate-800'}`}>
             {/* Header */}
             <header className={`sticky top-0 z-40 ${isDark ? 'bg-slate-900/95 border-slate-800' : 'bg-white/95 border-amber-100'} border-b backdrop-blur-sm`}>
@@ -672,9 +729,7 @@ export const LottoInsightPage = () => {
             />
 
         </div>
-        </PremiumGate>
     );
 };
 
 export default LottoInsightPage;
-
