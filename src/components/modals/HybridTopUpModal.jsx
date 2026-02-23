@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Crown, Coins, CreditCard, Smartphone, ArrowRight, CheckCircle, X, Loader2 } from 'lucide-react';
+import { usePremium } from '../../hooks/usePremium';
 
 export const HybridTopUpModal = ({ isOpen, onClose, isDark, user, onUpgrade, onTopUp, isLoading }) => {
     const [selectedOption, setSelectedOption] = useState(null);
@@ -23,9 +24,9 @@ export const HybridTopUpModal = ({ isOpen, onClose, isDark, user, onUpgrade, onT
         onClose();
     };
 
-    if (!isOpen) return null;
+    const { isPremium } = usePremium();
 
-    const isPremium = user?.user_metadata?.is_premium || user?.user_metadata?.subscription_status === 'active';
+    if (!isOpen) return null;
 
     return (
         <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-in fade-in duration-300" onClick={onClose}>
@@ -212,9 +213,27 @@ export const HybridTopUpModal = ({ isOpen, onClose, isDark, user, onUpgrade, onT
                                         จัดการการสมัคร
                                     </button>
                                     <button 
-                                        onClick={() => {
-                                            if (confirm('คุณต้องการยกเลิกสมาชิก Premium หรือไม่?')) {
-                                                alert('กรุณาติดต่อเจ้าหน้าที่เพื่อยกเลิกสมาชิก');
+                                        onClick={async () => {
+                                            if (!confirm('คุณต้องการจัดการ/ยกเลิกสมาชิก Premium หรือไม่?')) return;
+                                            try {
+                                                const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+                                                const { data: { session } } = await (await import('../../lib/supabase')).supabase.auth.getSession();
+                                                if (!session) { alert('กรุณาเข้าสู่ระบบก่อน'); return; }
+                                                const res = await fetch(`${supabaseUrl}/functions/v1/create-portal`, {
+                                                    method: 'POST',
+                                                    headers: {
+                                                        'Content-Type': 'application/json',
+                                                        'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+                                                        'Authorization': `Bearer ${session.access_token}`,
+                                                    },
+                                                    body: JSON.stringify({ userEmail: user?.email }),
+                                                });
+                                                const data = await res.json();
+                                                if (data.error) throw new Error(data.error);
+                                                if (data.url) window.location.href = data.url;
+                                            } catch (err) {
+                                                console.error('Portal error:', err);
+                                                alert(`เกิดข้อผิดพลาด: ${err.message}`);
                                             }
                                         }}
                                         className="px-4 py-2 bg-red-500/20 border border-red-500/30 text-red-300 rounded-lg hover:bg-red-500/30 transition-all text-sm" 

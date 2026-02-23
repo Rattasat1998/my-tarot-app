@@ -1,5 +1,6 @@
 import React from 'react';
 import { GoogleAdSlot } from '../ui/GoogleAdSlot';
+import { AdBanner } from '../ui/AdBanner';
 import { StatsCounter } from '../ui/StatsCounter';
 import { AncientWisdom } from '../ui/AncientWisdom';
 import { Testimonials } from '../ui/Testimonials';
@@ -47,6 +48,13 @@ export const MenuState = ({ topic, setTopic, readingType, setReadingType, startR
             {/* ═══════════════════════════════════ */}
             <div className="mt-20 w-full">
                 <AncientWisdom openArticle={openArticle} />
+            </div>
+
+            {/* ═══════════════════════════════════ */}
+            {/* 4.5 IN-HOUSE AD BANNER */}
+            {/* ═══════════════════════════════════ */}
+            <div className="mt-12 w-full max-w-4xl mx-auto px-4">
+                <AdBanner placement="banner" />
             </div>
 
             {/* ═══════════════════════════════════ */}

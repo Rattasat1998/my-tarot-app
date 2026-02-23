@@ -1,7 +1,9 @@
 import React from 'react';
 import { Crown, Sparkles, Heart, Brain, BookOpen, Users, Star, CheckCircle, Zap, Shield, Loader2 } from 'lucide-react';
+import { usePremium } from '../../hooks/usePremium';
 
 export const MembershipCard = ({ isDark, onUpgrade, isLoading }) => {
+    const { isPremium } = usePremium();
     const benefits = [
         {
             icon: <Zap className="w-5 h-5" />,
@@ -28,12 +30,6 @@ export const MembershipCard = ({ isDark, onUpgrade, isLoading }) => {
             popular: false
         },
         {
-            icon: <Users className="w-5 h-5" />,
-            title: "Expert Community Access",
-            description: "เข้าร่วม community พร้อม expert guidance",
-            popular: false
-        },
-        {
             icon: <Heart className="w-5 h-5" />,
             title: "Priority Support",
             description: "ตอบคำถามภายใน 2 ชั่วโมง",
@@ -45,12 +41,6 @@ export const MembershipCard = ({ isDark, onUpgrade, isLoading }) => {
             description: "ใช้งานไร้โฆษณา สมาธิเต็มที่",
             popular: false
         },
-        {
-            icon: <Sparkles className="w-5 h-5" />,
-            title: "Exclusive Content",
-            description: "บทความ วิดีโอ และ workshop พิเศษ",
-            popular: false
-        }
     ];
 
     const freeFeatures = [
@@ -100,8 +90,8 @@ export const MembershipCard = ({ isDark, onUpgrade, isLoading }) => {
                     </div>
                     
                     <div className="text-center">
-                        <div className={`px-6 py-3 rounded-xl border ${isDark ? 'bg-slate-800 border-slate-600 text-slate-400' : 'bg-slate-100 border-slate-300 text-slate-600'} font-medium`}>
-                            คุณกำลังใช้อยู่
+                        <div className={`px-6 py-3 rounded-xl border ${isPremium ? 'bg-slate-800 border-slate-600 text-slate-400' : `${isDark ? 'bg-slate-800 border-slate-600 text-slate-400' : 'bg-slate-100 border-slate-300 text-slate-600'}`} font-medium`}>
+                            {isPremium ? 'แพลนก่อนหน้าของคุณ' : 'คุณกำลังใช้อยู่'}
                         </div>
                     </div>
                 </div>
@@ -110,9 +100,8 @@ export const MembershipCard = ({ isDark, onUpgrade, isLoading }) => {
                 <div className={`relative rounded-2xl border-2 ${isDark ? 'bg-gradient-to-br from-purple-900/50 to-indigo-900/50 border-purple-500' : 'bg-gradient-to-br from-purple-50 to-indigo-50 border-purple-500'} p-8 transform scale-105`}>
                     {/* Popular Badge */}
                     <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                        <div className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-sm font-bold rounded-full flex items-center gap-2">
-                            <Star className="w-4 h-4" />
-                            POPULAR
+                        <div className={`px-4 py-2 ${isPremium ? 'bg-gradient-to-r from-green-600 to-emerald-600' : 'bg-gradient-to-r from-purple-600 to-indigo-600'} text-white text-sm font-bold rounded-full flex items-center gap-2`}>
+                            {isPremium ? <><CheckCircle className="w-4 h-4" /> ACTIVE</> : <><Star className="w-4 h-4" /> POPULAR</>}
                         </div>
                     </div>
 
@@ -146,23 +135,30 @@ export const MembershipCard = ({ isDark, onUpgrade, isLoading }) => {
                     </div>
 
                     <div className="text-center">
-                        <button
-                            onClick={onUpgrade}
-                            disabled={isLoading}
-                            className="w-full py-4 px-6 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl font-bold text-lg transition-all transform hover:scale-105 shadow-lg shadow-purple-500/25 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                        >
-                            {isLoading ? (
-                                <>
-                                    <Loader2 className="w-5 h-5 animate-spin" />
-                                    กำลังดำเนินการ...
-                                </>
-                            ) : (
-                                <>
-                                    <Crown className="w-5 h-5" />
-                                    เริ่มต้นใช้งาน Premium วันนี้
-                                </>
-                            )}
-                        </button>
+                        {isPremium ? (
+                            <div className="w-full py-4 px-6 bg-gradient-to-r from-green-600/20 to-emerald-600/20 border border-green-500/30 text-green-300 rounded-xl font-bold text-lg flex items-center justify-center gap-2">
+                                <CheckCircle className="w-5 h-5" />
+                                คุณเป็นสมาชิก Premium แล้ว
+                            </div>
+                        ) : (
+                            <button
+                                onClick={onUpgrade}
+                                disabled={isLoading}
+                                className="w-full py-4 px-6 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl font-bold text-lg transition-all transform hover:scale-105 shadow-lg shadow-purple-500/25 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                            >
+                                {isLoading ? (
+                                    <>
+                                        <Loader2 className="w-5 h-5 animate-spin" />
+                                        กำลังดำเนินการ...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Crown className="w-5 h-5" />
+                                        เริ่มต้นใช้งาน Premium วันนี้
+                                    </>
+                                )}
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>

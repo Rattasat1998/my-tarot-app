@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Sparkles, Heart, Brain, Moon, Sun, Play, Pause, RotateCcw, Volume2, VolumeX, Crown, Music, Waves } from 'lucide-react';
 import { PremiumGate } from '../components/ui/PremiumGate';
 import { usePremium } from '../hooks/usePremium';
+import { useActivityLog } from '../hooks/useActivityLog';
 
 export const MeditationPage = ({ isDark }) => {
     const { isPremium } = usePremium();
+    const { logActivity } = useActivityLog();
     const [isPlaying, setIsPlaying] = useState(false);
     const [breathingPhase, setBreathingPhase] = useState('inhale');
     const [sessionTime, setSessionTime] = useState(0);
@@ -55,6 +57,7 @@ export const MeditationPage = ({ isDark }) => {
             }, 1000);
         } else if (sessionTime >= selectedDuration * 60) {
             setIsPlaying(false);
+            logActivity('meditation', `ทำสมาธิ ${selectedDuration} นาที`, { duration: selectedDuration });
         }
         return () => clearInterval(interval);
     }, [isPlaying, sessionTime, selectedDuration]);

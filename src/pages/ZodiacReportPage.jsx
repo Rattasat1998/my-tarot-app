@@ -2,12 +2,16 @@ import React, { useState } from 'react';
 import { Calendar, Star, Heart, Briefcase, TrendingUp, Users, BookOpen, ArrowLeft, Crown, Download, Share2 } from 'lucide-react';
 import { PremiumGate } from '../components/ui/PremiumGate';
 import { usePremium } from '../hooks/usePremium';
+import { getMonthlyZodiacReport } from '../data/zodiacData';
+import { useActivityLog } from '../hooks/useActivityLog';
 
 export const ZodiacReportPage = ({ isDark }) => {
     const { isPremium } = usePremium();
+    const { logActivity } = useActivityLog();
     const [selectedZodiac, setSelectedZodiac] = useState(null);
     const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
     const [isGenerating, setIsGenerating] = useState(false);
+    const [report, setReport] = useState(null);
 
     const zodiacSigns = [
         { id: 'aries', name: 'ราศีเมษ', icon: '♈', dates: '21 มี.ค. - 19 เม.ย.' },
@@ -30,38 +34,15 @@ export const ZodiacReportPage = ({ isDark }) => {
     ];
 
     const generateReport = () => {
+        if (!selectedZodiac) return;
         setIsGenerating(true);
+        setReport(null);
         setTimeout(() => {
+            const data = getMonthlyZodiacReport(selectedZodiac.id, selectedMonth);
+            setReport(data);
             setIsGenerating(false);
+            logActivity('zodiac_report', `อ่านรายงานราศี: ${selectedZodiac.name}`, { zodiac: selectedZodiac.id, month: selectedMonth });
         }, 2000);
-    };
-
-    const sampleReport = {
-        love: {
-            score: 85,
-            text: "ช่วงนี้ความรักของคุณกำลังเดินทางมาในทิศทางที่ดีขึ้น ความสัมพันธ์ที่มีอยู่จะเข้าใจกันมากขึ้น ส่วนคนโสดมีโอกาสพบรักที่คาดไม่ถึง",
-            advice: "เปิดใจให้มากขึ้น และสื่อสารความรู้สึกอย่างตรงไปตรงมา"
-        },
-        career: {
-            score: 78,
-            text: "การงานมีความคืบหน้าที่ดี โปรเจกต์ใหม่ๆ จะเข้ามา แต่ต้องระมัดระวังเรื่องการทำงานร่วมกับผู้อื่น",
-            advice: "โฟกัสที่การพัฒนาทักษะและสร้างความสัมพันธ์ที่ดีในทีมงาน"
-        },
-        finance: {
-            score: 72,
-            text: "การเงินมีเสถียรภาพดีขึ้น มีโอกาสได้รับเงินพิเศษ แต่ต้องควบคุมการใช้จ่ายให้ดีขึ้น",
-            advice: "วางแผนการเงินอย่างมีระบบ และลงทุนในสิ่งที่ปลอดภัย"
-        },
-        health: {
-            score: 88,
-            text: "สุขภาพดีขึ้นเป็นพิเศษ มีพลังงานมาก แต่ต้องดูแจเรื่องพักผ่อนให้เพียงพอ",
-            advice: "ออกกำลังกายสม่ำเสมอ และนอนหลับให้เพียงพอ"
-        },
-        overall: {
-            score: 81,
-            text: "เดือนนี้เป็นช่วงเวลาที่เหมาะสำหรับการเติบโตและพัฒนาตนเอง โอกาสใหม่ๆ จะเข้ามาให้",
-            advice: "เปิดรับการเปลี่ยนแปลงและวางแผนอนาคตอย่างมั่นคง"
-        }
     };
 
     return (
@@ -177,7 +158,7 @@ export const ZodiacReportPage = ({ isDark }) => {
                         </div>
 
                         {/* Report Display */}
-                        {(selectedZodiac && !isGenerating) && (
+                        {(report && !isGenerating) && (
                             <div className="space-y-6">
                                 {/* Report Header */}
                                 <div className={`rounded-2xl ${isDark ? 'bg-slate-900/50 border border-slate-800' : 'bg-slate-100 border border-slate-300'} p-6`}>
@@ -186,7 +167,7 @@ export const ZodiacReportPage = ({ isDark }) => {
                                             <div className="text-4xl">{selectedZodiac.icon}</div>
                                             <div>
                                                 <h2 className="text-2xl font-bold text-white">
-                                                    {selectedZodiac.name} - {months[selectedMonth]}
+                                                    {selectedZodiac.name} - {months[report.month]} {report.year}
                                                 </h2>
                                                 <p className="text-slate-400">{selectedZodiac.dates}</p>
                                             </div>
@@ -205,7 +186,7 @@ export const ZodiacReportPage = ({ isDark }) => {
                                     <div className="text-center mb-8">
                                         <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-purple-500/20 to-indigo-500/20 border border-purple-500/30 rounded-full">
                                             <Star className="w-5 h-5 text-purple-400" />
-                                            <span className="text-purple-300 font-bold text-lg">คะแนนรวม: {sampleReport.overall.score}/100</span>
+                                            <span className="text-purple-300 font-bold text-lg">คะแนนรวม: {report.overall.score}/100</span>
                                         </div>
                                     </div>
 
@@ -216,11 +197,11 @@ export const ZodiacReportPage = ({ isDark }) => {
                                             <div className="flex items-center gap-3 mb-4">
                                                 <Heart className="w-5 h-5 text-pink-400" />
                                                 <h3 className="text-lg font-bold text-white">ความรัก</h3>
-                                                <span className="text-pink-400 font-bold">({sampleReport.love.score}/100)</span>
+                                                <span className="text-pink-400 font-bold">({report.love.score}/100)</span>
                                             </div>
-                                            <p className="text-slate-300 mb-3">{sampleReport.love.text}</p>
+                                            <p className="text-slate-300 mb-3">{report.love.text}</p>
                                             <div className="p-3 bg-pink-500/10 border border-pink-500/20 rounded-lg">
-                                                <p className="text-pink-300 text-sm font-medium">💡 คำแนะนำ: {sampleReport.love.advice}</p>
+                                                <p className="text-pink-300 text-sm font-medium">💡 คำแนะนำ: {report.love.advice}</p>
                                             </div>
                                         </div>
 
@@ -229,11 +210,11 @@ export const ZodiacReportPage = ({ isDark }) => {
                                             <div className="flex items-center gap-3 mb-4">
                                                 <Briefcase className="w-5 h-5 text-blue-400" />
                                                 <h3 className="text-lg font-bold text-white">การงาน</h3>
-                                                <span className="text-blue-400 font-bold">({sampleReport.career.score}/100)</span>
+                                                <span className="text-blue-400 font-bold">({report.career.score}/100)</span>
                                             </div>
-                                            <p className="text-slate-300 mb-3">{sampleReport.career.text}</p>
+                                            <p className="text-slate-300 mb-3">{report.career.text}</p>
                                             <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                                                <p className="text-blue-300 text-sm font-medium">💡 คำแนะนำ: {sampleReport.career.advice}</p>
+                                                <p className="text-blue-300 text-sm font-medium">💡 คำแนะนำ: {report.career.advice}</p>
                                             </div>
                                         </div>
 
@@ -242,11 +223,11 @@ export const ZodiacReportPage = ({ isDark }) => {
                                             <div className="flex items-center gap-3 mb-4">
                                                 <TrendingUp className="w-5 h-5 text-green-400" />
                                                 <h3 className="text-lg font-bold text-white">การเงิน</h3>
-                                                <span className="text-green-400 font-bold">({sampleReport.finance.score}/100)</span>
+                                                <span className="text-green-400 font-bold">({report.finance.score}/100)</span>
                                             </div>
-                                            <p className="text-slate-300 mb-3">{sampleReport.finance.text}</p>
+                                            <p className="text-slate-300 mb-3">{report.finance.text}</p>
                                             <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
-                                                <p className="text-green-300 text-sm font-medium">💡 คำแนะนำ: {sampleReport.finance.advice}</p>
+                                                <p className="text-green-300 text-sm font-medium">💡 คำแนะนำ: {report.finance.advice}</p>
                                             </div>
                                         </div>
 
@@ -255,11 +236,11 @@ export const ZodiacReportPage = ({ isDark }) => {
                                             <div className="flex items-center gap-3 mb-4">
                                                 <Users className="w-5 h-5 text-yellow-400" />
                                                 <h3 className="text-lg font-bold text-white">สุขภาพ</h3>
-                                                <span className="text-yellow-400 font-bold">({sampleReport.health.score}/100)</span>
+                                                <span className="text-yellow-400 font-bold">({report.health.score}/100)</span>
                                             </div>
-                                            <p className="text-slate-300 mb-3">{sampleReport.health.text}</p>
+                                            <p className="text-slate-300 mb-3">{report.health.text}</p>
                                             <div className="p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
-                                                <p className="text-yellow-300 text-sm font-medium">💡 คำแนะนำ: {sampleReport.health.advice}</p>
+                                                <p className="text-yellow-300 text-sm font-medium">💡 คำแนะนำ: {report.health.advice}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -270,9 +251,9 @@ export const ZodiacReportPage = ({ isDark }) => {
                                             <BookOpen className="w-5 h-5 text-purple-400" />
                                             สรุปรายเดือน
                                         </h3>
-                                        <p className="text-slate-300 mb-3">{sampleReport.overall.text}</p>
+                                        <p className="text-slate-300 mb-3">{report.overall.text}</p>
                                         <div className="p-3 bg-purple-500/10 border border-purple-500/20 rounded-lg">
-                                            <p className="text-purple-300 text-sm font-medium">🌟 คำแนะนำพิเศษ: {sampleReport.overall.advice}</p>
+                                            <p className="text-purple-300 text-sm font-medium">🌟 คำแนะนำพิเศษ: {report.overall.advice}</p>
                                         </div>
                                     </div>
                                 </div>

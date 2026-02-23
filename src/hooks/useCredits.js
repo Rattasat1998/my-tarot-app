@@ -1,12 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
+import { usePremium } from './usePremium';
 
 const DAILY_FREE_CREDIT_KEY = 'tarot_daily_free_last_used';
 const CREDIT_BALANCE_KEY = 'tarot_credit_balance';
 
 export const useCredits = () => {
     const { user } = useAuth();
+    const { isPremium } = usePremium();
 
     // Separate state for guest (local) and user (remote)
     const [localCredits, setLocalCredits] = useState(() => {
@@ -154,6 +156,11 @@ export const useCredits = () => {
     }, [user, fetchRemoteData, checkDailyFreeLocal]);
 
     const useCredit = useCallback(async (cost, isDaily = false) => {
+        // Premium users get unlimited readings — no credit deduction
+        if (isPremium) {
+            return { success: true, premium: true };
+        }
+
         if (user) {
             // Call Supabase RPC
             try {
@@ -199,7 +206,7 @@ export const useCredits = () => {
             setLocalCredits(prev => prev - cost);
             return { success: true };
         }
-    }, [user, localCredits, isDailyFreeAvailable, checkDailyFreeLocal, fetchRemoteData]);
+    }, [user, isPremium, localCredits, isDailyFreeAvailable, checkDailyFreeLocal, fetchRemoteData]);
 
     // Async function for checking daily free (used by App.jsx or Menu)
     const checkDailyFree = useCallback(async () => {
@@ -214,6 +221,7 @@ export const useCredits = () => {
 
     return {
         credits, // derived based on auth state
+        isPremium,
         isLoading,
         addCredits,
         isDailyFreeEligibleToClaim,

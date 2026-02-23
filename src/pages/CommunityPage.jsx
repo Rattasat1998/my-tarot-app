@@ -149,38 +149,6 @@ export const CommunityPage = ({ isDark }) => {
                         {/* Main Content Area */}
                         <div className="lg:col-span-2 space-y-6">
                             {/* Expert Answers Section */}
-                            <PremiumGate 
-                                feature="expertCommunity" 
-                                fallback={
-                                    <div className={`rounded-2xl ${isDark ? 'bg-slate-900/50 border border-slate-800' : 'bg-slate-100 border border-slate-300'} p-8 text-center`}>
-                                        <div className="inline-flex items-center gap-3 px-6 py-3 bg-purple-500/10 border border-purple-500/30 rounded-xl mb-4">
-                                            <Crown className="w-5 h-5 text-purple-400" />
-                                            <span className="text-purple-300 font-medium">Premium Feature</span>
-                                        </div>
-                                        <h3 className="text-xl font-bold text-white mb-2">Expert Answers</h3>
-                                        <p className="text-slate-400 mb-4">คำตอบจากผู้เชี่ยวชาญสำหรับสมาชิก Premium</p>
-                                        <div className="space-y-3">
-                                            {expertAnswers.map(answer => (
-                                                <div key={answer.id} className="p-4 bg-slate-800/30 rounded-xl border border-slate-700">
-                                                    <div className="flex items-center gap-3 mb-2">
-                                                        <span className="text-2xl">{answer.avatar}</span>
-                                                        <div>
-                                                            <div className="font-medium text-white">{answer.expert}</div>
-                                                            <div className="text-xs text-slate-400">{answer.expertise}</div>
-                                                        </div>
-                                                    </div>
-                                                    <div className="p-3 bg-slate-900/50 rounded-lg mb-2">
-                                                        <p className="text-slate-300 text-sm italic">Q: {answer.question}</p>
-                                                    </div>
-                                                    <div className="text-slate-400 text-sm line-clamp-2">
-                                                        A: {answer.answer}
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                }
-                            >
                                 <div className={`rounded-2xl ${isDark ? 'bg-slate-900/50 border border-slate-800' : 'bg-slate-100 border border-slate-300'} p-6`}>
                                     <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                                         <Award className="w-5 h-5 text-purple-400" />
@@ -221,8 +189,6 @@ export const CommunityPage = ({ isDark }) => {
                                         ))}
                                     </div>
                                 </div>
-                            </PremiumGate>
-
                             {/* Community Discussions */}
                             <div className={`rounded-2xl ${isDark ? 'bg-slate-900/50 border border-slate-800' : 'bg-slate-100 border border-slate-300'} p-6`}>
                                 <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
@@ -283,22 +249,6 @@ export const CommunityPage = ({ isDark }) => {
                         {/* Sidebar */}
                         <div className="space-y-6">
                             {/* Upcoming Events */}
-                            <PremiumGate 
-                                feature="expertCommunity" 
-                                fallback={
-                                    <div className={`rounded-2xl ${isDark ? 'bg-slate-900/50 border border-slate-800' : 'bg-slate-100 border border-slate-300'} p-6`}>
-                                        <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                                            <Calendar className="w-5 h-5 text-purple-400" />
-                                            Upcoming Events
-                                        </h3>
-                                        <div className="inline-flex items-center gap-2 px-3 py-2 bg-purple-500/10 border border-purple-500/30 rounded-full">
-                                            <Crown className="w-4 h-4 text-purple-400" />
-                                            <span className="text-purple-300 text-sm">Premium</span>
-                                        </div>
-                                        <p className="text-slate-400 text-sm mt-2">Workshops และ events สำหรับสมาชิก Premium</p>
-                                    </div>
-                                }
-                            >
                                 <div className={`rounded-2xl ${isDark ? 'bg-slate-900/50 border border-slate-800' : 'bg-slate-100 border border-slate-300'} p-6`}>
                                     <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                                         <Calendar className="w-5 h-5 text-purple-400" />
@@ -333,8 +283,6 @@ export const CommunityPage = ({ isDark }) => {
                                         ))}
                                     </div>
                                 </div>
-                            </PremiumGate>
-
                             {/* Community Stats */}
                             <div className={`rounded-2xl ${isDark ? 'bg-slate-900/50 border border-slate-800' : 'bg-slate-100 border border-slate-300'} p-6`}>
                                 <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">

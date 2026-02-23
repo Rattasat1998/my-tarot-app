@@ -9,7 +9,6 @@ export const PremiumUpgradeModal = ({ isOpen, onClose, onUpgrade, isDark }) => {
         { icon: <Brain className="w-5 h-5" />, text: "Premium Meditation (15-30 นาที)" },
         { icon: <Star className="w-5 h-5" />, text: "Monthly Zodiac Reports" },
         { icon: <Sparkles className="w-5 h-5" />, text: "Personal Growth Journal" },
-        { icon: <Crown className="w-5 h-5" />, text: "Expert Community Access" },
         { icon: <CheckCircle className="w-5 h-5" />, text: "Ad-Free Experience" }
     ];
 

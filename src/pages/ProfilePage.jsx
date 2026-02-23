@@ -2,16 +2,78 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { User, Phone, Save, ArrowLeft, Loader, CheckCircle, Camera, Calendar, CreditCard, Crown, Star, TrendingUp, BookOpen, Heart } from 'lucide-react';
+import { User, Phone, Save, ArrowLeft, Loader, CheckCircle, Camera, Calendar, CreditCard, Crown, Star, TrendingUp, BookOpen, Heart, MessageCircle, Mail, Headphones, Clock, Send } from 'lucide-react';
 import { compressImage } from '../utils/imageCompression';
 import { MysticalIdCard } from '../components/MysticalIdCard';
 import { getZodiacFromDate } from '../utils/zodiacUtils';
 import { PremiumGate } from '../components/ui/PremiumGate';
 import { usePremium } from '../hooks/usePremium';
+import { useActivityLog } from '../hooks/useActivityLog';
+
+// Sub-component to fetch and display journal entries from Supabase
+const JournalEntries = ({ isDark, user }) => {
+    const [entries, setEntries] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (!user) { setLoading(false); return; }
+        const fetchEntries = async () => {
+            try {
+                const { data, error } = await supabase
+                    .from('journal_entries')
+                    .select('id, title, content, mood, created_at')
+                    .eq('user_id', user.id)
+                    .order('created_at', { ascending: false })
+                    .limit(5);
+                if (error) throw error;
+                setEntries(data || []);
+            } catch (err) {
+                console.error('Error fetching journal entries:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchEntries();
+    }, [user]);
+
+    if (loading) return (
+        <div className="text-center py-4">
+            <Loader className="w-5 h-5 animate-spin text-purple-400 mx-auto" />
+        </div>
+    );
+
+    if (entries.length === 0) return (
+        <div className="text-center py-8 text-slate-500">ยังไม่มีบันทึก</div>
+    );
+
+    return (
+        <div className="space-y-4">
+            {entries.map((entry) => (
+                <div key={entry.id} className={`p-4 rounded-xl ${isDark ? 'bg-slate-800/50 border border-slate-700' : 'bg-slate-100 border border-slate-200'}`}>
+                    <div className="flex items-center justify-between mb-2">
+                        <h4 className="font-bold text-white">{entry.title}</h4>
+                        <span className="text-xs text-slate-400">
+                            {new Date(entry.created_at).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        </span>
+                    </div>
+                    <p className="text-slate-300 text-sm line-clamp-2">{entry.content}</p>
+                    {entry.mood && (
+                        <div className="flex items-center gap-2 mt-2">
+                            <span className="px-2 py-1 bg-purple-500/10 border border-purple-500/30 rounded-full text-purple-300 text-xs">
+                                {entry.mood}
+                            </span>
+                        </div>
+                    )}
+                </div>
+            ))}
+        </div>
+    );
+};
 
 export const ProfilePage = ({ isDark }) => {
     const { user } = useAuth();
     const { isPremium } = usePremium();
+    const { recentActivities, stats, loading: activitiesLoading } = useActivityLog();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -45,7 +107,7 @@ export const ProfilePage = ({ isDark }) => {
             const { data, error } = await supabase
                 .from('profiles')
                 .select('*')
-                .eq('user_id', user.id)
+                .eq('id', user.id)
                 .single();
 
             if (error && error.code !== 'PGRST116') {
@@ -67,7 +129,7 @@ export const ProfilePage = ({ isDark }) => {
             } else {
                 // Create profile if it doesn't exist
                 const newProfile = {
-                    user_id: user.id,
+                    id: user.id,
                     first_name: user.user_metadata?.first_name || '',
                     last_name: user.user_metadata?.last_name || '',
                     phone: '',
@@ -113,12 +175,12 @@ export const ProfilePage = ({ isDark }) => {
             const { error } = await supabase
                 .from('profiles')
                 .upsert([{
-                    user_id: user.id,
+                    id: user.id,
                     first_name: formData.first_name,
                     last_name: formData.last_name,
                     phone: formData.phone,
                     avatar_url: formData.avatar_url,
-                    birthdate: formData.birthdate
+                    birthdate: formData.birthdate || null
                 }]);
 
             if (error) {
@@ -173,7 +235,7 @@ export const ProfilePage = ({ isDark }) => {
             await supabase
                 .from('profiles')
                 .upsert([{
-                    user_id: user.id,
+                    id: user.id,
                     avatar_url: publicUrl
                 }]);
 
@@ -464,23 +526,51 @@ export const ProfilePage = ({ isDark }) => {
                             <BookOpen className="w-6 h-6 text-blue-400" />
                         </div>
                         <div>
-                            <div className="text-3xl font-bold text-white">127</div>
+                            <div className="text-3xl font-bold text-white">{stats.totalReadings}</div>
                             <div className="text-sm text-slate-400">ครั้งที่อ่านไพ่</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Activity Chart */}
+            {/* Activity Log */}
             <div className={`p-6 rounded-xl ${isDark ? 'bg-slate-800/50 border border-slate-700' : 'bg-slate-100 border border-slate-200'}`}>
-                <h3 className="text-lg font-bold text-white mb-4">กิจกรรมล่าสุด</h3>
+                <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-bold text-white">กิจกรรมล่าสุด</h3>
+                    <button
+                        onClick={() => navigate('/zodiac-report')}
+                        className="px-3 py-1 bg-purple-500/20 border border-purple-500/30 text-purple-300 rounded-lg hover:bg-purple-500/30 transition-all text-sm flex items-center gap-1"
+                    >
+                        <Calendar className="w-4 h-4" />
+                        รายงานราศี
+                    </button>
+                </div>
                 <div className="space-y-3">
-                    {['อ่านไพ่ The Fool', 'เขียนบันทึกประจำวัน', 'ทำสมาธิ 15 นาที', 'อ่านรายงานราศี'].map((activity, index) => (
-                        <div key={index} className="flex items-center justify-between p-3 bg-slate-700/30 rounded-lg">
-                            <span className="text-slate-300">{activity}</span>
-                            <span className="text-xs text-slate-500">{index + 1} วันที่แล้ว</span>
+                    {activitiesLoading ? (
+                        <div className="text-center py-4">
+                            <Loader className="w-5 h-5 animate-spin text-purple-400 mx-auto" />
                         </div>
-                    ))}
+                    ) : recentActivities.length === 0 ? (
+                        <div className="text-center py-4 text-slate-500">ยังไม่มีกิจกรรม</div>
+                    ) : (
+                        recentActivities.slice(0, 8).map((activity) => (
+                            <div key={activity.id} className="flex items-center justify-between p-3 bg-slate-700/30 rounded-lg">
+                                <span className="text-slate-300">{activity.title}</span>
+                                <span className="text-xs text-slate-500">
+                                    {(() => {
+                                        const diff = Date.now() - new Date(activity.created_at).getTime();
+                                        const mins = Math.floor(diff / 60000);
+                                        if (mins < 1) return 'เมื่อสักครู่';
+                                        if (mins < 60) return `${mins} นาทีที่แล้ว`;
+                                        const hrs = Math.floor(mins / 60);
+                                        if (hrs < 24) return `${hrs} ชม.ที่แล้ว`;
+                                        const days = Math.floor(hrs / 24);
+                                        return `${days} วันที่แล้ว`;
+                                    })()}
+                                </span>
+                            </div>
+                        ))
+                    )}
                 </div>
             </div>
         </div>
@@ -514,34 +604,78 @@ export const ProfilePage = ({ isDark }) => {
                 </div>
 
                 {/* Recent Journal Entries */}
-                <div className="space-y-4">
-                    {[
-                        {
-                            title: 'การสำนึกถึงความสำเร็จ',
-                            date: '2024-01-20',
-                            mood: 'grateful',
-                            preview: 'วันนี้ผมสำเร็จในการทำสมาธิครบ 15 นาที...'
-                        },
-                        {
-                            title: 'บทเรียนจากไพ่ The Hermit',
-                            date: '2024-01-19',
-                            mood: 'thoughtful',
-                            preview: 'ไพ่ The Hermit สอนให้ผมรู้จักการอยู่คนเดียว...'
-                        }
-                    ].map((entry, index) => (
-                        <div key={index} className={`p-4 rounded-xl ${isDark ? 'bg-slate-800/50 border border-slate-700' : 'bg-slate-100 border border-slate-200'}`}>
-                            <div className="flex items-center justify-between mb-2">
-                                <h4 className="font-bold text-white">{entry.title}</h4>
-                                <span className="text-xs text-slate-400">{entry.date}</span>
-                            </div>
-                            <p className="text-slate-300 text-sm line-clamp-2">{entry.preview}</p>
-                            <div className="flex items-center gap-2 mt-2">
-                                <span className="px-2 py-1 bg-purple-500/10 border border-purple-500/30 rounded-full text-purple-300 text-xs">
-                                    {entry.mood}
-                                </span>
-                            </div>
-                        </div>
-                    ))}
+                <JournalEntries isDark={isDark} user={user} />
+            </div>
+        </PremiumGate>
+    );
+
+    const renderSupportTab = () => (
+        <PremiumGate feature="prioritySupport" fallback={
+            <div className="text-center py-12">
+                <div className="inline-flex items-center gap-3 px-6 py-3 bg-purple-500/10 border border-purple-500/30 rounded-xl mb-4">
+                    <Headphones className="w-8 h-8 text-purple-400" />
+                    <span className="text-purple-300 font-bold">Premium Feature</span>
+                </div>
+                <p className="text-slate-300 mb-4">ช่องทางติดต่อพิเศษสำหรับสมาชิก Premium</p>
+                <p className="text-slate-400 text-sm mb-8">ตอบกลับภายใน 2 ชั่วโมง พร้อมผู้เชี่ยวชาญให้คำปรึกษา</p>
+                <button
+                    onClick={() => navigate('/membership')}
+                    className="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl hover:scale-105 transition-all"
+                >
+                    อัปเกรดเป็น Premium
+                </button>
+            </div>
+        }>
+            <div className="space-y-6">
+                {/* Support Header */}
+                <div className="p-6 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border border-blue-500/30 rounded-xl">
+                    <div className="flex items-center gap-3 mb-2">
+                        <Headphones className="w-6 h-6 text-blue-400" />
+                        <h3 className="text-xl font-bold text-white">Priority Support</h3>
+                    </div>
+                    <p className="text-slate-300 text-sm">สมาชิก Premium ติดต่อทีมงานได้โดยตรงผ่าน Facebook Page</p>
+                    <div className="flex items-center gap-2 mt-3">
+                        <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                        <span className="text-green-400 text-sm font-medium">ทีมงานพร้อมให้บริการ</span>
+                    </div>
+                </div>
+
+                {/* Facebook Page Contact */}
+                <a
+                    href="https://www.facebook.com/profile.php?id=61588499850170"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-4 p-6 bg-blue-500/10 border border-blue-500/30 rounded-xl hover:bg-blue-500/20 transition-all group"
+                >
+                    <div className="p-4 rounded-xl bg-blue-500/20 group-hover:scale-110 transition-transform">
+                        <MessageCircle className="w-8 h-8 text-blue-400" />
+                    </div>
+                    <div className="flex-1">
+                        <div className="font-bold text-white text-lg">Facebook Page</div>
+                        <div className="text-sm text-slate-400">ส่งข้อความหาเราได้โดยตรง ทีมงานพร้อมตอบกลับ</div>
+                    </div>
+                    <div className="px-5 py-2.5 bg-blue-600 text-white font-bold rounded-xl group-hover:bg-blue-500 transition-colors">
+                        เปิด Facebook
+                    </div>
+                </a>
+
+                {/* SLA Info */}
+                <div className="grid grid-cols-3 gap-4">
+                    <div className="text-center p-4 bg-slate-800/50 border border-slate-700 rounded-xl">
+                        <Clock className="w-5 h-5 text-purple-400 mx-auto mb-2" />
+                        <div className="text-lg font-bold text-white">2 ชม.</div>
+                        <div className="text-xs text-slate-400">เวลาตอบกลับ</div>
+                    </div>
+                    <div className="text-center p-4 bg-slate-800/50 border border-slate-700 rounded-xl">
+                        <Headphones className="w-5 h-5 text-indigo-400 mx-auto mb-2" />
+                        <div className="text-lg font-bold text-white">24/7</div>
+                        <div className="text-xs text-slate-400">รับเรื่อง</div>
+                    </div>
+                    <div className="text-center p-4 bg-slate-800/50 border border-slate-700 rounded-xl">
+                        <Star className="w-5 h-5 text-amber-400 mx-auto mb-2" />
+                        <div className="text-lg font-bold text-white">VIP</div>
+                        <div className="text-xs text-slate-400">ลำดับความสำคัญ</div>
+                    </div>
                 </div>
             </div>
         </PremiumGate>
@@ -617,7 +751,8 @@ export const ProfilePage = ({ isDark }) => {
                             { id: 'premium', name: 'Premium', icon: <Crown size={18} /> },
                             { id: 'stats', name: 'สถิติ', icon: <TrendingUp size={18} /> },
                             { id: 'journal', name: 'บันทึก', icon: <BookOpen size={18} /> },
-                            { id: 'favorites', name: 'รายการโปรด', icon: <Heart size={18} /> }
+                            { id: 'favorites', name: 'รายการโปรด', icon: <Heart size={18} /> },
+                            { id: 'support', name: 'ช่วยเหลือ', icon: <Headphones size={18} /> }
                         ].map(tab => (
                             <button
                                 key={tab.id}
@@ -641,6 +776,7 @@ export const ProfilePage = ({ isDark }) => {
                         {activeTab === 'stats' && renderStatsTab()}
                         {activeTab === 'journal' && renderJournalTab()}
                         {activeTab === 'favorites' && renderFavoritesTab()}
+                        {activeTab === 'support' && renderSupportTab()}
                     </div>
                 </div>
 

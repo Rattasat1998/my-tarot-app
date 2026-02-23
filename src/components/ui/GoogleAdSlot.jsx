@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useId } from 'react';
+import { usePremium } from '../../hooks/usePremium';
 
 export const GoogleAdSlot = ({ className = "" }) => {
+    const { isPremium } = usePremium();
     const adRef = useRef(null);
     const isInitialized = useRef(false);
     const uniqueId = useId();
@@ -31,6 +33,9 @@ export const GoogleAdSlot = ({ className = "" }) => {
 
         return () => clearTimeout(timer);
     }, []);
+
+    // Premium users get ad-free experience
+    if (isPremium) return null;
 
     return (
         <div ref={adRef} className={`w-full max-w-4xl mx-auto my-8 overflow-hidden ${className}`}>

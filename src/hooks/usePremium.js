@@ -52,10 +52,9 @@ export const usePremium = () => {
         premiumMeditation: isPremium,
         monthlyZodiacReports: isPremium,
         personalGrowthJournal: isPremium,
-        expertCommunity: isPremium,
         prioritySupport: isPremium,
         adFree: isPremium,
-        exclusiveContent: isPremium
+        lottoInsight: isPremium
     };
 
     return {

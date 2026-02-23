@@ -28,6 +28,7 @@ import { useCredits } from '../hooks/useCredits';
 import { useAuth } from '../contexts/AuthContext';
 import { useSound } from '../contexts/SoundContext'; // Import useSound
 import { usePageSEO } from '../hooks/usePageTitle';
+import { useActivityLog } from '../hooks/useActivityLog';
 import { supabase } from '../lib/supabase';
 
 // Helper to determine cost
@@ -138,6 +139,7 @@ export function GamePage({ isDark, setIsDark }) {
         claimDailyFreeDraw
     } = useCredits();
     const { user, isAdmin } = useAuth();
+    const { logActivity } = useActivityLog();
 
     // Sound effects for shuffling
     useEffect(() => {
@@ -190,6 +192,7 @@ export function GamePage({ isDark, setIsDark }) {
         if (pendingIsFreeDaily || credits >= pendingCreditCost) {
             const result = await useCredit(effectiveCost, treatAsDaily);
             if (result.success) {
+                logActivity('tarot_reading', `อ่านไพ่: ${topic || 'ทั่วไป'}`, { topic, readingType, cost: effectiveCost });
                 // Show warp animation first
                 setShowWarp(true);
                 setPendingReading(true);

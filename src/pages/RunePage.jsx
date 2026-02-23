@@ -11,6 +11,7 @@ import { usePageSEO } from '../hooks/usePageTitle';
 import { useCredits } from '../hooks/useCredits';
 import { useAuth } from '../contexts/AuthContext';
 import { getReadingCost } from '../constants/costs';
+import { useActivityLog } from '../hooks/useActivityLog';
 
 // Map reading mode id to cost key
 const MODE_COST_KEY = {
@@ -42,6 +43,7 @@ export const RunePage = () => {
         isDailyFreeAvailable,
     } = useCredits();
     const { user } = useAuth();
+    const { logActivity } = useActivityLog();
     const [showLoginModal, setShowLoginModal] = useState(false);
 
     const getModeCost = (mode) => {
@@ -96,6 +98,7 @@ export const RunePage = () => {
         const runeResult = drawRunes(selectedMode.count);
         setDrawnRunes(runeResult);
         setIsDrawing(false);
+        logActivity('rune_reading', `อ่านรูน: ${selectedMode.name}`, { mode: selectedMode.id, count: selectedMode.count });
 
         setTimeout(() => {
             readingRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });

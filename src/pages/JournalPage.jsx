@@ -1,12 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { BookOpen, Heart, Brain, TrendingUp, Calendar, Plus, Search, Filter, Crown, Download, Share2, Edit, Trash2, Star } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { BookOpen, Heart, Brain, TrendingUp, Calendar, Plus, Search, Filter, Crown, Download, Share2, Edit, Trash2, Star, Loader } from 'lucide-react';
 import { PremiumGate } from '../components/ui/PremiumGate';
 import { usePremium } from '../hooks/usePremium';
+import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
+import { useActivityLog } from '../hooks/useActivityLog';
 
 export const JournalPage = ({ isDark }) => {
     const { isPremium } = usePremium();
+    const { user } = useAuth();
+    const { logActivity } = useActivityLog();
     const [entries, setEntries] = useState([]);
     const [isWriting, setIsWriting] = useState(false);
+    const [isLoadingEntries, setIsLoadingEntries] = useState(true);
+    const [isSaving, setIsSaving] = useState(false);
+    const [editingId, setEditingId] = useState(null);
     const [currentEntry, setCurrentEntry] = useState({
         title: '',
         content: '',
@@ -26,50 +34,118 @@ export const JournalPage = ({ isDark }) => {
         { id: 'inspired', name: 'ได้แรงบันดาลใจ', icon: '✨', color: 'pink' }
     ];
 
-    const sampleEntries = [
-        {
-            id: 1,
-            title: 'การสำนึกถึงความสำเร็จ',
-            content: 'วันนี้ผมสำเร็จในการทำสมาธิครบ 15 นาที รู้สึกสงบและมีสมาธิมากขึ้น การฝึกนี้ช่วยให้ผมเข้าใจตนเองได้ลึกซึ้งขึ้น...',
-            mood: 'grateful',
-            tags: ['meditation', 'growth', 'mindfulness'],
-            date: new Date(Date.now() - 86400000).toISOString(),
-            insights: ['การสมาธิช่วยลดความเครียด', 'ความสงบในชีวิตประจำวัน']
-        },
-        {
-            id: 2,
-            title: 'บทเรียนจากไพ่ทาโรต์',
-            content: 'ไพ่ The Hermit สอนให้ผมรู้จักการอยู่คนเดียวและหาคำตอบภายใน บางครั้งคำตอบที่ดีที่สุดอยู่ในตัวเราเสมอ...',
-            mood: 'thoughtful',
-            tags: ['tarot', 'wisdom', 'self-discovery'],
-            date: new Date(Date.now() - 172800000).toISOString(),
-            insights: ['การเรียนรู้จากภายใน', 'ความเข้าใจตนเอง']
+    const fetchEntries = useCallback(async () => {
+        if (!user || !isPremium) {
+            setIsLoadingEntries(false);
+            return;
         }
-    ];
+        setIsLoadingEntries(true);
+        try {
+            const { data, error } = await supabase
+                .from('journal_entries')
+                .select('*')
+                .eq('user_id', user.id)
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+            setEntries(data || []);
+        } catch (err) {
+            console.error('Error fetching journal entries:', err);
+        } finally {
+            setIsLoadingEntries(false);
+        }
+    }, [user, isPremium]);
 
     useEffect(() => {
-        // Load sample entries
-        setEntries(isPremium ? sampleEntries : sampleEntries.slice(0, 1));
-    }, [isPremium]);
+        fetchEntries();
+    }, [fetchEntries]);
 
-    const saveEntry = () => {
-        if (!currentEntry.title || !currentEntry.content) return;
-
-        const newEntry = {
-            ...currentEntry,
-            id: Date.now(),
-            insights: generateInsights(currentEntry.content)
-        };
-
-        setEntries([newEntry, ...entries]);
+    const editEntry = (entry) => {
         setCurrentEntry({
-            title: '',
-            content: '',
-            mood: '',
-            tags: [],
-            date: new Date().toISOString()
+            title: entry.title,
+            content: entry.content,
+            mood: entry.mood || '',
+            tags: entry.tags || [],
+            date: entry.created_at || entry.date
         });
+        setEditingId(entry.id);
+        setIsWriting(true);
+    };
+
+    const resetForm = () => {
+        setCurrentEntry({ title: '', content: '', mood: '', tags: [], date: new Date().toISOString() });
+        setEditingId(null);
         setIsWriting(false);
+    };
+
+    const saveEntry = async () => {
+        if (!currentEntry.title || !currentEntry.content || !user) return;
+        setIsSaving(true);
+        try {
+            const insights = generateInsights(currentEntry.content);
+
+            if (editingId) {
+                // Update existing entry
+                const { data, error } = await supabase
+                    .from('journal_entries')
+                    .update({
+                        title: currentEntry.title,
+                        content: currentEntry.content,
+                        mood: currentEntry.mood || null,
+                        tags: currentEntry.tags,
+                        insights,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('id', editingId)
+                    .select()
+                    .single();
+
+                if (error) throw error;
+
+                setEntries(prev => prev.map(e => e.id === editingId ? data : e));
+            } else {
+                // Insert new entry
+                const { data, error } = await supabase
+                    .from('journal_entries')
+                    .insert([{
+                        user_id: user.id,
+                        title: currentEntry.title,
+                        content: currentEntry.content,
+                        mood: currentEntry.mood || null,
+                        tags: currentEntry.tags,
+                        insights
+                    }])
+                    .select()
+                    .single();
+
+                if (error) throw error;
+
+                setEntries(prev => [data, ...prev]);
+                logActivity('journal', `เขียนบันทึก: ${currentEntry.title}`, { mood: currentEntry.mood });
+            }
+
+            resetForm();
+        } catch (err) {
+            console.error('Error saving journal entry:', err);
+            alert('ไม่สามารถบันทึกได้ กรุณาลองใหม่');
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const deleteEntry = async (entryId) => {
+        if (!confirm('ต้องการลบบันทึกนี้หรือไม่?')) return;
+        try {
+            const { error } = await supabase
+                .from('journal_entries')
+                .delete()
+                .eq('id', entryId);
+
+            if (error) throw error;
+            setEntries(prev => prev.filter(e => e.id !== entryId));
+        } catch (err) {
+            console.error('Error deleting journal entry:', err);
+        }
     };
 
     const generateInsights = (content) => {
@@ -204,7 +280,7 @@ export const JournalPage = ({ isDark }) => {
 
                                 <div className="flex justify-between items-center mt-6">
                                     <button
-                                        onClick={() => setIsWriting(false)}
+                                        onClick={resetForm}
                                         className={`px-6 py-3 rounded-xl border transition-all font-medium ${isDark ? 'bg-slate-800/50 border-slate-700 text-slate-300 hover:bg-slate-700' : 'bg-slate-100 border-slate-300 text-slate-600 hover:bg-slate-200'}`}
                                     >
                                         ยกเลิก
@@ -212,10 +288,10 @@ export const JournalPage = ({ isDark }) => {
                                     
                                     <button
                                         onClick={saveEntry}
-                                        disabled={!currentEntry.title || !currentEntry.content}
-                                        className="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl hover:scale-105 transition-all shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        disabled={!currentEntry.title || !currentEntry.content || isSaving}
+                                        className="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl hover:scale-105 transition-all shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                                     >
-                                        บันทึก
+                                        {isSaving ? <><Loader className="w-4 h-4 animate-spin" /> กำลังบันทึก...</> : editingId ? 'อัปเดต' : 'บันทึก'}
                                     </button>
                                 </div>
                             </div>
@@ -244,7 +320,7 @@ export const JournalPage = ({ isDark }) => {
                                                 <div className="flex items-center gap-4 text-sm text-slate-400">
                                                     <div className="flex items-center gap-1">
                                                         <Calendar size={14} />
-                                                        {new Date(entry.date).toLocaleDateString('th-TH')}
+                                                        {new Date(entry.created_at || entry.date).toLocaleDateString('th-TH')}
                                                     </div>
                                                     {mood && (
                                                         <div className="flex items-center gap-1">
@@ -256,14 +332,20 @@ export const JournalPage = ({ isDark }) => {
                                             </div>
                                             
                                             <div className="flex gap-2">
-                                                <button className="p-2 rounded-lg bg-slate-800/50 border border-slate-700 text-slate-400 hover:bg-slate-700">
+                                                <button
+                                                    onClick={() => editEntry(entry)}
+                                                    className="p-2 rounded-lg bg-slate-800/50 border border-slate-700 text-slate-400 hover:bg-slate-700"
+                                                >
                                                     <Edit size={16} />
                                                 </button>
                                                 <button className="p-2 rounded-lg bg-slate-800/50 border border-slate-700 text-slate-400 hover:bg-slate-700">
-                                                    <Download size={16} />
-                                                </button>
-                                                <button className="p-2 rounded-lg bg-slate-800/50 border border-slate-700 text-slate-400 hover:bg-slate-700">
                                                     <Share2 size={16} />
+                                                </button>
+                                                <button
+                                                    onClick={() => deleteEntry(entry.id)}
+                                                    className="p-2 rounded-lg bg-slate-800/50 border border-slate-700 text-red-400 hover:bg-red-900/30 hover:border-red-700"
+                                                >
+                                                    <Trash2 size={16} />
                                                 </button>
                                             </div>
                                         </div>

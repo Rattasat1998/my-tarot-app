@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, TrendingUp, Users, Flame, ChevronRight, Calendar, Trophy, Sparkles, FileText, Search, Target, ChevronDown, ChevronUp, Moon, Cake, ShoppingBag } from 'lucide-react';
+import { ArrowLeft, TrendingUp, Users, Flame, ChevronRight, Calendar, Trophy, Sparkles, FileText, Search, Target, ChevronDown, ChevronUp, Moon, Cake, ShoppingBag, Crown } from 'lucide-react';
 import { LuckyGeneratorModal } from '../components/modals/LuckyGeneratorModal';
 import { DreamNumberModal } from '../components/modals/DreamNumberModal';
 import { BirthdayNumberModal } from '../components/modals/BirthdayNumberModal';
@@ -9,6 +9,7 @@ import * as lottoService from '../services/lottoService';
 // Fallback to static data if database is not available
 import { LOTTO_DRAWS, getUpcomingDraw as getStaticUpcoming, getPastDraws as getStaticPast } from '../data/lottoData';
 import { usePageSEO } from '../hooks/usePageTitle';
+import { PremiumGate } from '../components/ui/PremiumGate';
 
 // Module-level cache to persist data across navigations
 let cachedUpcoming = null;
@@ -127,6 +128,35 @@ export const LottoInsightPage = () => {
     }
 
     return (
+        <PremiumGate feature="lottoInsight" fallback={
+            <div className="min-h-screen bg-amber-50 text-slate-800 flex flex-col items-center justify-center p-6">
+                <div className="max-w-md text-center">
+                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 mb-6">
+                        <span className="text-4xl">🔮</span>
+                    </div>
+                    <h2 className="text-2xl font-bold text-slate-800 mb-3 flex items-center justify-center gap-2">
+                        <Crown className="w-6 h-6 text-purple-500" />
+                        LottoInsight Premium
+                    </h2>
+                    <p className="text-slate-500 mb-6">
+                        วิเคราะห์หวย สถิติย้อนหลัง 22 ปี แนวทางจากสำนักดัง สุ่มเลขมงคล<br/>เฉพาะสมาชิก Premium เท่านั้น
+                    </p>
+                    <button
+                        onClick={() => navigate('/membership')}
+                        className="px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl hover:scale-105 transition-all shadow-lg shadow-purple-500/25 flex items-center justify-center gap-2 mx-auto"
+                    >
+                        <Crown className="w-5 h-5" />
+                        อัปเกรดเป็น Premium
+                    </button>
+                    <button
+                        onClick={() => navigate('/')}
+                        className="mt-4 px-6 py-2 text-slate-500 hover:text-slate-700 transition-colors text-sm"
+                    >
+                        ← กลับหน้าหลัก
+                    </button>
+                </div>
+            </div>
+        }>
         <div className={`min-h-screen ${isDark ? 'bg-slate-950 text-white' : 'bg-amber-50 text-slate-800'}`}>
             {/* Header */}
             <header className={`sticky top-0 z-40 ${isDark ? 'bg-slate-900/95 border-slate-800' : 'bg-white/95 border-amber-100'} border-b backdrop-blur-sm`}>
@@ -642,6 +672,7 @@ export const LottoInsightPage = () => {
             />
 
         </div>
+        </PremiumGate>
     );
 };
 
