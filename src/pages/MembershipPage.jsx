@@ -19,31 +19,19 @@ export const MembershipPage = ({ isDark, setIsDark }) => {
         try {
             setIsLoading(true);
             const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-            
-            // Get fresh session
-            const { data: { session }, error } = await supabase.auth.getSession();
-            if (error || !session) {
-                console.error('No valid session:', error);
-                window.dispatchEvent(new CustomEvent('showLoginModal'));
-                return;
-            }
-            
-            // Try to refresh session if needed
-            const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession();
-            if (refreshError) {
-                console.error('Session refresh failed:', refreshError);
-                window.dispatchEvent(new CustomEvent('showLoginModal'));
-                return;
-            }
-            
-            const tokenToUse = refreshedSession?.access_token || session.access_token;
-            
             const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+            
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                window.dispatchEvent(new CustomEvent('showLoginModal'));
+                return;
+            }
+
             const response = await fetch(`${supabaseUrl}/functions/v1/create-checkout`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${tokenToUse}`,
+                    'Authorization': `Bearer ${session.access_token}`,
                     'apikey': anonKey
                 },
                 body: JSON.stringify({

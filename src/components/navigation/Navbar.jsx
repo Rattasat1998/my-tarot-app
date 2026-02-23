@@ -41,31 +41,19 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
         try {
             setIsLoading(true);
             const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-            
-            // Get fresh session
-            const { data: { session }, error } = await supabase.auth.getSession();
-            if (error || !session) {
-                console.error('No valid session:', error);
-                setShowLoginModal(true);
-                return;
-            }
-            
-            // Try to refresh session if needed
-            const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession();
-            if (refreshError) {
-                console.error('Session refresh failed:', refreshError);
-                setShowLoginModal(true);
-                return;
-            }
-            
-            const tokenToUse = refreshedSession?.access_token || session.access_token;
-            
             const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+            
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                setShowLoginModal(true);
+                return;
+            }
+
             const response = await fetch(`${supabaseUrl}/functions/v1/create-checkout`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${tokenToUse}`,
+                    'Authorization': `Bearer ${session.access_token}`,
                     'apikey': anonKey
                 },
                 body: JSON.stringify({
@@ -89,7 +77,7 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
         }
     };
 
-    const handleTopUp = async (amount, totalCredits) => {
+    const handleTopUp = async (packageId) => {
         if (!user) {
             setShowLoginModal(true);
             return;
@@ -98,36 +86,19 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
         try {
             setIsLoading(true);
             const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-            
-            // Get fresh session
-            const { data: { session }, error } = await supabase.auth.getSession();
-            if (error || !session) {
-                console.error('No valid session:', error);
-                setShowLoginModal(true);
-                return;
-            }
-            
-            // Try to refresh session if needed
-            const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession();
-            if (refreshError) {
-                console.error('Session refresh failed:', refreshError);
-                setShowLoginModal(true);
-                return;
-            }
-            
-            const tokenToUse = refreshedSession?.access_token || session.access_token;
-            
-            // Determine packageId based on amount
-            let packageId = 'starter';
-            if (amount === 100) packageId = 'popular';
-            if (amount >= 200) packageId = 'pro';
-
             const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+            
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                setShowLoginModal(true);
+                return;
+            }
+
             const response = await fetch(`${supabaseUrl}/functions/v1/create-checkout`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${tokenToUse}`,
+                    'Authorization': `Bearer ${session.access_token}`,
                     'apikey': anonKey
                 },
                 body: JSON.stringify({

@@ -67,6 +67,35 @@ export const AuthProvider = ({ children }) => {
         return () => subscription.unsubscribe();
     }, []);
 
+    // Function to refresh user profile data (e.g. after payment)
+    const refreshProfile = async () => {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+            try {
+                const { data } = await supabase
+                    .from('profiles')
+                    .select('is_admin, is_premium, subscription_status, premium_until')
+                    .eq('id', session.user.id)
+                    .single();
+
+                if (data) {
+                    setIsAdmin(data.is_admin || false);
+                    setUser({
+                        ...session.user,
+                        user_metadata: {
+                            ...session.user.user_metadata,
+                            is_premium: data.is_premium || false,
+                            subscription_status: data.subscription_status || 'inactive',
+                            premium_until: data.premium_until || null
+                        }
+                    });
+                }
+            } catch (err) {
+                console.error('Error refreshing profile:', err);
+            }
+        }
+    };
+
     const signInWithGoogle = async () => {
         try {
             const { error } = await supabase.auth.signInWithOAuth({
@@ -119,7 +148,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, isAdmin, signInWithGoogle, signInWithLine, signOut, loading }}>
+        <AuthContext.Provider value={{ user, isAdmin, signInWithGoogle, signInWithLine, signOut, loading, refreshProfile }}>
             {children}
         </AuthContext.Provider>
     );

@@ -6,15 +6,14 @@ export const HybridTopUpModal = ({ isOpen, onClose, isDark, user, onUpgrade, onT
     const [amount, setAmount] = useState('');
 
     const topUpOptions = [
-        { amount: 50, credits: 50, bonus: 0, popular: false },
-        { amount: 100, credits: 100, bonus: 10, popular: true },
-        { amount: 200, credits: 200, bonus: 25, popular: false },
-        { amount: 500, credits: 500, bonus: 75, popular: false }
+        { amount: 29, credits: 5, bonus: 0, popular: false, packageId: 'starter' },
+        { amount: 79, credits: 15, bonus: 0, popular: true, packageId: 'popular' },
+        { amount: 149, credits: 30, bonus: 0, popular: false, packageId: 'pro' }
     ];
 
     const handleTopUp = () => {
         if (selectedOption) {
-            onTopUp(selectedOption.amount, selectedOption.credits + selectedOption.bonus);
+            onTopUp(selectedOption.packageId);
             onClose();
         }
     };
@@ -205,10 +204,22 @@ export const HybridTopUpModal = ({ isOpen, onClose, isDark, user, onUpgrade, onT
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-3">
-                                    <button className="px-4 py-2 bg-purple-500/20 border border-purple-500/30 text-purple-300 rounded-lg hover:bg-purple-500/30 transition-all text-sm" type="button">
+                                    <button 
+                                        onClick={() => { window.location.href = '/membership'; onClose(); }}
+                                        className="px-4 py-2 bg-purple-500/20 border border-purple-500/30 text-purple-300 rounded-lg hover:bg-purple-500/30 transition-all text-sm" 
+                                        type="button"
+                                    >
                                         จัดการการสมัคร
                                     </button>
-                                    <button className="px-4 py-2 bg-red-500/20 border border-red-500/30 text-red-300 rounded-lg hover:bg-red-500/30 transition-all text-sm" type="button">
+                                    <button 
+                                        onClick={() => {
+                                            if (confirm('คุณต้องการยกเลิกสมาชิก Premium หรือไม่?')) {
+                                                alert('กรุณาติดต่อเจ้าหน้าที่เพื่อยกเลิกสมาชิก');
+                                            }
+                                        }}
+                                        className="px-4 py-2 bg-red-500/20 border border-red-500/30 text-red-300 rounded-lg hover:bg-red-500/30 transition-all text-sm" 
+                                        type="button"
+                                    >
                                         ยกเลิกสมัคร
                                     </button>
                                 </div>

@@ -1,12 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { CheckCircle, Sparkles, ArrowLeft } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 export const PaymentSuccessPage = ({ isDark = true }) => {
     const navigate = useNavigate();
+    const { refreshProfile } = useAuth();
     const [searchParams] = useSearchParams();
     const [countdown, setCountdown] = useState(5);
     const sessionId = searchParams.get('session_id');
+    const type = searchParams.get('type'); // 'subscription' or null (one_time)
+    const isSubscription = type === 'subscription';
+
+    // Refresh profile to pick up premium status / credits from webhook
+    useEffect(() => {
+        const timer = setTimeout(() => refreshProfile(), 2000);
+        return () => clearTimeout(timer);
+    }, []);
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -50,16 +60,19 @@ export const PaymentSuccessPage = ({ isDark = true }) => {
                         </div>
 
                         <h1 className={`text-2xl font-bold font-serif mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                            ชำระเงินสำเร็จ! ✨
+                            {isSubscription ? 'สมัคร Premium สำเร็จ! 👑' : 'ชำระเงินสำเร็จ! ✨'}
                         </h1>
 
                         <p className={`text-sm mb-4 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                            เครดิตจะถูกเติมให้อัตโนมัติภายในไม่กี่วินาที
+                            {isSubscription 
+                                ? 'ยินดีต้อนรับสู่ Premium! คุณสามารถใช้งานฟีเจอร์ทั้งหมดได้ไม่จำกัดแล้ว'
+                                : 'เครดิตจะถูกเติมให้อัตโนมัติภายในไม่กี่วินาที'
+                            }
                         </p>
 
-                        <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium ${isDark ? 'bg-emerald-500/10 text-emerald-400' : 'bg-emerald-100 text-emerald-700'}`}>
-                            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                            ชำระผ่าน PromptPay
+                        <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium ${isDark ? (isSubscription ? 'bg-purple-500/10 text-purple-400' : 'bg-emerald-500/10 text-emerald-400') : (isSubscription ? 'bg-purple-100 text-purple-700' : 'bg-emerald-100 text-emerald-700')}`}>
+                            <div className={`w-2 h-2 rounded-full ${isSubscription ? 'bg-purple-500' : 'bg-emerald-500'} animate-pulse`} />
+                            {isSubscription ? 'Premium Membership Active' : 'ชำระผ่าน PromptPay'}
                         </div>
                     </div>
                 </div>

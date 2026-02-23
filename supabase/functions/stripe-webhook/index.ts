@@ -176,6 +176,45 @@ Deno.serve(async (req: Request) => {
 
                 console.log(`✅ Added ${credits} credits to user ${userId}`)
             }
+        } else if (event.type === 'invoice.paid') {
+            // Handle recurring subscription payment (month 2, 3, etc.)
+            const invoice = event.data.object
+            const subscriptionId = invoice.subscription
+            
+            if (subscriptionId && invoice.billing_reason === 'subscription_cycle') {
+                const { data: profile } = await supabaseAdmin
+                    .from('profiles')
+                    .select('id')
+                    .eq('subscription_id', subscriptionId)
+                    .single()
+                    
+                if (profile) {
+                    // Extend premium_until by 30 days from now
+                    await supabaseAdmin
+                        .from('profiles')
+                        .update({ 
+                            is_premium: true,
+                            subscription_status: 'active',
+                            premium_until: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+                        })
+                        .eq('id', profile.id)
+
+                    // Record renewal transaction
+                    await supabaseAdmin
+                        .from('transactions')
+                        .insert({
+                            user_id: profile.id,
+                            amount: (invoice.amount_paid || 0) / 100,
+                            credits_added: 0,
+                            status: 'approved',
+                            payment_method: 'stripe_card',
+                            stripe_session_id: invoice.id,
+                            type: 'subscription_renewal'
+                        })
+                        
+                    console.log(`✅ Renewed premium for user ${profile.id}`)
+                }
+            }
         } else if (event.type === 'customer.subscription.deleted' || event.type === 'customer.subscription.updated') {
             const subscription = event.data.object
             
