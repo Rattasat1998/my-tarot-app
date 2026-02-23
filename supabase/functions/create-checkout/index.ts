@@ -29,17 +29,46 @@ Deno.serve(async (req: Request) => {
 
     const token = authHeader.replace('Bearer ', '')
     
-    // Verify JWT token with Supabase
-    const jwtResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/auth/v1/user`, {
+    // Log for debugging (remove in production)
+    console.log('Verifying token for Supabase URL:', Deno.env.get('SUPABASE_URL'))
+    console.log('Token starts with:', token.substring(0, 20) + '...')
+    
+    // Verify JWT token with Supabase - try multiple endpoints
+    let jwtResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/auth/v1/user`, {
         headers: {
             'Authorization': `Bearer ${token}`,
             'apikey': Deno.env.get('SUPABASE_ANON_KEY')!
         }
     })
 
+    // If first endpoint fails, try alternative
     if (!jwtResponse.ok) {
+        console.log('First auth endpoint failed, trying alternative...')
+        jwtResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/rest/v1/auth/session`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'apikey': Deno.env.get('SUPABASE_ANON_KEY')!
+            }
+        })
+    }
+
+    // If still fails, try without apikey header
+    if (!jwtResponse.ok) {
+        console.log('Second auth endpoint failed, trying without apikey...')
+        jwtResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/auth/v1/user`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+    }
+
+    console.log('JWT Response status:', jwtResponse.status)
+
+    if (!jwtResponse.ok) {
+        const errorText = await jwtResponse.text()
+        console.log('JWT Error response:', errorText)
         return new Response(
-            JSON.stringify({ error: 'Invalid authentication token' }),
+            JSON.stringify({ error: 'Invalid authentication token', details: errorText }),
             { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
     }
