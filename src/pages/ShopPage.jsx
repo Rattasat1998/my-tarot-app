@@ -48,7 +48,7 @@ export const ShopPage = () => {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
                     <div className="flex items-center gap-4 mb-4">
                         <button
-                            onClick={() => navigate('/')}
+                            onClick={() => navigate(-1)}
                             className="p-2 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
                         >
                             <ArrowLeft size={20} />

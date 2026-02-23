@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, TrendingUp, Users, Flame, ChevronRight, Calendar, Trophy, Sparkles, FileText, Search, Target, ChevronDown, ChevronUp, Moon, Cake } from 'lucide-react';
+import { ArrowLeft, TrendingUp, Users, Flame, ChevronRight, Calendar, Trophy, Sparkles, FileText, Search, Target, ChevronDown, ChevronUp, Moon, Cake, ShoppingBag } from 'lucide-react';
 import { LuckyGeneratorModal } from '../components/modals/LuckyGeneratorModal';
 import { DreamNumberModal } from '../components/modals/DreamNumberModal';
 import { BirthdayNumberModal } from '../components/modals/BirthdayNumberModal';
@@ -273,6 +273,28 @@ export const LottoInsightPage = () => {
                                 </p>
                                 <div className="mt-3 flex items-center gap-1 text-white/80 text-xs font-medium">
                                     <span>เปิดเลย</span>
+                                    <ChevronRight size={14} />
+                                </div>
+                            </div>
+                        </button>
+
+                        {/* Shop */}
+                        <button
+                            onClick={() => navigate('/shop')}
+                            className="group relative overflow-hidden rounded-2xl p-5 text-left transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg"
+                        >
+                            <div className="absolute inset-0 bg-gradient-to-br from-rose-500 to-pink-600" />
+                            <div className="absolute top-0 right-0 -mr-6 -mt-6 w-24 h-24 rounded-full bg-white/10" />
+                            <div className="relative z-10">
+                                <div className="flex items-center gap-3 mb-2">
+                                    <ShoppingBag size={24} className="text-yellow-200" />
+                                    <h3 className="text-lg font-bold text-white">ร้านค้ามงคล</h3>
+                                </div>
+                                <p className="text-rose-100 text-sm leading-relaxed">
+                                    วัตถุมงคล เสริมดวง เสริมโชคลาภ
+                                </p>
+                                <div className="mt-3 flex items-center gap-1 text-white/80 text-xs font-medium">
+                                    <span>เข้าชม</span>
                                     <ChevronRight size={14} />
                                 </div>
                             </div>
