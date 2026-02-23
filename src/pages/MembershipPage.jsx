@@ -38,11 +38,13 @@ export const MembershipPage = ({ isDark, setIsDark }) => {
             
             const tokenToUse = refreshedSession?.access_token || session.access_token;
             
+            const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
             const response = await fetch(`${supabaseUrl}/functions/v1/create-checkout`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${tokenToUse}`
+                    'Authorization': `Bearer ${tokenToUse}`,
+                    'apikey': anonKey
                 },
                 body: JSON.stringify({
                     packageId: 'premium_monthly',

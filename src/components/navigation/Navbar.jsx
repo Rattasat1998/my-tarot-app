@@ -60,11 +60,13 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
             
             const tokenToUse = refreshedSession?.access_token || session.access_token;
             
+            const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
             const response = await fetch(`${supabaseUrl}/functions/v1/create-checkout`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${tokenToUse}`
+                    'Authorization': `Bearer ${tokenToUse}`,
+                    'apikey': anonKey
                 },
                 body: JSON.stringify({
                     packageId: 'premium_monthly',
@@ -120,11 +122,13 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
             if (amount === 100) packageId = 'popular';
             if (amount >= 200) packageId = 'pro';
 
+            const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
             const response = await fetch(`${supabaseUrl}/functions/v1/create-checkout`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${tokenToUse}`
+                    'Authorization': `Bearer ${tokenToUse}`,
+                    'apikey': anonKey
                 },
                 body: JSON.stringify({
                     packageId,
