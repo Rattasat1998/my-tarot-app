@@ -173,10 +173,76 @@ export const ZodiacReportPage = ({ isDark }) => {
                                             </div>
                                         </div>
                                         <div className="flex gap-2">
-                                            <button className="p-2 rounded-lg bg-slate-800/50 border border-slate-700 text-slate-400 hover:bg-slate-700">
+                                            <button 
+                                                onClick={() => {
+                                                    if (!report || !selectedZodiac) return;
+                                                    const content = `
+รายงานดวงรายเดือน ${months[report.month]} ${report.year}
+ราศี: ${selectedZodiac.name} (${selectedZodiac.dates})
+
+คะแนนรวม: ${report.overall.score}/100
+${report.overall.text}
+
+คำแนะนำพิเศษ: ${report.overall.advice}
+
+---
+ความรัก (${report.love.score}/100)
+${report.love.text}
+💡 คำแนะนำ: ${report.love.advice}
+
+---
+การงาน (${report.career.score}/100)
+${report.career.text}
+💡 คำแนะนำ: ${report.career.advice}
+
+---
+การเงิน (${report.finance.score}/100)
+${report.finance.text}
+💡 คำแนะนำ: ${report.finance.advice}
+
+---
+สุขภาพ (${report.health.score}/100)
+${report.health.text}
+💡 คำแนะนำ: ${report.health.advice}
+
+---
+สร้างโดย Tarot Wisdom App
+                                                    `.trim();
+                                                    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+                                                    const url = URL.createObjectURL(blob);
+                                                    const a = document.createElement('a');
+                                                    a.href = url;
+                                                    a.download = `รายงานราศี-${selectedZodiac.name}-${months[report.month]}-${report.year}.txt`;
+                                                    document.body.appendChild(a);
+                                                    a.click();
+                                                    document.body.removeChild(a);
+                                                    URL.revokeObjectURL(url);
+                                                }}
+                                                className="p-2 rounded-lg bg-slate-800/50 border border-slate-700 text-slate-400 hover:bg-slate-700"
+                                                title="ดาวน์โหลดรายงาน"
+                                            >
                                                 <Download size={18} />
                                             </button>
-                                            <button className="p-2 rounded-lg bg-slate-800/50 border border-slate-700 text-slate-400 hover:bg-slate-700">
+                                            <button 
+                                                onClick={() => {
+                                                    if (!report || !selectedZodiac) return;
+                                                    if (navigator.share) {
+                                                        navigator.share({
+                                                            title: `รายงานดวงราศี ${selectedZodiac.name} ${months[report.month]} ${report.year}`,
+                                                            text: `คะแนนรวม: ${report.overall.score}/100\n${report.overall.text}`,
+                                                            url: window.location.href
+                                                        });
+                                                    } else {
+                                                        // Fallback: copy to clipboard
+                                                        const text = `รายงานดวงราศี ${selectedZodiac.name} ${months[report.month]} ${report.year}\nคะแนนรวม: ${report.overall.score}/100\n${report.overall.text}\n\n${window.location.href}`;
+                                                        navigator.clipboard.writeText(text).then(() => {
+                                                            alert('คัดลอกลิงก์ไปคลิปบอร์ดแล้ว');
+                                                        });
+                                                    }
+                                                }}
+                                                className="p-2 rounded-lg bg-slate-800/50 border border-slate-700 text-slate-400 hover:bg-slate-700"
+                                                title="แชร์รายงาน"
+                                            >
                                                 <Share2 size={18} />
                                             </button>
                                         </div>

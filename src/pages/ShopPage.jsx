@@ -5,7 +5,7 @@ import { ArrowLeft, ExternalLink, Search, ShoppingBag, Sparkles, Loader, Tag } f
 
 const CATEGORIES = ['ทั้งหมด', 'ของมงคล', 'หินนำโชค', 'เครื่องราง', 'เทียนหอม', 'ฮวงจุ้ย', 'ทั่วไป'];
 
-export const ShopPage = () => {
+export default function ShopPage() {
     const navigate = useNavigate();
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);

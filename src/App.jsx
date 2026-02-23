@@ -28,6 +28,7 @@ import { ZodiacReportPage } from './pages/ZodiacReportPage';
 import { JournalPage } from './pages/JournalPage';
 import { SearchPage } from './pages/SearchPage';
 import { CommunityPage } from './pages/CommunityPage';
+import ShopPage from './pages/ShopPage';
 
 function App() {
   const [isDark, setIsDark] = useState(true);
@@ -66,6 +67,7 @@ function App() {
         <Route path="/journal" element={<JournalPage isDark={isDark} />} />
         <Route path="/community" element={<CommunityPage isDark={isDark} />} />
         <Route path="/search" element={<SearchPage isDark={isDark} />} />
+        <Route path="/shop" element={<ShopPage isDark={isDark} />} />
         <Route path="/membership" element={<MembershipPage isDark={isDark} />} />
         <Route path="/admin/*" element={<AdminPage isDark={isDark} />} />
         <Route path="/auth/line-callback" element={<LineCallbackPage />} />
