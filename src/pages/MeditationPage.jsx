@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, Heart, Brain, Moon, Sun, Play, Pause, RotateCcw, Volume2, VolumeX, Crown, Music, Waves } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Sparkles, Heart, Brain, Moon, Sun, Play, Pause, RotateCcw, Volume2, VolumeX, Crown, Music, Waves, ArrowLeft } from 'lucide-react';
 import { PremiumGate } from '../components/ui/PremiumGate';
 import { usePremium } from '../hooks/usePremium';
 import { useActivityLog } from '../hooks/useActivityLog';
 
 export const MeditationPage = ({ isDark }) => {
+    const navigate = useNavigate();
     const { isPremium } = usePremium();
     const { logActivity } = useActivityLog();
     const [isPlaying, setIsPlaying] = useState(false);
@@ -102,12 +104,27 @@ export const MeditationPage = ({ isDark }) => {
         setBreathingPhase('inhale');
     };
 
+    const handleBack = () => {
+        if (window.history.length > 1) {
+            navigate(-1);
+            return;
+        }
+        navigate('/');
+    };
+
     return (
         <div className={`min-h-screen ${isDark ? 'dark' : ''}`}>
             <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-950 text-white">
                 {/* Header */}
                 <div className="text-center pt-8 pb-6">
                     <div className="flex items-center justify-center gap-3 mb-4">
+                        <button
+                            onClick={handleBack}
+                            className="p-2 rounded-full bg-slate-800/50 hover:bg-slate-700/50 text-slate-400 hover:text-white transition-all backdrop-blur-sm border border-slate-700/50"
+                            aria-label="ย้อนกลับ"
+                        >
+                            <ArrowLeft size={20} />
+                        </button>
                         <div className="p-3 rounded-full bg-indigo-500/20 border border-indigo-500/30">
                             <Brain className="w-8 h-8 text-indigo-400" />
                         </div>

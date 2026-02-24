@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, Sun, Moon, Coins, LogIn, LogOut, User, Menu, TrendingUp, Stars, Volume2, VolumeX, BookOpen, Calendar, FileText, Heart, Hexagon, Plus, Receipt, Landmark, ShoppingBag, Shield, Crown, Users, Search } from 'lucide-react';
+import { Sparkles, Sun, Moon, Coins, LogIn, LogOut, User, Menu, TrendingUp, Stars, Volume2, VolumeX, BookOpen, Calendar, FileText, Heart, Hexagon, Plus, Receipt, Landmark, ShoppingBag, Shield, Crown, Users, Search, ChevronDown } from 'lucide-react';
 import { CalendarDropdown } from './CalendarDropdown';
 import { KnowledgeDropdown } from './KnowledgeDropdown';
 import { useAuth } from '../../contexts/AuthContext';
@@ -21,6 +21,19 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
     const [showHybridTopUp, setShowHybridTopUp] = useState(false);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
+    const moreMenuRef = useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (moreMenuRef.current && !moreMenuRef.current.contains(event.target)) {
+                setIsMoreMenuOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     const handleOpenCalendar = (type) => {
         openCalendar(type);
@@ -159,19 +172,11 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
                         </button>
 
                         <button
-                            onClick={() => navigate('/meditation')}
-                            className="flex items-center gap-2 px-3 py-2 rounded-full text-slate-400 hover:text-white hover:bg-slate-800/50 transition-colors"
-                        >
-                            <Sparkles size={18} />
-                            <span className="text-sm font-medium">Meditation</span>
-                        </button>
-
-                        <button
                             onClick={() => navigate('/daily-oracle')}
                             className="flex items-center gap-2 px-3 py-2 rounded-full text-slate-400 hover:text-white hover:bg-slate-800/50 transition-colors"
                         >
                             <Calendar size={18} />
-                            <span className="text-sm font-medium">Daily Oracle</span>
+                            <span className="text-sm font-medium">ดวงรายวัน</span>
                         </button>
 
                         <button
@@ -179,31 +184,7 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
                             className="flex items-center gap-2 px-3 py-2 rounded-full text-slate-400 hover:text-white hover:bg-slate-800/50 transition-colors"
                         >
                             <TrendingUp size={18} />
-                            <span className="text-sm font-medium">Lotto Insight</span>
-                        </button>
-
-                        <button
-                            onClick={() => navigate('/soulmate')}
-                            className="flex items-center gap-2 px-3 py-2 rounded-full text-slate-400 hover:text-white hover:bg-slate-800/50 transition-colors"
-                        >
-                            <Heart size={18} />
-                            <span className="text-sm font-medium">เนื้อคู่</span>
-                        </button>
-
-                        <button
-                            onClick={() => navigate('/runes')}
-                            className="flex items-center gap-2 px-3 py-2 rounded-full text-slate-400 hover:text-white hover:bg-slate-800/50 transition-colors"
-                        >
-                            <Hexagon size={18} />
-                            <span className="text-sm font-medium">รูน</span>
-                        </button>
-
-                        <button
-                            onClick={() => navigate('/membership')}
-                            className="flex items-center gap-2 px-3 py-2 rounded-full bg-gradient-to-r from-purple-500/10 to-indigo-500/10 border border-purple-500/30 text-purple-400 hover:text-white hover:bg-purple-500/20 transition-all"
-                        >
-                            <Crown size={18} />
-                            <span className="text-sm font-medium">Premium</span>
+                            <span className="text-sm font-medium">วิเคราะห์หวย</span>
                         </button>
 
                         <button
@@ -214,8 +195,82 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
                             <span className="text-sm font-medium">ค้นหา</span>
                         </button>
 
-                        <CalendarDropdown isDark={isDark} openCalendar={openCalendar} />
-                        <KnowledgeDropdown openArticle={openArticle} />
+                        <div className="relative" ref={moreMenuRef}>
+                            <button
+                                onClick={() => setIsMoreMenuOpen(!isMoreMenuOpen)}
+                                className={`flex items-center gap-2 px-3 py-2 rounded-full border transition-all ${isMoreMenuOpen ? 'bg-slate-800 border-slate-600 text-white' : 'border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'}`}
+                            >
+                                <span className="text-sm font-medium">เพิ่มเติม</span>
+                                <ChevronDown size={14} className={`transition-transform duration-200 ${isMoreMenuOpen ? 'rotate-180' : ''}`} />
+                            </button>
+
+                            {isMoreMenuOpen && (
+                                <div className="absolute top-full right-0 mt-3 w-72 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-3 z-[100000]">
+                                    <div className="space-y-1">
+                                        <button
+                                            onClick={() => {
+                                                navigate('/meditation');
+                                                setIsMoreMenuOpen(false);
+                                            }}
+                                            className="w-full text-left px-3 py-2.5 text-sm text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors flex items-center gap-2"
+                                        >
+                                            <Sparkles size={16} />
+                                            สมาธิ
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                navigate('/soulmate');
+                                                setIsMoreMenuOpen(false);
+                                            }}
+                                            className="w-full text-left px-3 py-2.5 text-sm text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors flex items-center gap-2"
+                                        >
+                                            <Heart size={16} />
+                                            เนื้อคู่
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                navigate('/runes');
+                                                setIsMoreMenuOpen(false);
+                                            }}
+                                            className="w-full text-left px-3 py-2.5 text-sm text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors flex items-center gap-2"
+                                        >
+                                            <Hexagon size={16} />
+                                            รูน
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                navigate('/ceremony');
+                                                setIsMoreMenuOpen(false);
+                                            }}
+                                            className="w-full text-left px-3 py-2.5 text-sm text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors flex items-center gap-2"
+                                        >
+                                            <Landmark size={16} />
+                                            ศาสนพิธี
+                                        </button>
+                                    </div>
+
+                                    <div className="my-3 border-t border-slate-800"></div>
+                                    <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider px-1 mb-2">
+                                        บทความ
+                                    </div>
+                                    <KnowledgeDropdown
+                                        openArticle={(id) => {
+                                            openArticle(id);
+                                            setIsMoreMenuOpen(false);
+                                        }}
+                                        isMobile={true}
+                                    />
+                                </div>
+                            )}
+                        </div>
+
+                        <button
+                            onClick={() => navigate('/membership')}
+                            className="flex items-center gap-2 px-3 py-2 rounded-full bg-gradient-to-r from-purple-500/10 to-indigo-500/10 border border-purple-500/30 text-purple-400 hover:text-white hover:bg-purple-500/20 transition-all"
+                        >
+                            <Crown size={18} />
+                            <span className="text-sm font-medium">Premium</span>
+                        </button>
                     </div>
 
                     <div className="flex items-center gap-2 sm:gap-4 ml-6">
@@ -480,7 +535,7 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
                                 <div className="p-2 rounded-lg bg-indigo-500/20 text-indigo-400">
                                     <Sparkles size={20} />
                                 </div>
-                                <span className="font-medium">Meditation & Reflection</span>
+                                <span className="font-medium">สมาธิ & สะท้อนใจ</span>
                             </button>
 
                             <button
@@ -490,7 +545,7 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
                                 <div className="p-2 rounded-lg bg-green-500/20 text-green-400">
                                     <Calendar size={20} />
                                 </div>
-                                <span className="font-medium">Daily Oracle</span>
+                                <span className="font-medium">ดวงรายวัน</span>
                             </button>
 
                             <button
@@ -511,7 +566,7 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
                                     <div className="p-2 rounded-lg bg-amber-500/20 border border-amber-500/30 text-amber-400">
                                         <TrendingUp size={20} />
                                     </div>
-                                    <span className="font-medium">Lotto Insight</span>
+                                    <span className="font-medium">วิเคราะห์หวย</span>
                                     <div className="ml-2 px-2 py-1 bg-purple-500/10 border border-purple-500/30 rounded-full text-purple-300 text-xs">
                                         👑 Premium
                                     </div>

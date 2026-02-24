@@ -379,7 +379,7 @@ export const HeroSection = ({
                             let cost = baseCost;
                             if (readingType === 'celtic-cross') {
                                 cost = getReadingCost('celtic').cost;
-                            } else if (readingType === '2-cards') {
+                            } else if (readingType === '2-cards' && topic !== 'monthly') {
                                 cost = baseCost * 2;
                             }
                             const isFreeDaily = isDaily && isDailyFreeAvailable;

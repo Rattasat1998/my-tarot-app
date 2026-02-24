@@ -104,8 +104,11 @@ const WEEKLY_FORTUNES = [
 
 const DailyOraclePage = ({ isDark = true }) => {
   const navigate = useNavigate();
-  const [currentDayIndex, setCurrentDayIndex] = useState(0);
-  const [currentDayOfYear, setCurrentDayOfYear] = useState(55);
+  const [currentDayIndex, setCurrentDayIndex] = useState(() => (new Date().getDay() + 6) % 7);
+  const [currentDayOfYear, setCurrentDayOfYear] = useState(0);
+  const [todayDateText, setTodayDateText] = useState('');
+  const [hoursUntilNextFortune, setHoursUntilNextFortune] = useState(0);
+  const [minutesUntilNextFortune, setMinutesUntilNextFortune] = useState(0);
 
   usePageSEO({
     title: 'Daily Oracle - คำทำนายดวงชะตาประจำวัน',
@@ -114,13 +117,36 @@ const DailyOraclePage = ({ isDark = true }) => {
     type: 'website'
   });
 
-  // Calculate current day of year
+  // Calculate current day of year + countdown to next daily refresh
   useEffect(() => {
-    const now = new Date();
-    const start = new Date(now.getFullYear(), 0, 0);
-    const diff = now - start;
-    const dayOfYear = Math.floor(diff / (1000 * 60 * 60 * 24));
-    setCurrentDayOfYear(dayOfYear);
+    const updateDailyTimeData = () => {
+      const now = new Date();
+      const start = new Date(now.getFullYear(), 0, 0);
+      const diff = now - start;
+      const dayOfYear = Math.floor(diff / (1000 * 60 * 60 * 24));
+      setCurrentDayOfYear(dayOfYear);
+
+      setTodayDateText(now.toLocaleDateString('th-TH', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      }));
+
+      const nextMidnight = new Date(now);
+      nextMidnight.setHours(24, 0, 0, 0);
+      const msUntilNextMidnight = nextMidnight - now;
+
+      const remainingHours = Math.floor(msUntilNextMidnight / (1000 * 60 * 60));
+      const remainingMinutes = Math.floor((msUntilNextMidnight % (1000 * 60 * 60)) / (1000 * 60));
+
+      setHoursUntilNextFortune(remainingHours);
+      setMinutesUntilNextFortune(remainingMinutes);
+    };
+
+    updateDailyTimeData();
+    const timerId = setInterval(updateDailyTimeData, 30000);
+
+    return () => clearInterval(timerId);
   }, []);
 
   const handleDayChange = (index) => {
@@ -146,7 +172,7 @@ const DailyOraclePage = ({ isDark = true }) => {
                 DAILY ORACLE
               </h1>
               <p className={`text-sm ${isDark ? 'text-stone-400' : 'text-stone-500'} mt-1`}>
-                ✨ คำทำนายประจำวันที่ 24 กุมภาพันธ์ 2026
+                ✨ คำทำนายประจำวันที่ {todayDateText}
               </p>
             </div>
           </div>
@@ -154,6 +180,10 @@ const DailyOraclePage = ({ isDark = true }) => {
             <span className={`inline-block ${isDark ? 'bg-stone-700 text-stone-300' : 'bg-stone-100 text-stone-600'} px-3 py-1 rounded-full text-xs font-semibold tracking-wide uppercase`}>
               Day {currentDayOfYear} / 365
             </span>
+            <p className={`mt-2 text-xs ${isDark ? 'text-stone-400' : 'text-stone-500'} flex items-center justify-end gap-1`}>
+              <Sparkles className="w-3 h-3" />
+              อีก {hoursUntilNextFortune} ชั่วโมง {minutesUntilNextFortune} นาที คำทำนายจะเปลี่ยน
+            </p>
           </div>
         </div>
       </header>
@@ -231,7 +261,7 @@ const DailyOraclePage = ({ isDark = true }) => {
       <footer className={`${isDark ? 'bg-stone-800' : 'bg-stone-100'} py-6 mt-auto`}>
         <div className="container mx-auto px-4 text-center text-sm">
           <p className={isDark ? 'text-stone-500' : 'text-stone-400'}>
-            ✧ สร้างจากข้อมูลดวงประจำวันที่ 24 กุมภาพันธ์ 2026 ✧
+            ✧ สร้างจากข้อมูลดวงประจำวันที่ {todayDateText} ✧
           </p>
         </div>
       </footer>
