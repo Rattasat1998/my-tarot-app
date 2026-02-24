@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { MembershipCard } from '../components/ui/MembershipCard';
 import { ArrowLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
+import { useMembershipPricing } from '../hooks/useMembershipPricing';
 
-export const MembershipPage = ({ isDark, setIsDark }) => {
-    const navigate = useNavigate();
+export const MembershipPage = ({ isDark }) => {
     const { user } = useAuth();
     const [isLoading, setIsLoading] = useState(false);
+    const { pricing, isLoading: pricingLoading } = useMembershipPricing();
 
     const handleUpgrade = async () => {
         if (!user) {
@@ -75,6 +75,8 @@ export const MembershipPage = ({ isDark, setIsDark }) => {
                         isDark={isDark} 
                         onUpgrade={handleUpgrade}
                         isLoading={isLoading}
+                        pricing={pricing}
+                        isPricingLoading={pricingLoading}
                     />
                 </div>
             </div>

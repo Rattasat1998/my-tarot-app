@@ -310,7 +310,7 @@ export function GamePage({ isDark, setIsDark }) {
                 toggleMute={toggleMute}
             />
 
-            <main className="relative pt-24 pb-12 px-4 sm:px-6 max-w-7xl mx-auto">
+            <main className="relative pt-24 pb-28 md:pb-12 px-4 sm:px-6 max-w-7xl mx-auto">
                 {gameState === 'MENU' && (
                     <MenuState
                         topic={topic}

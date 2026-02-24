@@ -35,6 +35,9 @@ export const MeditationPage = ({ isDark }) => {
         { id: 'forest', name: 'เสียงป่า', icon: <Music size={16} /> },
         { id: 'bells', name: 'เสียงระฆัง', icon: <Music size={16} /> }
     ];
+    const freeSoundOption = soundOptions[0];
+    const premiumSoundOptions = soundOptions.slice(1);
+    const effectiveSelectedSound = isPremium ? selectedSound : 'none';
 
     const affirmations = isPremium ? premiumAffirmations : [
         "ฉันพร้อมที่จะรับฟังคำแนะนำจากภายใน",
@@ -248,23 +251,55 @@ export const MeditationPage = ({ isDark }) => {
                         {/* Sound Selection */}
                         <div className="flex items-center gap-4">
                             <span className="text-slate-400">เสียงพื้นหลัง:</span>
-                            <div className="flex gap-2">
-                                {soundOptions.map((sound) => (
-                                    <button
-                                        key={sound.id}
-                                        onClick={() => setSelectedSound(sound.id)}
-                                        className={`px-3 py-2 rounded-lg border transition-all flex items-center gap-2 ${
-                                            selectedSound === sound.id
-                                                ? 'bg-purple-500/20 border-purple-400 text-purple-300'
-                                                : 'bg-slate-800/50 border-slate-700 text-slate-400 hover:bg-slate-700'
-                                        }`}
-                                    >
-                                        {sound.icon}
-                                        <span className="text-sm">{sound.name}</span>
-                                    </button>
-                                ))}
+                            <div className="flex flex-wrap gap-2">
+                                <button
+                                    key={freeSoundOption.id}
+                                    onClick={() => setSelectedSound(freeSoundOption.id)}
+                                    className={`px-3 py-2 rounded-lg border transition-all flex items-center gap-2 ${
+                                        effectiveSelectedSound === freeSoundOption.id
+                                            ? 'bg-purple-500/20 border-purple-400 text-purple-300'
+                                            : 'bg-slate-800/50 border-slate-700 text-slate-400 hover:bg-slate-700'
+                                    }`}
+                                >
+                                    {freeSoundOption.icon}
+                                    <span className="text-sm">{freeSoundOption.name}</span>
+                                </button>
+
+                                <PremiumGate feature="premiumMeditation" fallback={
+                                    <>
+                                        {premiumSoundOptions.map((sound) => (
+                                            <button
+                                                key={sound.id}
+                                                disabled
+                                                className="px-3 py-2 rounded-lg border border-slate-700 text-slate-500 cursor-not-allowed flex items-center gap-2"
+                                            >
+                                                <Crown size={12} />
+                                                {sound.icon}
+                                                <span className="text-sm">{sound.name}</span>
+                                            </button>
+                                        ))}
+                                    </>
+                                }>
+                                    {premiumSoundOptions.map((sound) => (
+                                        <button
+                                            key={sound.id}
+                                            onClick={() => setSelectedSound(sound.id)}
+                                            className={`px-3 py-2 rounded-lg border transition-all flex items-center gap-2 ${
+                                                effectiveSelectedSound === sound.id
+                                                    ? 'bg-purple-500/20 border-purple-400 text-purple-300'
+                                                    : 'bg-slate-800/50 border-slate-700 text-slate-400 hover:bg-slate-700'
+                                            }`}
+                                        >
+                                            {sound.icon}
+                                            <span className="text-sm">{sound.name}</span>
+                                        </button>
+                                    ))}
+                                </PremiumGate>
                             </div>
                         </div>
+                        {!isPremium && (
+                            <p className="text-xs text-slate-500">สมาชิกทั่วไปใช้งานได้เฉพาะโหมดไม่มีเสียง</p>
+                        )}
                         {/* Play Controls */}
                         <div className="flex items-center gap-4">
                             <button
@@ -283,7 +318,12 @@ export const MeditationPage = ({ isDark }) => {
 
                             <button
                                 onClick={() => setIsMuted(!isMuted)}
-                                className="p-3 rounded-full bg-slate-800/50 border border-slate-700 text-slate-400 hover:bg-slate-700 transition-all"
+                                disabled={!isPremium || effectiveSelectedSound === 'none'}
+                                className={`p-3 rounded-full border transition-all ${
+                                    !isPremium || effectiveSelectedSound === 'none'
+                                        ? 'bg-slate-900/50 border-slate-800 text-slate-600 cursor-not-allowed'
+                                        : 'bg-slate-800/50 border-slate-700 text-slate-400 hover:bg-slate-700'
+                                }`}
                             >
                                 {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
                             </button>

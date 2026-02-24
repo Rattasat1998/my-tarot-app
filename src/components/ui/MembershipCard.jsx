@@ -2,8 +2,24 @@ import React from 'react';
 import { Crown, Sparkles, Heart, Brain, BookOpen, Users, Star, CheckCircle, Zap, Shield, Loader2 } from 'lucide-react';
 import { usePremium } from '../../hooks/usePremium';
 
-export const MembershipCard = ({ isDark, onUpgrade, isLoading }) => {
+export const MembershipCard = ({ isDark, onUpgrade, isLoading, pricing, isPricingLoading }) => {
     const { isPremium } = usePremium();
+    const [nowTimestamp, setNowTimestamp] = React.useState(() => Date.now());
+
+    React.useEffect(() => {
+        if (!pricing?.discountEndsAt) return;
+        const timer = setInterval(() => {
+            setNowTimestamp(Date.now());
+        }, 60 * 1000);
+        return () => clearInterval(timer);
+    }, [pricing?.discountEndsAt]);
+
+    const basePrice = Number(pricing?.basePrice ?? 299);
+    const finalPrice = Number(pricing?.finalPrice ?? 299);
+    const hasDiscount = Boolean(pricing?.isDiscountActive) && finalPrice < basePrice;
+    const remainingDays = hasDiscount && pricing?.discountEndsAt
+        ? Math.max(Math.ceil((new Date(pricing.discountEndsAt).getTime() - nowTimestamp) / (24 * 60 * 60 * 1000)), 0)
+        : 0;
     const benefits = [
         {
             icon: <Zap className="w-5 h-5" />,
@@ -108,9 +124,27 @@ export const MembershipCard = ({ isDark, onUpgrade, isLoading }) => {
                     <div className="text-center mb-6">
                         <h3 className="text-2xl font-bold text-white mb-2">Premium</h3>
                         <div className="flex items-baseline justify-center gap-2 mb-4">
-                            <span className="text-5xl font-bold text-purple-300">299</span>
-                            <span className="text-slate-300">บาท/เดือน</span>
+                            {isPricingLoading ? (
+                                <div className="flex items-center gap-2 text-slate-300">
+                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                    <span>กำลังโหลดราคา...</span>
+                                </div>
+                            ) : hasDiscount ? (
+                                <>
+                                    <span className="text-2xl text-slate-400 line-through">{basePrice.toLocaleString()}</span>
+                                    <span className="text-5xl font-bold text-green-300">{finalPrice.toLocaleString()}</span>
+                                    <span className="text-slate-300">บาท/เดือน</span>
+                                </>
+                            ) : (
+                                <>
+                                    <span className="text-5xl font-bold text-purple-300">{basePrice.toLocaleString()}</span>
+                                    <span className="text-slate-300">บาท/เดือน</span>
+                                </>
+                            )}
                         </div>
+                        {!isPricingLoading && hasDiscount && (
+                            <p className="text-green-300 text-sm">โปรโมชันเหลืออีกประมาณ {remainingDays} วัน</p>
+                        )}
                         <p className="text-slate-300">เต็มพลังการพัฒนาตนเอง</p>
                     </div>
 

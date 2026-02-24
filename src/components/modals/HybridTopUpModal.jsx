@@ -1,10 +1,15 @@
 import React, { useState } from 'react';
 import { Crown, Coins, CreditCard, Smartphone, ArrowRight, CheckCircle, X, Loader2 } from 'lucide-react';
 import { usePremium } from '../../hooks/usePremium';
+import { useMembershipPricing } from '../../hooks/useMembershipPricing';
 
 export const HybridTopUpModal = ({ isOpen, onClose, isDark, user, onUpgrade, onTopUp, isLoading }) => {
     const [selectedOption, setSelectedOption] = useState(null);
     const [amount, setAmount] = useState('');
+    const { pricing, isLoading: pricingLoading } = useMembershipPricing();
+    const basePrice = Number(pricing?.basePrice ?? 299);
+    const finalPrice = Number(pricing?.finalPrice ?? 299);
+    const hasDiscount = Boolean(pricing?.isDiscountActive) && finalPrice < basePrice;
 
     const topUpOptions = [
         { amount: 29, credits: 5, bonus: 0, popular: false, packageId: 'starter' },
@@ -71,7 +76,9 @@ export const HybridTopUpModal = ({ isOpen, onClose, isDark, user, onUpgrade, onT
                                                 <Crown className="w-5 h-5 text-purple-400" />
                                                 Premium Membership
                                             </h3>
-                                            <p className="text-purple-300 text-sm">299 บาท/เดือน</p>
+                                            <p className="text-purple-300 text-sm">
+                                                {pricingLoading ? 'กำลังโหลดราคา...' : hasDiscount ? `${basePrice.toLocaleString()} → ${finalPrice.toLocaleString()} บาท/เดือน` : `${basePrice.toLocaleString()} บาท/เดือน`}
+                                            </p>
                                         </div>
                                         <div className="text-right">
                                             <div className="text-2xl font-bold text-purple-300">UNLIMITED</div>
@@ -196,7 +203,9 @@ export const HybridTopUpModal = ({ isOpen, onClose, isDark, user, onUpgrade, onT
                                     </div>
                                     <div className="flex justify-between text-sm">
                                         <span className="text-slate-400">ค่าบริการ:</span>
-                                        <span className="text-purple-300 font-medium">฿299/เดือน</span>
+                                        <span className="text-purple-300 font-medium">
+                                            {pricingLoading ? 'กำลังโหลดราคา...' : hasDiscount ? `฿${basePrice.toLocaleString()} → ฿${finalPrice.toLocaleString()}/เดือน` : `฿${basePrice.toLocaleString()}/เดือน`}
+                                        </span>
                                     </div>
                                     <div className="flex justify-between text-sm">
                                         <span className="text-slate-400">ต่ออนาคต:</span>

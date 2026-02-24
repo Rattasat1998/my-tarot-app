@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Sparkles, Sun, Moon, Coins, LogIn, LogOut, User, Menu, TrendingUp, Stars, Volume2, VolumeX, BookOpen, Calendar, FileText, Heart, Hexagon, Plus, Receipt, Landmark, ShoppingBag, Shield, Crown, Users, Search, ChevronDown } from 'lucide-react';
 import { CalendarDropdown } from './CalendarDropdown';
 import { KnowledgeDropdown } from './KnowledgeDropdown';
@@ -8,13 +8,14 @@ import { TransactionHistoryModal } from '../modals/TransactionHistoryModal';
 import { ReadingHistoryModal } from '../modals/ReadingHistoryModal';
 import { LoginModal } from '../modals/LoginModal';
 import { HybridTopUpModal } from '../modals/HybridTopUpModal';
-import { PremiumGate } from '../ui/PremiumGate';
 import { Drawer } from '../ui/Drawer';
+import { supabase } from '../../lib/supabase';
 
 export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle, credits, onOpenTopUp, isMuted, toggleMute }) => {
     const { user, isAdmin, signOut, loading } = useAuth();
     const [showLoginModal, setShowLoginModal] = useState(false);
     const navigate = useNavigate();
+    const location = useLocation();
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [showHistory, setShowHistory] = useState(false);
     const [showReadingHistory, setShowReadingHistory] = useState(false);
@@ -136,19 +137,54 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
         }
     };
 
+    const isPathActive = (path) => {
+        if (path === '/') return location.pathname === '/';
+        return location.pathname.startsWith(path);
+    };
+
+    const mobileBottomNavItems = [
+        {
+            key: 'home',
+            label: 'ดูดวง',
+            icon: Sparkles,
+            active: isPathActive('/'),
+            onClick: () => navigate('/'),
+        },
+        {
+            key: 'daily',
+            label: 'รายวัน',
+            icon: Calendar,
+            active: isPathActive('/daily-oracle'),
+            onClick: () => navigate('/daily-oracle'),
+        },
+        {
+            key: 'zodiac',
+            label: '12 ราศี',
+            icon: Stars,
+            active: isPathActive('/zodiac'),
+            onClick: () => navigate('/zodiac'),
+        },
+        {
+            key: 'search',
+            label: 'ค้นหา',
+            icon: Search,
+            active: isPathActive('/search'),
+            onClick: () => navigate('/search'),
+        },
+        {
+            key: 'menu',
+            label: 'เมนู',
+            icon: Menu,
+            active: isDrawerOpen,
+            onClick: () => setIsDrawerOpen(true),
+        },
+    ];
+
     return (
         <>
             <nav className={`relative z-[99997] ${isDark ? 'bg-slate-950/90 backdrop-blur-md border-b border-slate-800/50' : 'bg-white/90 backdrop-blur-md border-b border-slate-200/50'} sticky top-0 transition-all duration-300`}>
                 <div className="w-full px-4 sm:px-6 h-16 flex items-center">
                     <div className="flex items-center gap-4">
-                    {/* Drawer Toggle Button - Visible only on Mobile */}
-                    <button
-                        onClick={() => setIsDrawerOpen(true)}
-                        className="p-2 -ml-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors md:hidden"
-                    >
-                        <Menu size={24} />
-                    </button>
-
                     <div className="flex items-center gap-2 cursor-pointer" onClick={resetGame}>
                         <img
                             src="/favicon.png"
@@ -558,20 +594,22 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
                                 <span className="font-medium">ค้นหาขั้นข้อมูล</span>
                             </button>
 
-                            <PremiumGate feature="lottoInsight" fallback={null}>
-                                <button
-                                    onClick={() => { navigate('/lotto'); setIsDrawerOpen(false); }}
-                                    className="w-full flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 rounded-xl text-amber-400 hover:from-amber-500/20 hover:to-orange-500/20 transition-all"
-                                >
-                                    <div className="p-2 rounded-lg bg-amber-500/20 border border-amber-500/30 text-amber-400">
-                                        <TrendingUp size={20} />
-                                    </div>
-                                    <span className="font-medium">วิเคราะห์หวย</span>
-                                    <div className="ml-2 px-2 py-1 bg-purple-500/10 border border-purple-500/30 rounded-full text-purple-300 text-xs">
-                                        👑 Premium
-                                    </div>
-                                </button>
-                            </PremiumGate>
+                            <button
+                                onClick={() => {
+                                    const isPremium = user?.user_metadata?.is_premium || user?.user_metadata?.subscription_status === 'active';
+                                    navigate(isPremium ? '/lotto' : '/membership');
+                                    setIsDrawerOpen(false);
+                                }}
+                                className="w-full flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 rounded-xl text-amber-400 hover:from-amber-500/20 hover:to-orange-500/20 transition-all"
+                            >
+                                <div className="p-2 rounded-lg bg-amber-500/20 border border-amber-500/30 text-amber-400">
+                                    <TrendingUp size={20} />
+                                </div>
+                                <span className="font-medium">วิเคราะห์หวย</span>
+                                <div className="ml-2 px-2 py-1 bg-purple-500/10 border border-purple-500/30 rounded-full text-purple-300 text-xs">
+                                    👑 Premium
+                                </div>
+                            </button>
 
                             <button
                                 onClick={() => { navigate('/soulmate'); setIsDrawerOpen(false); }}
@@ -644,6 +682,32 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
                     </div>
                 </div>
             </Drawer>
+
+            <div className={`md:hidden fixed bottom-0 left-0 right-0 z-[99997] border-t backdrop-blur-xl ${isDrawerOpen ? 'hidden' : ''} ${isDark ? 'bg-slate-950/95 border-slate-800/80' : 'bg-white/95 border-slate-200/80'}`}>
+                <div className="grid grid-cols-5 px-1 py-1.5">
+                    {mobileBottomNavItems.map((item) => {
+                        const Icon = item.icon;
+                        return (
+                            <button
+                                key={item.key}
+                                onClick={item.onClick}
+                                className={`flex flex-col items-center justify-center gap-1 py-2 rounded-xl transition-all ${
+                                    item.active
+                                        ? isDark
+                                            ? 'bg-purple-500/15 text-purple-300'
+                                            : 'bg-purple-100 text-purple-700'
+                                        : isDark
+                                            ? 'text-slate-400'
+                                            : 'text-slate-500'
+                                }`}
+                            >
+                                <Icon size={18} />
+                                <span className="text-[11px] font-medium leading-none">{item.label}</span>
+                            </button>
+                        );
+                    })}
+                </div>
+            </div>
 
             <TransactionHistoryModal
                 isOpen={showHistory}

@@ -1,7 +1,12 @@
 import React from 'react';
 import { Crown, Sparkles, Zap, Brain, Star, CheckCircle, X } from 'lucide-react';
+import { useMembershipPricing } from '../../hooks/useMembershipPricing';
 
 export const PremiumUpgradeModal = ({ isOpen, onClose, onUpgrade, isDark }) => {
+    const { pricing, isLoading } = useMembershipPricing();
+    const basePrice = Number(pricing?.basePrice ?? 299);
+    const finalPrice = Number(pricing?.finalPrice ?? 299);
+    const hasDiscount = Boolean(pricing?.isDiscountActive) && finalPrice < basePrice;
     if (!isOpen) return null;
 
     const premiumFeatures = [
@@ -46,8 +51,20 @@ export const PremiumUpgradeModal = ({ isOpen, onClose, onUpgrade, isDark }) => {
                     {/* Price */}
                     <div className="text-center mb-6">
                         <div className="inline-flex items-baseline gap-2">
-                            <span className="text-4xl font-bold text-purple-300">299</span>
-                            <span className="text-slate-400">บาท/เดือน</span>
+                            {isLoading ? (
+                                <span className="text-slate-400">กำลังโหลดราคา...</span>
+                            ) : hasDiscount ? (
+                                <>
+                                    <span className="text-xl text-slate-500 line-through">{basePrice.toLocaleString()}</span>
+                                    <span className="text-4xl font-bold text-green-300">{finalPrice.toLocaleString()}</span>
+                                    <span className="text-slate-400">บาท/เดือน</span>
+                                </>
+                            ) : (
+                                <>
+                                    <span className="text-4xl font-bold text-purple-300">{basePrice.toLocaleString()}</span>
+                                    <span className="text-slate-400">บาท/เดือน</span>
+                                </>
+                            )}
                         </div>
                         <div className="inline-flex items-center gap-2 px-3 py-1 bg-green-500/10 border border-green-500/30 rounded-full mt-2">
                             <CheckCircle className="w-4 h-4 text-green-400" />
