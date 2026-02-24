@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { User, Phone, Save, ArrowLeft, Loader, CheckCircle, Camera, Calendar, CreditCard, Crown, Star, TrendingUp, BookOpen, Heart, MessageCircle, Mail, Headphones, Clock, Send } from 'lucide-react';
+import { User, Phone, Save, ArrowLeft, Loader, CheckCircle, Camera, Calendar, CreditCard, Crown, Star, TrendingUp, BookOpen, Heart, MessageCircle, Mail, Headphones, Clock } from 'lucide-react';
 import { compressImage } from '../utils/imageCompression';
 import { MysticalIdCard } from '../components/MysticalIdCard';
 import { getZodiacFromDate } from '../utils/zodiacUtils';
@@ -85,6 +85,7 @@ export const ProfilePage = ({ isDark }) => {
     const [formData, setFormData] = useState({
         first_name: '',
         last_name: '',
+        email: '',
         phone: '',
         avatar_url: '',
         credits: 0,
@@ -120,6 +121,7 @@ export const ProfilePage = ({ isDark }) => {
                 setFormData({
                     first_name: data.first_name || '',
                     last_name: data.last_name || '',
+                    email: user?.email || '',
                     phone: data.phone || '',
                     avatar_url: data.avatar_url || '',
                     credits: data.credits || 0,
@@ -147,7 +149,10 @@ export const ProfilePage = ({ isDark }) => {
                     console.error('Error creating profile:', insertError);
                     setMessage({ type: 'error', text: 'ไม่สามารถสร้างโปรไฟล์ได้' });
                 } else {
-                    setFormData(newProfile);
+                    setFormData({
+                        ...newProfile,
+                        email: user?.email || ''
+                    });
                 }
             }
         } catch (error) {
@@ -166,10 +171,34 @@ export const ProfilePage = ({ isDark }) => {
         }));
     };
 
+    const ensureActiveSession = async () => {
+        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError || !sessionData?.session) {
+            setMessage({ type: 'error', text: 'เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่ก่อน' });
+            return null;
+        }
+        return sessionData.session;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setSaving(true);
         setMessage(null);
+
+        const nextEmail = formData.email.trim().toLowerCase();
+        const currentEmail = (user?.email || '').trim().toLowerCase();
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (!nextEmail) {
+            setMessage({ type: 'error', text: 'กรุณากรอกอีเมล' });
+            return;
+        }
+
+        if (!emailPattern.test(nextEmail)) {
+            setMessage({ type: 'error', text: 'รูปแบบอีเมลไม่ถูกต้อง' });
+            return;
+        }
+
+        setSaving(true);
 
         try {
             const { error } = await supabase
@@ -187,7 +216,27 @@ export const ProfilePage = ({ isDark }) => {
                 console.error('Error updating profile:', error);
                 setMessage({ type: 'error', text: 'ไม่สามารถอัปเดตข้อมูลได้' });
             } else {
-                setMessage({ type: 'success', text: 'อัปเดตข้อมูลสำเร็จแล้ว' });
+                if (nextEmail !== currentEmail) {
+                    const session = await ensureActiveSession();
+                    if (!session) {
+                        return;
+                    }
+
+                    const { error: emailError } = await supabase.auth.updateUser({ email: nextEmail });
+                    if (emailError) {
+                        const isMissingSession = emailError?.name === 'AuthSessionMissingError';
+                        if (isMissingSession) {
+                            setMessage({ type: 'error', text: 'บันทึกข้อมูลสำเร็จแล้ว แต่การเปลี่ยนอีเมลต้องเข้าสู่ระบบใหม่ก่อน' });
+                        } else {
+                            console.error('Error updating email:', emailError);
+                            setMessage({ type: 'error', text: 'บันทึกข้อมูลสำเร็จ แต่ไม่สามารถเปลี่ยนอีเมลได้' });
+                        }
+                    } else {
+                        setMessage({ type: 'success', text: 'เปลี่ยนอีเมลสำเร็จแล้ว' });
+                    }
+                } else {
+                    setMessage({ type: 'success', text: 'อัปเดตข้อมูลสำเร็จแล้ว' });
+                }
             }
         } catch (error) {
             console.error('Error in handleSubmit:', error);
@@ -261,7 +310,7 @@ export const ProfilePage = ({ isDark }) => {
                         ) : (
                             <div className="w-full h-full flex items-center justify-center">
                                 <span className="text-4xl text-purple-400">
-                                    {user?.email?.[0].toUpperCase() || <User size={48} />}
+                                    {formData.email?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || <User size={48} />}
                                 </span>
                             </div>
                         )}
@@ -289,7 +338,7 @@ export const ProfilePage = ({ isDark }) => {
                             : user?.user_metadata?.name || 'ผู้ใช้'
                         }
                     </h2>
-                    <p className="text-slate-400">{user?.email}</p>
+                    <p className="text-slate-400">{formData.email || user?.email}</p>
                     {isPremium && (
                         <div className="flex items-center gap-2 mt-2">
                             <Crown className="w-4 h-4 text-purple-400" />
@@ -342,6 +391,27 @@ export const ProfilePage = ({ isDark }) => {
                                     }`}
                             />
                         </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className={`text-sm font-medium ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+                            อีเมล
+                        </label>
+                        <div className="relative">
+                            <Mail className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? 'text-slate-500' : 'text-slate-400'}`} />
+                            <input
+                                type="email"
+                                name="email"
+                                value={formData.email}
+                                onChange={handleChange}
+                                placeholder="example@email.com"
+                                className={`w-full pl-10 pr-4 py-2.5 rounded-xl border outline-none transition-all ${isDark
+                                    ? 'bg-slate-800 border-slate-700 text-white focus:border-purple-500 focus:ring-1 focus:ring-purple-500'
+                                    : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-purple-500 focus:ring-1 focus:ring-purple-500'
+                                    }`}
+                            />
+                        </div>
+                        <p className="text-xs text-slate-500">แก้ไขอีเมลแล้วกดบันทึกได้ทันที</p>
                     </div>
 
                     <div className="space-y-2">

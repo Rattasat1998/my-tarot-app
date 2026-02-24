@@ -167,6 +167,14 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
                         </button>
 
                         <button
+                            onClick={() => navigate('/daily-oracle')}
+                            className="flex items-center gap-2 px-3 py-2 rounded-full text-slate-400 hover:text-white hover:bg-slate-800/50 transition-colors"
+                        >
+                            <Calendar size={18} />
+                            <span className="text-sm font-medium">Daily Oracle</span>
+                        </button>
+
+                        <button
                             onClick={() => navigate('/lotto')}
                             className="flex items-center gap-2 px-3 py-2 rounded-full text-slate-400 hover:text-white hover:bg-slate-800/50 transition-colors"
                         >
@@ -473,6 +481,16 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
                                     <Sparkles size={20} />
                                 </div>
                                 <span className="font-medium">Meditation & Reflection</span>
+                            </button>
+
+                            <button
+                                onClick={() => { navigate('/daily-oracle'); setIsDrawerOpen(false); }}
+                                className="w-full flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/30 rounded-xl text-green-400 hover:from-green-500/20 hover:to-emerald-500/20 transition-all"
+                            >
+                                <div className="p-2 rounded-lg bg-green-500/20 text-green-400">
+                                    <Calendar size={20} />
+                                </div>
+                                <span className="font-medium">Daily Oracle</span>
                             </button>
 
                             <button
