@@ -77,9 +77,19 @@ export const LoginModal = ({ isOpen, onClose }) => {
                 <div className="px-6 pb-6">
                     <p className="text-[10px] text-slate-600 text-center leading-relaxed">
                         การเข้าสู่ระบบถือว่าคุณยอมรับ
-                        <span className="text-slate-500"> นโยบายความเป็นส่วนตัว </span>
+                        <button
+                            onClick={() => window.open('/privacy-policy', '_blank')}
+                            className="text-slate-500 hover:text-slate-400 underline transition-colors"
+                        >
+                            นโยบายความเป็นส่วนตัว
+                        </button>
                         และ
-                        <span className="text-slate-500"> เงื่อนไขการใช้งาน </span>
+                        <button
+                            onClick={() => window.open('/terms-of-service', '_blank')}
+                            className="text-slate-500 hover:text-slate-400 underline transition-colors"
+                        >
+                            เงื่อนไขการใช้งาน
+                        </button>
                         ของเรา
                     </p>
                 </div>

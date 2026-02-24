@@ -30,6 +30,8 @@ import { SearchPage } from './pages/SearchPage';
 import { CommunityPage } from './pages/CommunityPage';
 import ShopPage from './pages/ShopPage';
 import { DailyOraclePage } from './pages/DailyOraclePage';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
+import TermsOfServicePage from './pages/TermsOfServicePage';
 
 function App() {
   const [isDark, setIsDark] = useState(true);
@@ -71,6 +73,8 @@ function App() {
         <Route path="/shop" element={<ShopPage isDark={isDark} />} />
         <Route path="/membership" element={<MembershipPage isDark={isDark} />} />
         <Route path="/daily-oracle" element={<DailyOraclePage isDark={isDark} />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicyPage isDark={isDark} />} />
+        <Route path="/terms-of-service" element={<TermsOfServicePage isDark={isDark} />} />
         <Route path="/admin/*" element={<AdminPage isDark={isDark} />} />
         <Route path="/auth/line-callback" element={<LineCallbackPage />} />
         <Route path="/payment/success" element={<PaymentSuccessPage isDark={isDark} />} />
