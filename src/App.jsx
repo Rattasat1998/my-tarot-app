@@ -32,6 +32,7 @@ import ShopPage from './pages/ShopPage';
 import { DailyOraclePage } from './pages/DailyOraclePage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TermsOfServicePage from './pages/TermsOfServicePage';
+import { FloatingFortuneButton } from './components/ui/FloatingFortuneButton';
 
 function App() {
   const [isDark, setIsDark] = useState(true);
@@ -80,7 +81,7 @@ function App() {
         <Route path="/payment/success" element={<PaymentSuccessPage isDark={isDark} />} />
         <Route path="/payment/cancel" element={<PaymentCancelPage isDark={isDark} />} />
       </Routes>
-
+      <FloatingFortuneButton />
     </>
   );
 }
