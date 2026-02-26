@@ -25,6 +25,7 @@ export const LottoInsightPage = () => {
         description: 'วิเคราะห์หวยรัฐบาล สถิติย้อนหลัง 22 ปี แนวทางจากสำนักดัง กระแสเลขเด็ดโซเชียล เลขมงคล สรุปเลขเด่นประจำงวด พร้อมระบบสุ่มเลขนำโชค',
         keywords: 'วิเคราะห์หวย, สถิติหวย, เลขเด็ด, สำนักดัง, หวยรัฐบาล, เลขมงคล, แนวทางหวย, สถิติย้อนหลัง',
         path: '/lotto',
+        ogImage: 'https://satduangdao.com/lotto-hero.png', // สามารถเปลี่ยน URL รูปภาพตรงนี้ได้เลย
     });
     const navigate = useNavigate();
     const location = useLocation();
