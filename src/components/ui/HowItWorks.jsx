@@ -41,7 +41,7 @@ export const HowItWorks = () => {
                     <Sparkles size={14} className="text-indigo-400" />
                     <span className="text-indigo-300 text-xs uppercase tracking-widest">วิธีใช้งาน</span>
                 </div>
-                <h3 className="text-2xl md:text-3xl font-serif text-white mb-2">
+                <h3 className="text-2xl md:text-3xl font-serif text-slate-900 dark:text-white mb-2">
                     เริ่มต้น<span className="text-purple-400">ง่ายๆ</span>ใน 4 ขั้นตอน
                 </h3>
                 <p className="text-slate-400 text-sm max-w-lg mx-auto">
@@ -63,7 +63,7 @@ export const HowItWorks = () => {
                         <div className="relative z-10 p-5 rounded-2xl bg-slate-900/60 border border-slate-800/50 hover:border-purple-500/30 transition-all duration-300 hover:scale-105 text-center">
                             {/* Step Number */}
                             <div className={`w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br ${step.color} flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform`}>
-                                <step.icon className="text-white" size={28} />
+                                <step.icon className="text-slate-900 dark:text-white" size={28} />
                             </div>
 
                             {/* Number Badge */}
@@ -71,7 +71,7 @@ export const HowItWorks = () => {
                                 <span className="text-xs font-bold text-purple-400">{step.number}</span>
                             </div>
 
-                            <h4 className="font-bold text-white mb-2">{step.title}</h4>
+                            <h4 className="font-bold text-slate-900 dark:text-white mb-2">{step.title}</h4>
                             <p className="text-xs text-slate-400 leading-relaxed">{step.description}</p>
                         </div>
                     </div>

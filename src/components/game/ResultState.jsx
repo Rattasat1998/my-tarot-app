@@ -319,7 +319,7 @@ export const ResultState = ({
                 </div>
 
                 {/* Title */}
-                <h2 className="text-3xl md:text-5xl font-serif text-white mb-2 text-center drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]">
+                <h2 className="text-3xl md:text-5xl font-serif text-slate-900 dark:text-white mb-2 text-center drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]">
                     ลิขิตแห่งดวงดาว
                 </h2>
                 <div className="h-1 w-24 bg-gradient-to-r from-transparent via-purple-500 to-transparent mb-10"></div>

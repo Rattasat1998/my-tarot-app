@@ -35,21 +35,17 @@ import TermsOfServicePage from './pages/TermsOfServicePage';
 import { FloatingFortuneButton } from './components/ui/FloatingFortuneButton';
 
 function App() {
-  const [isDark, setIsDark] = useState(true);
+  const isDark = true; // Always dark mode
 
   // Theme effect
   useEffect(() => {
-    if (isDark) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [isDark]);
+    document.documentElement.classList.add('dark');
+  }, []);
 
   return (
     <>
       <Routes>
-        <Route path="/" element={<GamePage isDark={isDark} setIsDark={setIsDark} />} />
+        <Route path="/" element={<GamePage isDark={isDark} />} />
         <Route path="/profile" element={<ProfilePage isDark={isDark} />} />
         <Route path="/history" element={<HistoryPage isDark={isDark} />} />
         <Route path="/lotto" element={<LottoInsightPage />} />

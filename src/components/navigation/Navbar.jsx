@@ -347,13 +347,6 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
                             </button>
                         )}
 
-                        <button
-                            onClick={() => setIsDark(!isDark)}
-                            className="p-2 sm:p-2.5 rounded-full bg-slate-900/50 border border-slate-800 text-slate-400 hover:text-white transition-all shadow-lg hidden sm:flex"
-                        >
-                            {isDark ? <Sun size={18} /> : <Moon size={18} />}
-                        </button>
-
                         {/* Auth Button */}
                         {!loading && (
                             user ? (
@@ -659,20 +652,13 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
 
                     {/* Settings (Mobile Only) */}
                     <div className="sm:hidden pt-4 border-t border-slate-800">
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="flex justify-center">
                             <button
                                 onClick={toggleMute}
-                                className="flex items-center justify-center gap-2 p-3 rounded-xl bg-slate-900 border border-slate-800 text-slate-300"
+                                className="flex items-center justify-center gap-2 p-3 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 w-full max-w-[200px]"
                             >
                                 {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
                                 <span className="text-sm">เสียง</span>
-                            </button>
-                            <button
-                                onClick={() => setIsDark(!isDark)}
-                                className="flex items-center justify-center gap-2 p-3 rounded-xl bg-slate-900 border border-slate-800 text-slate-300"
-                            >
-                                {isDark ? <Sun size={20} /> : <Moon size={20} />}
-                                <span className="text-sm">ธีม</span>
                             </button>
                         </div>
                     </div>

@@ -92,7 +92,7 @@ export const Testimonials = () => {
                     <MessageCircle size={14} className="text-purple-400" />
                     <span className="text-purple-300 text-xs uppercase tracking-widest">รีวิวจากผู้ใช้จริง</span>
                 </div>
-                <h3 className="text-2xl font-serif text-white mb-2">เสียงจากผู้ใช้งาน</h3>
+                <h3 className="text-2xl font-serif text-slate-900 dark:text-white mb-2">เสียงจากผู้ใช้งาน</h3>
                 <p className="text-slate-400 text-sm">ความประทับใจจากผู้ที่ได้ลองใช้บริการ</p>
             </div>
 
@@ -123,7 +123,7 @@ export const Testimonials = () => {
 
                         {/* Author */}
                         <div className="space-y-1">
-                            <p className="font-bold text-white">{currentTestimonial.name}</p>
+                            <p className="font-bold text-slate-900 dark:text-white">{currentTestimonial.name}</p>
                             <div className="flex items-center justify-center gap-2 text-xs">
                                 <span className="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300">
                                     {currentTestimonial.topic}

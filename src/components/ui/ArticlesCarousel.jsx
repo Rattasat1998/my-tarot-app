@@ -42,7 +42,7 @@ export const ArticlesCarousel = ({ openArticle }) => {
                             <span className="text-[10px] px-2 py-0.5 bg-amber-900/30 text-amber-300 rounded-full border border-amber-500/20">
                                 {article.category}
                             </span>
-                            <h4 className="text-lg font-serif text-white mt-2 mb-2 line-clamp-2 group-hover:text-amber-300 transition-colors">
+                            <h4 className="text-lg font-serif text-slate-900 dark:text-white mt-2 mb-2 line-clamp-2 group-hover:text-amber-300 transition-colors">
                                 {article.title}
                             </h4>
                             <p className="text-xs text-slate-400 line-clamp-2 mb-3">

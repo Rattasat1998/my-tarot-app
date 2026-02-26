@@ -65,7 +65,7 @@ export const ShareCardTemplate = forwardRef(({ cards, topic, appName = "ศา�
                                     <h1 className="text-5xl font-bold text-yellow-400 font-serif mb-2">
                                         {displayCards[0].name}
                                     </h1>
-                                    <p className="text-2xl text-white/90 font-light tracking-wide">
+                                    <p className="text-2xl text-slate-900 dark:text-white/90 font-light tracking-wide">
                                         {displayCards[0].nameThai}
                                     </p>
                                 </div>
@@ -100,7 +100,7 @@ export const ShareCardTemplate = forwardRef(({ cards, topic, appName = "ศา�
                                         <div className="text-yellow-400 text-xs font-bold uppercase tracking-widest mb-1 opacity-70">
                                             {idx === 0 ? 'CARD #1' : idx === 1 ? 'CARD #2' : 'CARD #3'}
                                         </div>
-                                        <h3 className="text-2xl font-bold text-white mb-0.5 font-serif truncate">{card.name}</h3>
+                                        <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-0.5 font-serif truncate">{card.name}</h3>
                                         <p className="text-lg text-purple-200 mb-2 truncate">{card.nameThai}</p>
                                         <p className="text-base text-slate-300 font-light line-clamp-2 leading-snug">
                                             "{card.description}"

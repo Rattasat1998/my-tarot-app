@@ -61,7 +61,7 @@ export const AdBanner = ({ placement = 'inline', className = '' }) => {
                     <div className="flex items-center justify-between gap-4">
                         <div className="flex-1 min-w-0">
                             <div className="text-xs text-slate-500 mb-1">โฆษณา</div>
-                            <h4 className="font-bold text-white text-sm truncate">{currentAd.title}</h4>
+                            <h4 className="font-bold text-slate-900 dark:text-white text-sm truncate">{currentAd.title}</h4>
                             <p className="text-slate-400 text-xs mt-1 line-clamp-1">{currentAd.description}</p>
                         </div>
                         <a
@@ -92,7 +92,7 @@ export const AdBanner = ({ placement = 'inline', className = '' }) => {
                     <X size={14} />
                 </button>
                 <div className="text-xs text-slate-500 mb-2">โฆษณา</div>
-                <h4 className="font-bold text-white mb-1">{currentAd.title}</h4>
+                <h4 className="font-bold text-slate-900 dark:text-white mb-1">{currentAd.title}</h4>
                 <p className="text-slate-400 text-sm mb-4">{currentAd.description}</p>
                 <div className="flex items-center justify-between">
                     <a

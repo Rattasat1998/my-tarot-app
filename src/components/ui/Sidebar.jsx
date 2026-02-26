@@ -22,7 +22,7 @@ export const Sidebar = ({ isDark, openCalendar, openArticle }) => {
                             <div className={`p-2 rounded-lg ${isDark ? 'bg-purple-500/10 text-purple-400 group-hover:bg-purple-500/20' : 'bg-purple-100 text-purple-600 group-hover:bg-purple-200'}`}>
                                 <Stars size={20} />
                             </div>
-                            <span className={`font-medium ${isDark ? 'text-slate-300 group-hover:text-white' : 'text-slate-600 group-hover:text-slate-900'}`}>ดวง 12 ราศี</span>
+                            <span className={`font-medium ${isDark ? 'text-slate-300 group-hover:text-slate-900 dark:text-white' : 'text-slate-600 group-hover:text-slate-900'}`}>ดวง 12 ราศี</span>
                         </button>
 
                         <button
@@ -32,7 +32,7 @@ export const Sidebar = ({ isDark, openCalendar, openArticle }) => {
                             <div className={`p-2 rounded-lg ${isDark ? 'bg-amber-500/10 text-amber-400 group-hover:bg-amber-500/20' : 'bg-amber-100 text-amber-600 group-hover:bg-amber-200'}`}>
                                 <TrendingUp size={20} />
                             </div>
-                            <span className={`font-medium ${isDark ? 'text-slate-300 group-hover:text-white' : 'text-slate-600 group-hover:text-slate-900'}`}>LottoInsight</span>
+                            <span className={`font-medium ${isDark ? 'text-slate-300 group-hover:text-slate-900 dark:text-white' : 'text-slate-600 group-hover:text-slate-900'}`}>LottoInsight</span>
                         </button>
                     </div>
                 </div>

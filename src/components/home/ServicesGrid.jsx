@@ -43,7 +43,7 @@ export const ServicesGrid = ({
                     <Sparkles size={14} className="text-purple-400" />
                     <span className="text-purple-300 text-xs uppercase tracking-[0.15em]">บริการของเรา</span>
                 </div>
-                <h2 className="text-3xl sm:text-4xl font-serif text-white mb-3">
+                <h2 className="text-3xl sm:text-4xl font-serif text-slate-900 dark:text-white mb-3">
                     เลือก<span className="text-purple-400">หัวข้อ</span>ที่ต้องการคำทำนาย
                 </h2>
                 <p className="text-slate-400 text-sm max-w-lg mx-auto">
@@ -83,7 +83,7 @@ export const ServicesGrid = ({
                             </div>
 
                             {/* Title */}
-                            <h3 className={`font-bold text-sm ${isActive ? 'text-purple-200' : 'text-white'}`}>
+                            <h3 className={`font-bold text-sm ${isActive ? 'text-purple-200' : 'text-slate-900 dark:text-white'}`}>
                                 {t.label}
                             </h3>
 
@@ -152,7 +152,7 @@ export const ServicesGrid = ({
                                                 }`}
                                         >
                                             <div className="flex items-center gap-2">
-                                                <Sparkles size={16} className={readingType === 'celtic-cross' ? 'text-white' : 'text-amber-500'} />
+                                                <Sparkles size={16} className={readingType === 'celtic-cross' ? 'text-slate-900 dark:text-white' : 'text-amber-500'} />
                                                 <span className="font-bold">Celtic Cross (10 ใบ)</span>
                                             </div>
                                             <span className={`text-[10px] px-2 py-0.5 rounded-full ${readingType === 'celtic-cross' ? 'bg-amber-500/30 text-white' : 'bg-slate-800 text-slate-400'}`}>

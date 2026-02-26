@@ -128,7 +128,7 @@ export const StatsCounter = () => {
                         <div className="absolute inset-0 bg-gradient-to-t from-transparent to-white/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
 
                         <item.icon className={`w-6 h-6 mx-auto mb-3 ${item.color} group-hover:scale-110 transition-transform`} />
-                        <div className={`text-2xl md:text-3xl font-bold text-white transition-all duration-1000 ${animated ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+                        <div className={`text-2xl md:text-3xl font-bold text-slate-900 dark:text-white transition-all duration-1000 ${animated ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
                             {animated ? item.value.toLocaleString() : 0}{item.suffix}
                         </div>
                         <div className="text-xs text-slate-400 mt-2 font-medium">{item.label}</div>

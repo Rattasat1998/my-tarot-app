@@ -30,7 +30,7 @@ export const AncientWisdom = ({ openArticle }) => {
                     </div>
 
                     {/* Title */}
-                    <h2 className="text-3xl md:text-4xl font-serif text-white mb-4">
+                    <h2 className="text-3xl md:text-4xl font-serif text-slate-900 dark:text-white mb-4">
                         ไพ่ทาโรต์ <span className="text-purple-400">ศาสตร์แห่งจิตวิญญาณ</span>
                     </h2>
 
@@ -46,22 +46,22 @@ export const AncientWisdom = ({ openArticle }) => {
                         <div className="bg-slate-900/50 rounded-xl p-4 border border-slate-800/50">
                             <BookOpen className="w-6 h-6 mx-auto mb-2 text-purple-400" />
                             <p className="text-xs text-slate-400">78 ไพ่</p>
-                            <p className="text-sm text-white font-medium">ความหมายลึกซึ้ง</p>
+                            <p className="text-sm text-slate-900 dark:text-white font-medium">ความหมายลึกซึ้ง</p>
                         </div>
                         <div className="bg-slate-900/50 rounded-xl p-4 border border-slate-800/50">
                             <Eye className="w-6 h-6 mx-auto mb-2 text-indigo-400" />
                             <p className="text-xs text-slate-400">เลือกด้วยใจ</p>
-                            <p className="text-sm text-white font-medium">สัญชาตญาณนำทาง</p>
+                            <p className="text-sm text-slate-900 dark:text-white font-medium">สัญชาตญาณนำทาง</p>
                         </div>
                         <div className="bg-slate-900/50 rounded-xl p-4 border border-slate-800/50">
                             <Heart className="w-6 h-6 mx-auto mb-2 text-pink-400" />
                             <p className="text-xs text-slate-400">กระจกสะท้อน</p>
-                            <p className="text-sm text-white font-medium">จิตใจของคุณ</p>
+                            <p className="text-sm text-slate-900 dark:text-white font-medium">จิตใจของคุณ</p>
                         </div>
                         <div className="bg-slate-900/50 rounded-xl p-4 border border-slate-800/50">
                             <Zap className="w-6 h-6 mx-auto mb-2 text-yellow-400" />
                             <p className="text-xs text-slate-400">แรงบันดาลใจ</p>
-                            <p className="text-sm text-white font-medium">ชีวิตที่ดีกว่า</p>
+                            <p className="text-sm text-slate-900 dark:text-white font-medium">ชีวิตที่ดีกว่า</p>
                         </div>
                     </div>
 

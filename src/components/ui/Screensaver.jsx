@@ -131,7 +131,7 @@ export const Screensaver = () => {
 
             {/* Wake up text */}
             <div className="absolute bottom-10 left-0 right-0 text-center">
-                <p className="text-white/50 text-sm font-light tracking-[0.2em] animate-pulse">
+                <p className="text-slate-900 dark:text-white/50 text-sm font-light tracking-[0.2em] animate-pulse">
                     ขยับเมาส์เพื่อดำเนินการต่อ
                 </p>
             </div>

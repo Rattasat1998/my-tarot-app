@@ -89,7 +89,7 @@ export const ExclusiveContentSection = ({ className = '' }) => {
                                 <Crown className="w-6 h-6 text-purple-400" />
                             </div>
                             <div>
-                                <h3 className="text-xl font-bold text-white">เนื้อหาพิเศษ Premium</h3>
+                                <h3 className="text-xl font-bold text-slate-900 dark:text-white">เนื้อหาพิเศษ Premium</h3>
                                 <p className="text-sm text-slate-400">วิดีโอ บทความ และเวิร์กช็อปเฉพาะสมาชิก</p>
                             </div>
                         </div>
@@ -112,7 +112,7 @@ export const ExclusiveContentSection = ({ className = '' }) => {
                                     </div>
                                     <span className="text-xs text-slate-400 uppercase font-medium">{item.type}</span>
                                 </div>
-                                <h4 className="font-bold text-white mb-2 text-sm">{item.title}</h4>
+                                <h4 className="font-bold text-slate-900 dark:text-white mb-2 text-sm">{item.title}</h4>
                                 <p className="text-slate-400 text-xs mb-3">{item.description}</p>
                                 <div className="text-xs text-slate-500">{item.duration}</div>
                             </div>
@@ -140,7 +140,7 @@ export const ExclusiveContentSection = ({ className = '' }) => {
                                 <Crown className="w-6 h-6 text-purple-400" />
                             </div>
                             <div>
-                                <h3 className="text-xl font-bold text-white">เนื้อหาพิเศษ Premium</h3>
+                                <h3 className="text-xl font-bold text-slate-900 dark:text-white">เนื้อหาพิเศษ Premium</h3>
                                 <p className="text-sm text-slate-400">วิดีโอ บทความ และเวิร์กช็อปเฉพาะสมาชิก</p>
                             </div>
                         </div>
@@ -163,7 +163,7 @@ export const ExclusiveContentSection = ({ className = '' }) => {
                                     </div>
                                     <span className="text-xs text-slate-400 uppercase font-medium">{item.type}</span>
                                 </div>
-                                <h4 className="font-bold text-white mb-2 text-sm group-hover:text-purple-300 transition-colors">{item.title}</h4>
+                                <h4 className="font-bold text-slate-900 dark:text-white mb-2 text-sm group-hover:text-purple-300 transition-colors">{item.title}</h4>
                                 <p className="text-slate-400 text-xs mb-3">{item.description}</p>
                                 <div className="flex items-center justify-between">
                                     <span className="text-xs text-slate-500">{item.duration}</span>

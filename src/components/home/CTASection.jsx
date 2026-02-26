@@ -13,7 +13,7 @@ export const CTASection = ({ onScrollToTop }) => {
 
                     <div className="relative z-10">
                         <div className="text-5xl mb-6">🔮</div>
-                        <h3 className="text-2xl sm:text-3xl font-serif text-white mb-4">
+                        <h3 className="text-2xl sm:text-3xl font-serif text-slate-900 dark:text-white mb-4">
                             พร้อมค้นหา<span className="text-purple-400">คำตอบ</span>แล้วหรือยัง?
                         </h3>
                         <p className="text-slate-400 mb-8 max-w-md mx-auto text-sm leading-relaxed">

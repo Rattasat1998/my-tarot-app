@@ -205,7 +205,7 @@ export const HeroSection = ({
                             <Users size={22} className="text-blue-400" />
                         </div>
                         <div className="text-left">
-                            <div className="font-bold text-white text-lg">10,000+</div>
+                            <div className="font-bold text-slate-900 dark:text-white text-lg">10,000+</div>
                             <div className="text-sm text-slate-400">ผู้ใช้งาน</div>
                         </div>
                     </div>
@@ -214,7 +214,7 @@ export const HeroSection = ({
                             <Award size={22} className="text-purple-400" />
                         </div>
                         <div className="text-left">
-                            <div className="font-bold text-white text-lg">78 ใบ</div>
+                            <div className="font-bold text-slate-900 dark:text-white text-lg">78 ใบ</div>
                             <div className="text-sm text-slate-400">ไพ่ทาโรต์ครบชุด</div>
                         </div>
                     </div>
@@ -223,7 +223,7 @@ export const HeroSection = ({
                             <Clock size={22} className="text-green-400" />
                         </div>
                         <div className="text-left">
-                            <div className="font-bold text-white text-lg">24/7</div>
+                            <div className="font-bold text-slate-900 dark:text-white text-lg">24/7</div>
                             <div className="text-sm text-slate-400">พร้อมให้บริการ</div>
                         </div>
                     </div>
@@ -249,7 +249,7 @@ export const HeroSection = ({
                         <span className="w-7 h-7 rounded-full bg-purple-500 text-white text-sm font-bold flex items-center justify-center">1</span>
                         <span className="text-purple-300 text-sm font-medium">ขั้นตอนที่ 1</span>
                     </div>
-                    <h2 className="text-3xl sm:text-4xl font-serif text-white mb-4">
+                    <h2 className="text-3xl sm:text-4xl font-serif text-slate-900 dark:text-white mb-4">
                         เลือก<span className="text-purple-400">หัวข้อ</span>ที่ต้องการคำแนะนำ
                     </h2>
                     <p className="text-slate-300 text-base sm:text-lg max-w-lg mx-auto">
@@ -289,7 +289,7 @@ export const HeroSection = ({
                                 </div>
 
                                 {/* Title */}
-                                <h3 className={`font-bold text-base ${isActive ? 'text-purple-200' : 'text-white'}`}>
+                                <h3 className={`font-bold text-base ${isActive ? 'text-purple-200' : 'text-slate-900 dark:text-white'}`}>
                                     {t.label}
                                 </h3>
 
@@ -359,7 +359,7 @@ export const HeroSection = ({
                                                     }`}
                                             >
                                                 <div className="flex items-center gap-2">
-                                                    <Sparkles size={18} className={readingType === 'celtic-cross' ? 'text-white' : 'text-amber-500'} />
+                                                    <Sparkles size={18} className={readingType === 'celtic-cross' ? 'text-slate-900 dark:text-white' : 'text-amber-500'} />
                                                     <span className="font-bold text-base">ไพ่ 10 ใบ</span>
                                                 </div>
                                                 <span className="text-sm opacity-80">วิเคราะห์เจาะลึกที่สุด</span>

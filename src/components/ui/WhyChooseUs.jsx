@@ -55,7 +55,7 @@ export const WhyChooseUs = () => {
                     <CheckCircle size={14} className="text-green-400" />
                     <span className="text-green-300 text-xs uppercase tracking-widest">ทำไมต้องเลือกเรา</span>
                 </div>
-                <h3 className="text-2xl md:text-3xl font-serif text-white mb-2">
+                <h3 className="text-2xl md:text-3xl font-serif text-slate-900 dark:text-white mb-2">
                     บริการ<span className="text-purple-400">ดูดวงออนไลน์</span>ที่คุณวางใจได้
                 </h3>
                 <p className="text-slate-400 text-sm max-w-lg mx-auto">
@@ -73,7 +73,7 @@ export const WhyChooseUs = () => {
                         <div className={`w-12 h-12 rounded-xl ${feature.bgColor} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
                             <feature.icon className={feature.color} size={24} />
                         </div>
-                        <h4 className="font-bold text-white mb-2">{feature.title}</h4>
+                        <h4 className="font-bold text-slate-900 dark:text-white mb-2">{feature.title}</h4>
                         <p className="text-sm text-slate-400 leading-relaxed">{feature.description}</p>
                     </div>
                 ))}

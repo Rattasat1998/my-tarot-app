@@ -89,7 +89,7 @@ export const MembershipCard = ({ isDark, onUpgrade, isLoading, pricing, isPricin
                 {/* Free Plan */}
                 <div className={`relative rounded-2xl border ${isDark ? 'bg-slate-900/50 border-slate-700' : 'bg-white border-slate-200'} p-8`}>
                     <div className="text-center mb-6">
-                        <h3 className="text-2xl font-bold text-white mb-2">Free</h3>
+                        <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Free</h3>
                         <div className="text-4xl font-bold text-slate-300 mb-4">ฟรี</div>
                         <p className="text-slate-400">เริ่มต้นสำรวจศาสตร์ความรู้</p>
                     </div>
@@ -122,7 +122,7 @@ export const MembershipCard = ({ isDark, onUpgrade, isLoading, pricing, isPricin
                     </div>
 
                     <div className="text-center mb-6">
-                        <h3 className="text-2xl font-bold text-white mb-2">Premium</h3>
+                        <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Premium</h3>
                         <div className="flex items-baseline justify-center gap-2 mb-4">
                             {isPricingLoading ? (
                                 <div className="flex items-center gap-2 text-slate-300">
@@ -157,7 +157,7 @@ export const MembershipCard = ({ isDark, onUpgrade, isLoading, pricing, isPricin
                                     </div>
                                 </div>
                                 <div className="flex-1">
-                                    <div className={`font-semibold ${benefit.popular ? 'text-purple-300' : 'text-white'} mb-1`}>
+                                    <div className={`font-semibold ${benefit.popular ? 'text-purple-300' : 'text-slate-900 dark:text-white'} mb-1`}>
                                         {benefit.title}
                                     </div>
                                     <div className="text-sm text-slate-400">
@@ -199,24 +199,24 @@ export const MembershipCard = ({ isDark, onUpgrade, isLoading, pricing, isPricin
 
             {/* Value Proposition */}
             <div className={`rounded-2xl ${isDark ? 'bg-slate-900/50 border border-slate-800' : 'bg-slate-50 border border-slate-200'} p-8`}>
-                <h3 className="text-2xl font-bold text-white mb-6 text-center">ทำไม Premium คุ้มค่า?</h3>
+                <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-6 text-center">ทำไม Premium คุ้มค่า?</h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="text-center">
                         <div className="text-4xl font-bold text-purple-400 mb-2">10x</div>
-                        <div className="text-white font-semibold mb-1">คุณค่าสูงขึ้น</div>
+                        <div className="text-slate-900 dark:text-white font-semibold mb-1">คุณค่าสูงขึ้น</div>
                         <div className="text-slate-400 text-sm">จาก 1 ครั้ง/วัน เป็นไม่จำกัด</div>
                     </div>
 
                     <div className="text-center">
                         <div className="text-4xl font-bold text-indigo-400 mb-2">3x</div>
-                        <div className="text-white font-semibold mb-1">เนื้อหาลึกขึ้น</div>
+                        <div className="text-slate-900 dark:text-white font-semibold mb-1">เนื้อหาลึกขึ้น</div>
                         <div className="text-slate-400 text-sm">meditation, journal, expert tips</div>
                     </div>
 
                     <div className="text-center">
                         <div className="text-4xl font-bold text-green-400 mb-2">∞</div>
-                        <div className="text-white font-semibold mb-1">การพัฒนาตนเอง</div>
+                        <div className="text-slate-900 dark:text-white font-semibold mb-1">การพัฒนาตนเอง</div>
                         <div className="text-slate-400 text-sm">community และ personal growth</div>
                     </div>
                 </div>

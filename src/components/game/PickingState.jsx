@@ -23,10 +23,10 @@ const ConfirmPickingDialog = ({ isOpen, onConfirm, onCancel }) => {
 
                 <div className="relative p-6 text-center">
                     <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center shadow-lg">
-                        <CheckCircle className="text-white" size={32} />
+                        <CheckCircle className="text-slate-900 dark:text-white" size={32} />
                     </div>
 
-                    <h3 className="text-xl font-bold text-white mb-2">ยืนยันการทำนาย?</h3>
+                    <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">ยืนยันการทำนาย?</h3>
                     <p className="text-slate-400 text-sm mb-6">
                         เมื่อยืนยันแล้ว ไพ่ที่คุณเลือกจะถูกเปิดเผยความหมาย
                     </p>
@@ -140,7 +140,7 @@ export const PickingState = ({
                     </div>
                 </div>
 
-                <h2 className="text-2xl sm:text-3xl font-serif mb-2 text-center text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]">
+                <h2 className="text-2xl sm:text-3xl font-serif mb-2 text-center text-slate-900 dark:text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]">
                     {isDrawingFuture
                         ? 'เลือกไพ่เพิ่มอีก 1 ใบเพื่อดูอนาคต'
                         : (topic === 'monthly' || readingType === 'celtic-cross' ? 'เลือกไพ่ 10 ใบ' : 'เลือกไพ่ที่ดึงดูดใจคุณที่สุด')}
@@ -304,8 +304,8 @@ export const PickingState = ({
                             }`}
                     >
                         {isSelectionComplete && <div className="absolute inset-0 rounded-full bg-white/20 animate-pulse"></div>}
-                        <CheckCircle className={isSelectionComplete ? "text-white" : "text-slate-500"} size={24} />
-                        <span className={`font-bold text-lg tracking-wide ${isSelectionComplete ? "text-white" : "text-slate-400"}`}>
+                        <CheckCircle className={isSelectionComplete ? "text-slate-900 dark:text-white" : "text-slate-500"} size={24} />
+                        <span className={`font-bold text-lg tracking-wide ${isSelectionComplete ? "text-slate-900 dark:text-white" : "text-slate-400"}`}>
                             ยืนยันการทำนาย
                         </span>
                     </button>

@@ -286,7 +286,7 @@ export const RunePromoSection = () => {
                                 <div className="text-3xl mb-3 transition-transform duration-500 group-hover:scale-110">
                                     {mode.icon}
                                 </div>
-                                <h3 className="text-base sm:text-lg font-bold text-white mb-1">
+                                <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-1">
                                     {mode.title}
                                 </h3>
                                 <p className="text-xs text-emerald-400/80 font-medium mb-2">
