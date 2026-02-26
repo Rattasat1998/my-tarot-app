@@ -5,6 +5,8 @@ import { getDrawById } from '../services/lottoService';
 // Fallback to static data
 import { LOTTO_DRAWS } from '../data/lottoData';
 import { usePageSEO } from '../hooks/usePageTitle';
+import { useAuth } from '../contexts/AuthContext';
+import { LoginModal } from '../components/modals/LoginModal';
 
 export const LottoDetailPage = () => {
     const { drawId } = useParams();
@@ -29,6 +31,8 @@ export const LottoDetailPage = () => {
         vip: false,
         conclusion: true
     });
+    const { user, loading: authLoading } = useAuth();
+    const [showLoginModal, setShowLoginModal] = useState(false);
 
     useEffect(() => {
         const fetchDraw = async () => {
@@ -65,6 +69,45 @@ export const LottoDetailPage = () => {
                         กลับหน้าหลัก
                     </button>
                 </div>
+            </div>
+        );
+    }
+
+    if (authLoading) {
+        return (
+            <div className="min-h-screen bg-amber-50 flex items-center justify-center">
+                <div className="w-16 h-16 border-4 border-amber-200 border-t-amber-500 rounded-full animate-spin"></div>
+            </div>
+        );
+    }
+
+    if (!user) {
+        return (
+            <div className="min-h-screen bg-amber-50 flex flex-col items-center justify-center p-6">
+                <div className="max-w-md text-center">
+                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-white border border-slate-200 mb-6 shadow-xl">
+                        <span className="text-4xl">🔐</span>
+                    </div>
+                    <h2 className="text-2xl font-bold mb-3 text-slate-800">เข้าสู่ระบบก่อนใช้งาน</h2>
+                    <p className="text-slate-500 mb-6 leading-relaxed">
+                        กรุณาเข้าสู่ระบบเพื่ออ่านรายงานวิเคราะห์เชิงลึก
+                    </p>
+                    <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+                        <button
+                            onClick={() => setShowLoginModal(true)}
+                            className="px-8 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold rounded-xl hover:scale-105 transition-all shadow-lg flex items-center justify-center gap-2"
+                        >
+                            เข้าสู่ระบบ
+                        </button>
+                        <button
+                            onClick={() => window.history.back()}
+                            className="px-8 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
+                        >
+                            กลับหน้าหลัก
+                        </button>
+                    </div>
+                </div>
+                <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
             </div>
         );
     }

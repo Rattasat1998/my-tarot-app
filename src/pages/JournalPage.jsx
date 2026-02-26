@@ -3,15 +3,17 @@ import { BookOpen, Heart, Brain, TrendingUp, Calendar, Plus, Search, Filter, Cro
 import { PremiumGate } from '../components/ui/PremiumGate';
 import { usePremium } from '../hooks/usePremium';
 import { useAuth } from '../contexts/AuthContext';
+import { LoginModal } from '../components/modals/LoginModal';
 import { supabase } from '../lib/supabase';
 import { useActivityLog } from '../hooks/useActivityLog';
 
 export const JournalPage = ({ isDark }) => {
     const { isPremium } = usePremium();
-    const { user } = useAuth();
+    const { user, loading: authLoading } = useAuth();
     const { logActivity } = useActivityLog();
     const [entries, setEntries] = useState([]);
     const [isWriting, setIsWriting] = useState(false);
+    const [showLoginModal, setShowLoginModal] = useState(false);
     const [isLoadingEntries, setIsLoadingEntries] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [editingId, setEditingId] = useState(null);
@@ -35,7 +37,7 @@ export const JournalPage = ({ isDark }) => {
     ];
 
     const fetchEntries = useCallback(async () => {
-        if (!user || !isPremium) {
+        if (!user) {
             setIsLoadingEntries(false);
             return;
         }
@@ -165,10 +167,52 @@ export const JournalPage = ({ isDark }) => {
 
     const filteredEntries = entries.filter(entry => {
         const matchesSearch = entry.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           entry.content.toLowerCase().includes(searchTerm.toLowerCase());
+            entry.content.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesMood = filterMood === 'all' || entry.mood === filterMood;
         return matchesSearch && matchesMood;
     });
+
+    if (authLoading) {
+        return (
+            <div className={`min-h-screen ${isDark ? 'bg-slate-950' : 'bg-slate-50'} flex items-center justify-center`}>
+                <div className="w-16 h-16 border-4 border-purple-200 border-t-purple-500 rounded-full animate-spin"></div>
+            </div>
+        );
+    }
+
+    if (!user) {
+        return (
+            <div className={`min-h-screen ${isDark ? 'bg-slate-950 text-white' : 'bg-slate-50 text-slate-800'} flex flex-col items-center justify-center p-6`}>
+                <div className="max-w-md text-center">
+                    <div className={`inline-flex items-center justify-center w-20 h-20 rounded-full ${isDark ? 'bg-slate-900 border-slate-700' : 'bg-white border-slate-200'} border mb-6 shadow-xl`}>
+                        <span className="text-4xl">🔐</span>
+                    </div>
+                    <h2 className="text-2xl font-bold mb-3">เข้าสู่ระบบก่อนใช้งาน</h2>
+                    <p className={`${isDark ? 'text-slate-400' : 'text-slate-500'} mb-6 leading-relaxed`}>
+                        กรุณาเข้าสู่ระบบเพื่อเขียนบันทึกการเดินทางสู่การพัฒนาตนเอง
+                    </p>
+                    <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+                        <button
+                            onClick={() => setShowLoginModal(true)}
+                            className="px-8 py-3 bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-bold rounded-xl hover:scale-105 transition-all shadow-lg flex items-center justify-center gap-2"
+                        >
+                            เข้าสู่ระบบ
+                        </button>
+                        <button
+                            onClick={() => window.history.back()}
+                            className={`px-8 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${isDark
+                                    ? 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white'
+                                    : 'bg-white text-slate-600 hover:bg-slate-100 hover:text-slate-900 shadow-md'
+                                }`}
+                        >
+                            กลับหน้าหลัก
+                        </button>
+                    </div>
+                </div>
+                <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
+            </div>
+        );
+    }
 
     return (
         <div className={`min-h-screen ${isDark ? 'dark' : ''}`}>
@@ -187,7 +231,7 @@ export const JournalPage = ({ isDark }) => {
                                 <p className="text-slate-300">บันทึกการเดินทางสู่การพัฒนาตนเอง</p>
                             </div>
                         </div>
-                        
+
                         <PremiumGate feature="personalGrowthJournal" fallback={
                             <div className="inline-flex items-center gap-3 px-6 py-3 bg-purple-500/10 border border-purple-500/30 rounded-xl">
                                 <Crown className="w-5 h-5 text-purple-400" />
@@ -217,7 +261,7 @@ export const JournalPage = ({ isDark }) => {
                                     className={`w-full pl-10 pr-4 py-3 rounded-xl ${isDark ? 'bg-slate-800/50 border border-slate-700 text-white' : 'bg-slate-100 border border-slate-300'} focus:outline-none focus:border-purple-500`}
                                 />
                             </div>
-                            
+
                             <div className="flex items-center gap-2">
                                 <Filter className="text-slate-400" size={20} />
                                 <select
@@ -245,10 +289,10 @@ export const JournalPage = ({ isDark }) => {
                                         type="text"
                                         placeholder="หัวข้อบันทึก..."
                                         value={currentEntry.title}
-                                        onChange={(e) => setCurrentEntry({...currentEntry, title: e.target.value})}
+                                        onChange={(e) => setCurrentEntry({ ...currentEntry, title: e.target.value })}
                                         className={`w-full text-2xl font-bold bg-transparent border-none outline-none text-white placeholder-slate-400 mb-4`}
                                     />
-                                    
+
                                     {/* Mood Selection */}
                                     <div className="flex items-center gap-4 mb-4">
                                         <span className="text-slate-400">อารมณ์:</span>
@@ -256,12 +300,11 @@ export const JournalPage = ({ isDark }) => {
                                             {moods.map(mood => (
                                                 <button
                                                     key={mood.id}
-                                                    onClick={() => setCurrentEntry({...currentEntry, mood: mood.id})}
-                                                    className={`px-3 py-2 rounded-lg border transition-all flex items-center gap-2 ${
-                                                        currentEntry.mood === mood.id
+                                                    onClick={() => setCurrentEntry({ ...currentEntry, mood: mood.id })}
+                                                    className={`px-3 py-2 rounded-lg border transition-all flex items-center gap-2 ${currentEntry.mood === mood.id
                                                             ? 'bg-purple-500/20 border-purple-400 text-purple-300'
                                                             : 'bg-slate-800/50 border-slate-700 text-slate-300 hover:bg-slate-700'
-                                                    }`}
+                                                        }`}
                                                 >
                                                     <span>{mood.icon}</span>
                                                     <span className="text-sm">{mood.name}</span>
@@ -274,7 +317,7 @@ export const JournalPage = ({ isDark }) => {
                                 <textarea
                                     placeholder="เขียนบันทึกของคุณที่นี่... สิ่งที่คุณเรียนรู้ ความรู้สึก หรือความคิดที่เกิดขึ้น..."
                                     value={currentEntry.content}
-                                    onChange={(e) => setCurrentEntry({...currentEntry, content: e.target.value})}
+                                    onChange={(e) => setCurrentEntry({ ...currentEntry, content: e.target.value })}
                                     className={`w-full h-64 p-4 rounded-xl resize-none outline-none ${isDark ? 'bg-slate-800/50 border border-slate-700 text-white placeholder-slate-500' : 'bg-slate-100 border border-slate-300 placeholder-slate-500'}`}
                                 />
 
@@ -285,7 +328,7 @@ export const JournalPage = ({ isDark }) => {
                                     >
                                         ยกเลิก
                                     </button>
-                                    
+
                                     <button
                                         onClick={saveEntry}
                                         disabled={!currentEntry.title || !currentEntry.content || isSaving}
@@ -330,7 +373,7 @@ export const JournalPage = ({ isDark }) => {
                                                     )}
                                                 </div>
                                             </div>
-                                            
+
                                             <div className="flex gap-2">
                                                 <button
                                                     onClick={() => editEntry(entry)}

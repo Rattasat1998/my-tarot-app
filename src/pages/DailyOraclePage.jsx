@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Sparkles } from 'lucide-react';
 import { usePageSEO } from '../hooks/usePageTitle';
+import { useAuth } from '../contexts/AuthContext';
+import { LoginModal } from '../components/modals/LoginModal';
 import { OracleCard } from '../components/oracle/OracleCard';
 import { DayNavigation } from '../components/oracle/DayNavigation';
 import { ColorChart } from '../components/oracle/ColorChart';
@@ -104,6 +106,8 @@ const WEEKLY_FORTUNES = [
 
 const DailyOraclePage = ({ isDark = true }) => {
   const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const [currentDayIndex, setCurrentDayIndex] = useState(() => (new Date().getDay() + 6) % 7);
   const [currentDayOfYear, setCurrentDayOfYear] = useState(0);
   const [todayDateText, setTodayDateText] = useState('');
@@ -155,6 +159,48 @@ const DailyOraclePage = ({ isDark = true }) => {
 
   const currentDay = WEEKLY_FORTUNES[currentDayIndex];
 
+  if (authLoading) {
+    return (
+      <div className={`min-h-screen ${isDark ? 'bg-stone-900' : 'bg-stone-50'} flex items-center justify-center`}>
+        <div className="w-16 h-16 border-4 border-amber-200 border-t-amber-500 rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className={`min-h-screen ${isDark ? 'bg-stone-900 text-white' : 'bg-stone-50 text-stone-800'} flex flex-col items-center justify-center p-6`}>
+        <div className="max-w-md text-center">
+          <div className={`inline-flex items-center justify-center w-20 h-20 rounded-full ${isDark ? 'bg-stone-800 border-stone-700' : 'bg-white border-stone-200'} border mb-6 shadow-xl`}>
+            <span className="text-4xl">🔐</span>
+          </div>
+          <h2 className="text-2xl font-bold mb-3">เข้าสู่ระบบก่อนใช้งาน</h2>
+          <p className={`${isDark ? 'text-stone-400' : 'text-stone-500'} mb-6 leading-relaxed`}>
+            กรุณาเข้าสู่ระบบเพื่อรับฟังคำทำนายดวงชะตาประจำวัน สีมงคล และเคล็ดลับเสริมดวง
+          </p>
+          <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+            <button
+              onClick={() => setShowLoginModal(true)}
+              className="px-8 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold rounded-xl hover:scale-105 transition-all shadow-lg flex items-center justify-center gap-2"
+            >
+              เข้าสู่ระบบ
+            </button>
+            <button
+              onClick={() => navigate('/')}
+              className={`px-8 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${isDark
+                  ? 'bg-stone-800 text-stone-300 hover:bg-stone-700 hover:text-white'
+                  : 'bg-white text-stone-600 hover:bg-stone-100 hover:text-stone-900 shadow-md'
+                }`}
+            >
+              กลับหน้าหลัก
+            </button>
+          </div>
+        </div>
+        <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
+      </div>
+    );
+  }
+
   return (
     <div className={`min-h-screen ${isDark ? 'bg-stone-900' : 'bg-stone-50'} transition-colors duration-300`}>
       {/* Header */}
@@ -195,7 +241,7 @@ const DailyOraclePage = ({ isDark = true }) => {
             ยินดีต้อนรับสู่ปฏิทินแห่งโชคชะตา
           </h2>
           <p className={`${isDark ? 'text-stone-400' : 'text-stone-600'} leading-relaxed`}>
-            แอปพลิเคชันนี้รวบรวมคำทำนายดวงชะตาประจำสัปดาห์ ท่านสามารถเลือก <strong>"วัน"</strong> จากแถบนำทางด้านซ้ายเพื่อรับฟังเสียงกระซิบจากดวงดาว 
+            แอปพลิเคชันนี้รวบรวมคำทำนายดวงชะตาประจำสัปดาห์ ท่านสามารถเลือก <strong>"วัน"</strong> จากแถบนำทางด้านซ้ายเพื่อรับฟังเสียงกระซิบจากดวงดาว
             ดูสีมงคลที่ช่วยเสริมพลัง และแนวทางในการดำเนินชีวิตประจำวัน ข้อมูลจะแสดงผลในรูปแบบอินเทอร์แอคทีฟเพื่อให้ท่านเข้าใจพลังงานของแต่ละวันได้ดียิ่งขึ้น
           </p>
         </div>
@@ -204,16 +250,16 @@ const DailyOraclePage = ({ isDark = true }) => {
       {/* Main Dashboard */}
       <main className="container mx-auto px-4 flex-grow mb-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          
+
           {/* Left Column - Navigation */}
           <aside className="lg:col-span-3 space-y-4">
-            <DayNavigation 
+            <DayNavigation
               days={WEEKLY_FORTUNES}
               currentIndex={currentDayIndex}
               onDayChange={handleDayChange}
               isDark={isDark}
             />
-            
+
             <div className={`${isDark ? 'bg-stone-800' : 'bg-white'} rounded-xl shadow-lg p-4 text-center`}>
               <h4 className={`text-xs uppercase ${isDark ? 'text-stone-400' : 'text-stone-400'} font-bold tracking-wider mb-2`}>
                 Year Progress
@@ -236,8 +282,8 @@ const DailyOraclePage = ({ isDark = true }) => {
               <p className={`text-xs ${isDark ? 'text-stone-500' : 'text-stone-500'} text-center mb-6`}>
                 สีมงคลประจำวันที่ช่วยเสริมพลังด้านบวก
               </p>
-              
-              <ColorChart 
+
+              <ColorChart
                 colors={currentDay.colors}
                 colorNames={currentDay.colorNames}
                 isDark={isDark}

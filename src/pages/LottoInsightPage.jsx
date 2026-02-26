@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, TrendingUp, Users, Flame, ChevronRight, Calendar, Trophy, Sparkles, FileText, Search, Target, ChevronDown, ChevronUp, Moon, Cake, ShoppingBag, Crown } from 'lucide-react';
+import { ArrowLeft, TrendingUp, Users, Flame, ChevronRight, Calendar, Trophy, Sparkles, FileText, Search, Target, ChevronDown, ChevronUp, Moon, Cake, ShoppingBag, Crown, Share2 } from 'lucide-react';
 import { LuckyGeneratorModal } from '../components/modals/LuckyGeneratorModal';
 import { DreamNumberModal } from '../components/modals/DreamNumberModal';
 import { BirthdayNumberModal } from '../components/modals/BirthdayNumberModal';
 import { TarotLottoModal } from '../components/modals/TarotLottoModal';
 import { LoginModal } from '../components/modals/LoginModal';
+
 import * as lottoService from '../services/lottoService';
 // Fallback to static data if database is not available
 import { getUpcomingDraw as getStaticUpcoming, getPastDraws as getStaticPast } from '../data/lottoData';
 import { usePageSEO } from '../hooks/usePageTitle';
 import { useAuth } from '../contexts/AuthContext';
-import { usePremium } from '../hooks/usePremium';
+
 
 // Module-level cache to persist data across navigations
 let cachedUpcoming = null;
@@ -28,7 +29,7 @@ export const LottoInsightPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { user, loading: authLoading } = useAuth();
-    const { isPremium, isLoading: premiumLoading } = usePremium();
+
 
     // Check if coming back from detail page (use cache) or from home (reload)
     const fromDetail = location.state?.fromDetail === true;
@@ -42,6 +43,7 @@ export const LottoInsightPage = () => {
     const [showBirthdayModal, setShowBirthdayModal] = useState(false);
     const [showTarotLottoModal, setShowTarotLottoModal] = useState(false);
     const [showLoginModal, setShowLoginModal] = useState(false);
+
     const [selectedDraw, setSelectedDraw] = useState(null);
     // Initialize from cache if coming from detail page
     const [loading, setLoading] = useState(!shouldUseCache);
@@ -51,11 +53,12 @@ export const LottoInsightPage = () => {
     // Fetch data from database, fallback to static data
     // Only skip fetch if coming from detail page and cache exists
     useEffect(() => {
-        if (authLoading || premiumLoading) return;
-        if (!user || !isPremium) {
+        if (authLoading) return;
+        if (!user) {
             setLoading(false);
             return;
         }
+
         if (shouldUseCache) return; // Skip if coming from detail and cache exists
 
         const fetchData = async () => {
@@ -104,7 +107,42 @@ export const LottoInsightPage = () => {
             setLoading(false);
         };
         fetchData();
-    }, [authLoading, premiumLoading, user, isPremium, shouldUseCache]);
+    }, [authLoading, user, shouldUseCache]);
+
+    const handleSharePrediction = async () => {
+        if (!upcomingDraw?.conclusion?.finalPicks) return;
+
+        const { twoDigit, threeDigit } = upcomingDraw.conclusion.finalPicks;
+        const drawLabel = upcomingDraw.label || '';
+
+        let text = `🎯 สรุปเลขเด่นประจำงวด ${drawLabel}\n\n`;
+        if (twoDigit && twoDigit.length > 0) {
+            text += `เลข 2 ตัว: ${twoDigit.join(', ')}\n`;
+        }
+        if (threeDigit && threeDigit.length > 0) {
+            text += `เลข 3 ตัว: ${threeDigit.join(', ')}\n`;
+        }
+        
+        text += `\nดูบทวิเคราะห์หวย สถิติย้อนหลัง 22 ปีแบบจัดเต็มได้ฟรีที่:\n${window.location.origin}/lotto`;
+
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: `เลขเด็ดงวดนี้ ${drawLabel}`,
+                    text: text,
+                });
+            } catch (err) {
+                console.log('Error sharing:', err);
+            }
+        } else {
+            try {
+                await navigator.clipboard.writeText(text);
+                alert('คัดลอกเลขเด็ดเรียบร้อยแล้ว! นำไปวางเพื่อแชร์ให้เพื่อนๆ ได้เลย 🍀');
+            } catch (err) {
+                console.error('Failed to copy:', err);
+            }
+        }
+    };
 
     const currentDraw = selectedDraw || upcomingDraw;
 
@@ -121,16 +159,16 @@ export const LottoInsightPage = () => {
     };
 
     // Loading state
-    if (authLoading || (user && premiumLoading)) {
+    if (authLoading) {
         return (
             <div className="min-h-screen bg-amber-50 flex flex-col items-center justify-center">
                 <div className="relative">
                     <div className="w-16 h-16 border-4 border-amber-200 border-t-amber-500 rounded-full animate-spin"></div>
                     <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-2xl">🔐</span>
+                        <span className="text-2xl">⏳</span>
                     </div>
                 </div>
-                <p className="mt-4 text-amber-600 font-medium animate-pulse">กำลังตรวจสอบการเข้าสู่ระบบ...</p>
+                <p className="mt-4 text-amber-600 font-medium animate-pulse">กำลังโหลดข้อมูล...</p>
             </div>
         );
     }
@@ -168,34 +206,7 @@ export const LottoInsightPage = () => {
         );
     }
 
-    if (!isPremium) {
-        return (
-            <div className="min-h-screen bg-amber-50 text-slate-800 flex flex-col items-center justify-center p-6">
-                <div className="max-w-md text-center">
-                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-r from-purple-500/20 to-indigo-500/20 border border-purple-500/30 mb-6">
-                        <Crown className="w-10 h-10 text-purple-600" />
-                    </div>
-                    <h2 className="text-2xl font-bold text-slate-800 mb-3">LottoInsight สำหรับสมาชิก Premium</h2>
-                    <p className="text-slate-500 mb-6">
-                        กรุณาอัปเกรดเป็น Premium ก่อนเข้าใช้งาน LottoInsight
-                    </p>
-                    <button
-                        onClick={() => navigate('/membership')}
-                        className="px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl hover:scale-105 transition-all shadow-lg flex items-center justify-center gap-2 mx-auto"
-                    >
-                        <Crown className="w-5 h-5" />
-                        อัปเกรดเป็น Premium
-                    </button>
-                    <button
-                        onClick={() => navigate('/')}
-                        className="mt-4 px-6 py-2 text-slate-500 hover:text-slate-700 transition-colors text-sm"
-                    >
-                        ← กลับหน้าหลัก
-                    </button>
-                </div>
-            </div>
-        );
-    }
+
 
     if (loading) {
         return (
@@ -542,9 +553,19 @@ export const LottoInsightPage = () => {
                 {/* Section: คาดเดางวดถัดไป (Next Draw Prediction) */}
                 {upcomingDraw?.conclusion?.finalPicks && (
                     <section>
-                        <div className="flex items-center gap-2 mb-4">
-                            <Target size={20} className="text-orange-500" />
-                            <h2 className="text-lg font-bold">🎯 คาดเดางวดถัดไป</h2>
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-2">
+                                <Target size={20} className="text-orange-500" />
+                                <h2 className="text-lg font-bold">🎯 คาดเดางวดถัดไป</h2>
+                            </div>
+                            <button
+                                onClick={handleSharePrediction}
+                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium shadow-sm transition-colors border hover:scale-105 ${isDark ? 'bg-slate-800 border-slate-700 text-amber-500 hover:bg-slate-700' : 'bg-white border-amber-200 text-amber-600 hover:bg-amber-50'}`}
+                            >
+                                <Share2 size={16} />
+                                <span className="hidden sm:inline">แชร์เลขเด็ด</span>
+                                <span className="sm:hidden">แชร์</span>
+                            </button>
                         </div>
 
                         {/* Main Prediction Card */}

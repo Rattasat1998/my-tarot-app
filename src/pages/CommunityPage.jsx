@@ -2,11 +2,15 @@ import React, { useState } from 'react';
 import { Users, MessageCircle, Heart, Star, Crown, Search, Filter, TrendingUp, Calendar, Award, BookOpen, ArrowLeft } from 'lucide-react';
 import { PremiumGate } from '../components/ui/PremiumGate';
 import { usePremium } from '../hooks/usePremium';
+import { useAuth } from '../contexts/AuthContext';
+import { LoginModal } from '../components/modals/LoginModal';
 
 export const CommunityPage = ({ isDark }) => {
     const { isPremium } = usePremium();
     const [activeTab, setActiveTab] = useState('discussions');
     const [searchTerm, setSearchTerm] = useState('');
+    const { user, loading: authLoading } = useAuth();
+    const [showLoginModal, setShowLoginModal] = useState(false);
 
     const discussions = [
         {
@@ -81,6 +85,49 @@ export const CommunityPage = ({ isDark }) => {
         { id: 'personal-growth', name: 'พัฒนาตน', icon: '🌱' },
         { id: 'dreams', name: 'ความฝัน', icon: '💭' }
     ];
+
+    if (authLoading) {
+        return (
+            <div className={`min-h-screen ${isDark ? 'dark' : ''}`}>
+                <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-950 flex flex-col items-center justify-center p-6">
+                    <div className="w-16 h-16 border-4 border-purple-200 border-t-purple-500 rounded-full animate-spin"></div>
+                </div>
+            </div>
+        );
+    }
+
+    if (!user) {
+        return (
+            <div className={`min-h-screen ${isDark ? 'dark' : ''}`}>
+                <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-950 flex flex-col items-center justify-center p-6 text-white">
+                    <div className="max-w-md text-center">
+                        <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-slate-900 border border-slate-700 mb-6 shadow-xl">
+                            <span className="text-4xl">🔐</span>
+                        </div>
+                        <h2 className="text-2xl font-bold mb-3">เข้าสู่ระบบก่อนดานงาน</h2>
+                        <p className="text-slate-400 mb-6 leading-relaxed">
+                            กรุณาเข้าสู่ระบบเพื่อใช้งานส่วนของชุมชนผู้เชี่ยวชาญ
+                        </p>
+                        <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+                            <button
+                                onClick={() => setShowLoginModal(true)}
+                                className="px-8 py-3 bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-bold rounded-xl hover:scale-105 transition-all shadow-lg flex items-center justify-center gap-2"
+                            >
+                                เข้าสู่ระบบ
+                            </button>
+                            <button
+                                onClick={() => window.history.back()}
+                                className="px-8 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 bg-slate-800 border border-slate-700 text-slate-300 hover:bg-slate-700 hover:text-white"
+                            >
+                                กลับหน้าหลัก
+                            </button>
+                        </div>
+                    </div>
+                    <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className={`min-h-screen ${isDark ? 'dark' : ''}`}>

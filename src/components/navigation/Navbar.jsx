@@ -56,7 +56,7 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
             setIsLoading(true);
             const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
             const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-            
+
             const { data: { session } } = await supabase.auth.getSession();
             if (!session) {
                 setShowLoginModal(true);
@@ -101,7 +101,7 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
             setIsLoading(true);
             const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
             const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-            
+
             const { data: { session } } = await supabase.auth.getSession();
             if (!session) {
                 setShowLoginModal(true);
@@ -185,16 +185,16 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
             <nav className={`relative z-[99997] ${isDark ? 'bg-slate-950/90 backdrop-blur-md border-b border-slate-800/50' : 'bg-white/90 backdrop-blur-md border-b border-slate-200/50'} sticky top-0 transition-all duration-300`}>
                 <div className="w-full px-4 sm:px-6 h-16 flex items-center">
                     <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-2 cursor-pointer" onClick={resetGame}>
-                        <img
-                            src="/favicon.png"
-                            alt="Tarot Oracle Logo"
-                            className="w-8 h-8 sm:w-10 sm:h-10 drop-shadow-lg rounded-xl"
-                        />
-                        <span className="font-serif text-lg sm:text-xl md:text-2xl font-bold tracking-tight bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
-                            Tarot Wisdom
-                        </span>
-                    </div>
+                        <div className="flex items-center gap-2 cursor-pointer" onClick={resetGame}>
+                            <img
+                                src="/favicon.png"
+                                alt="Tarot Oracle Logo"
+                                className="w-8 h-8 sm:w-10 sm:h-10 drop-shadow-lg rounded-xl"
+                            />
+                            <span className="font-serif text-lg sm:text-xl md:text-2xl font-bold tracking-tight bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
+                                Tarot Wisdom
+                            </span>
+                        </div>
                     </div>
 
                     {/* Desktop Navigation */}
@@ -490,9 +490,9 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <p className="font-medium text-white truncate">{user?.user_metadata?.name}</p>
-                                    <p className="text-xs text-slate-400">
-                                        {user?.user_metadata?.is_premium ? 'สมาชิก Premium' : 'สมาชิกทั่วไป'}
-                                    </p>
+                                            <p className="text-xs text-slate-400">
+                                                {user?.user_metadata?.is_premium ? 'สมาชิก Premium' : 'สมาชิกทั่วไป'}
+                                            </p>
                                         </div>
                                     </div>
                                     <button
@@ -596,8 +596,7 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
 
                             <button
                                 onClick={() => {
-                                    const isPremium = user?.user_metadata?.is_premium || user?.user_metadata?.subscription_status === 'active';
-                                    navigate(isPremium ? '/lotto' : '/membership');
+                                    navigate('/lotto');
                                     setIsDrawerOpen(false);
                                 }}
                                 className="w-full flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 rounded-xl text-amber-400 hover:from-amber-500/20 hover:to-orange-500/20 transition-all"
@@ -606,9 +605,6 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
                                     <TrendingUp size={20} />
                                 </div>
                                 <span className="font-medium">วิเคราะห์หวย</span>
-                                <div className="ml-2 px-2 py-1 bg-purple-500/10 border border-purple-500/30 rounded-full text-purple-300 text-xs">
-                                    👑 Premium
-                                </div>
                             </button>
 
                             <button
@@ -691,15 +687,14 @@ export const Navbar = ({ isDark, setIsDark, resetGame, openCalendar, openArticle
                             <button
                                 key={item.key}
                                 onClick={item.onClick}
-                                className={`flex flex-col items-center justify-center gap-1 py-2 rounded-xl transition-all ${
-                                    item.active
+                                className={`flex flex-col items-center justify-center gap-1 py-2 rounded-xl transition-all ${item.active
                                         ? isDark
                                             ? 'bg-purple-500/15 text-purple-300'
                                             : 'bg-purple-100 text-purple-700'
                                         : isDark
                                             ? 'text-slate-400'
                                             : 'text-slate-500'
-                                }`}
+                                    }`}
                             >
                                 <Icon size={18} />
                                 <span className="text-[11px] font-medium leading-none">{item.label}</span>

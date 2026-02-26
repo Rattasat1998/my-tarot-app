@@ -40,7 +40,7 @@ const PrivacyPolicyPage = ({ isDark = true }) => {
       {/* Content */}
       <main className="container mx-auto px-4 py-8 max-w-4xl">
         <div className={`${isDark ? 'bg-stone-800' : 'bg-white'} rounded-xl shadow-lg p-8`}>
-          
+
           {/* Introduction */}
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-4">
@@ -65,7 +65,7 @@ const PrivacyPolicyPage = ({ isDark = true }) => {
                 ข้อมูลที่เราเก็บรวบรวม
               </h2>
             </div>
-            
+
             <div className="space-y-4">
               <div className={`p-4 rounded-lg ${isDark ? 'bg-stone-700' : 'bg-stone-50'}`}>
                 <h3 className={`font-semibold ${isDark ? 'text-stone-200' : 'text-stone-700'} mb-2`}>
@@ -101,7 +101,7 @@ const PrivacyPolicyPage = ({ isDark = true }) => {
                 การใช้ข้อมูล
               </h2>
             </div>
-            
+
             <div className="space-y-3">
               <div className={`p-3 rounded-lg ${isDark ? 'bg-stone-700' : 'bg-stone-50'}`}>
                 <p className={`${isDark ? 'text-stone-300' : 'text-stone-600'}`}>
@@ -134,7 +134,7 @@ const PrivacyPolicyPage = ({ isDark = true }) => {
                 การปกป้องข้อมูล
               </h2>
             </div>
-            
+
             <div className="space-y-3">
               <p className={`${isDark ? 'text-stone-300' : 'text-stone-600'} leading-relaxed`}>
                 เราใช้มาตรการรักษาความปลอดภัยต่อไปนี้เพื่อปกป้องข้อมูลของคุณ:
@@ -154,7 +154,7 @@ const PrivacyPolicyPage = ({ isDark = true }) => {
             <h2 className={`text-xl font-bold ${isDark ? 'text-stone-100' : 'text-stone-800'} mb-4`}>
               สิทธิของผู้ใช้
             </h2>
-            
+
             <div className="space-y-3">
               <div className={`p-3 rounded-lg ${isDark ? 'bg-stone-700' : 'bg-stone-50'}`}>
                 <p className={`${isDark ? 'text-stone-300' : 'text-stone-600'}`}>
@@ -184,14 +184,14 @@ const PrivacyPolicyPage = ({ isDark = true }) => {
             <h2 className={`text-xl font-bold ${isDark ? 'text-stone-100' : 'text-stone-800'} mb-4`}>
               ติดต่อเรา
             </h2>
-            
+
             <div className={`p-4 rounded-lg ${isDark ? 'bg-stone-700' : 'bg-stone-50'}`}>
               <p className={`${isDark ? 'text-stone-300' : 'text-stone-600'} leading-relaxed`}>
                 หากคุณมีคำถามเกี่ยวกับนโยบายความเป็นส่วนตัวหรือต้องการใช้สิทธิของคุณ สามารถติดต่อเราได้ที่:
               </p>
               <div className="mt-3 space-y-2">
                 <p className={`${isDark ? 'text-stone-300' : 'text-stone-600'}`}>
-                  📧 Email: privacy@satduangdao.com
+                  📧 Email: support@satduangdao.com
                 </p>
                 <p className={`${isDark ? 'text-stone-300' : 'text-stone-600'}`}>
                   🌐 Website: www.satduangdao.com

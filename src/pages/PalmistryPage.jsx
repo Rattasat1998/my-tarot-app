@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { palmistryData } from '../data/palmistryData';
 import { usePageSEO } from '../hooks/usePageTitle';
+import { useAuth } from '../contexts/AuthContext';
+import { LoginModal } from '../components/modals/LoginModal';
 
 const SectionTitle = ({ emoji, title, subtitle }) => (
     <div className="mb-8 mt-16">
@@ -27,11 +29,14 @@ const PalmistryPage = () => {
         path: '/palmistry-article',
     });
 
+    const { user, loading: authLoading } = useAuth();
+
     // State for interactive elements
     const [activeLineTab, setActiveLineTab] = useState(0);
     const [expandedEra, setExpandedEra] = useState(null);
     const [expandedMount, setExpandedMount] = useState(null);
     const [showMysticCross, setShowMysticCross] = useState(false);
+    const [showLoginModal, setShowLoginModal] = useState(false);
 
     const lineColors = {
         rose: { bg: 'from-rose-500/10 to-pink-500/10', border: 'border-rose-500/30', text: 'text-rose-300', dot: 'bg-rose-500', tab: 'bg-rose-500/20 text-rose-300', tabActive: 'bg-rose-500 text-white' },
@@ -46,6 +51,45 @@ const PalmistryPage = () => {
         cyan: { bg: 'from-cyan-500/10 to-teal-500/10', border: 'border-cyan-500/30', badge: 'bg-cyan-500/20 text-cyan-300' },
         rose: { bg: 'from-rose-500/10 to-pink-500/10', border: 'border-rose-500/30', badge: 'bg-rose-500/20 text-rose-300' },
     };
+
+    if (authLoading) {
+        return (
+            <div className={`min-h-screen bg-[#0B0D17] flex items-center justify-center`}>
+                <div className="w-16 h-16 border-4 border-purple-200 border-t-purple-500 rounded-full animate-spin"></div>
+            </div>
+        );
+    }
+
+    if (!user) {
+        return (
+            <div className={`min-h-screen bg-[#0B0D17] text-white flex flex-col items-center justify-center p-6`}>
+                <div className="max-w-md text-center">
+                    <div className={`inline-flex items-center justify-center w-20 h-20 rounded-full bg-slate-900 border border-slate-700 mb-6 shadow-xl`}>
+                        <span className="text-4xl">🔐</span>
+                    </div>
+                    <h2 className="text-2xl font-bold mb-3">เข้าสู่ระบบก่อนใช้งาน</h2>
+                    <p className={`text-slate-400 mb-6 leading-relaxed`}>
+                        กรุณาเข้าสู่ระบบเพื่ออ่านบทความศาสตร์ลายมือ
+                    </p>
+                    <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+                        <button
+                            onClick={() => setShowLoginModal(true)}
+                            className="px-8 py-3 bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-bold rounded-xl hover:scale-105 transition-all shadow-lg flex items-center justify-center gap-2"
+                        >
+                            เข้าสู่ระบบ
+                        </button>
+                        <button
+                            onClick={() => window.history.back()}
+                            className={`px-8 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white`}
+                        >
+                            กลับหน้าหลัก
+                        </button>
+                    </div>
+                </div>
+                <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-[#0B0D17] text-white">

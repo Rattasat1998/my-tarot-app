@@ -62,7 +62,7 @@ export const MembershipCard = ({ isDark, onUpgrade, isLoading, pricing, isPricin
     const freeFeatures = [
         "ไพ่ทาโรต์ 1 ใบ/วัน",
         "Meditation 5 นาที",
-        "Lotto Insight พื้นฐาน",
+        "LottoInsight แบบเต็ม",
         "Zodiac รายวัน",
         "มีโฆษณา"
     ];
@@ -93,7 +93,7 @@ export const MembershipCard = ({ isDark, onUpgrade, isLoading, pricing, isPricin
                         <div className="text-4xl font-bold text-slate-300 mb-4">ฟรี</div>
                         <p className="text-slate-400">เริ่มต้นสำรวจศาสตร์ความรู้</p>
                     </div>
-                    
+
                     <div className="space-y-3 mb-8">
                         {freeFeatures.map((feature, index) => (
                             <div key={index} className="flex items-center gap-3">
@@ -104,7 +104,7 @@ export const MembershipCard = ({ isDark, onUpgrade, isLoading, pricing, isPricin
                             </div>
                         ))}
                     </div>
-                    
+
                     <div className="text-center">
                         <div className={`px-6 py-3 rounded-xl border ${isPremium ? 'bg-slate-800 border-slate-600 text-slate-400' : `${isDark ? 'bg-slate-800 border-slate-600 text-slate-400' : 'bg-slate-100 border-slate-300 text-slate-600'}`} font-medium`}>
                             {isPremium ? 'แพลนก่อนหน้าของคุณ' : 'คุณกำลังใช้อยู่'}
@@ -200,20 +200,20 @@ export const MembershipCard = ({ isDark, onUpgrade, isLoading, pricing, isPricin
             {/* Value Proposition */}
             <div className={`rounded-2xl ${isDark ? 'bg-slate-900/50 border border-slate-800' : 'bg-slate-50 border border-slate-200'} p-8`}>
                 <h3 className="text-2xl font-bold text-white mb-6 text-center">ทำไม Premium คุ้มค่า?</h3>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="text-center">
                         <div className="text-4xl font-bold text-purple-400 mb-2">10x</div>
                         <div className="text-white font-semibold mb-1">คุณค่าสูงขึ้น</div>
                         <div className="text-slate-400 text-sm">จาก 1 ครั้ง/วัน เป็นไม่จำกัด</div>
                     </div>
-                    
+
                     <div className="text-center">
                         <div className="text-4xl font-bold text-indigo-400 mb-2">3x</div>
                         <div className="text-white font-semibold mb-1">เนื้อหาลึกขึ้น</div>
                         <div className="text-slate-400 text-sm">meditation, journal, expert tips</div>
                     </div>
-                    
+
                     <div className="text-center">
                         <div className="text-4xl font-bold text-green-400 mb-2">∞</div>
                         <div className="text-white font-semibold mb-1">การพัฒนาตนเอง</div>

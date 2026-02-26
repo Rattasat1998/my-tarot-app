@@ -127,31 +127,17 @@ export default function AboutPage() {
                         <p className="text-center text-slate-400 mb-8">
                             มีคำถาม ข้อเสนอแนะ หรือต้องการร่วมงานกับเรา? ติดต่อได้ผ่านช่องทางด้านล่าง
                         </p>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div className="flex justify-center">
                             <a
-                                href="mailto:contact@satduangdao.com"
-                                className="flex items-center gap-4 p-4 bg-slate-800/50 border border-slate-700 rounded-xl hover:border-purple-500/40 hover:bg-slate-800 transition-all group"
+                                href="mailto:support@satduangdao.com"
+                                className="flex items-center gap-4 p-4 bg-slate-800/50 border border-slate-700 rounded-xl hover:border-purple-500/40 hover:bg-slate-800 transition-all group w-full max-w-sm"
                             >
                                 <div className="p-3 rounded-full bg-purple-500/20 text-purple-400 group-hover:scale-110 transition-transform">
                                     <Mail size={22} />
                                 </div>
                                 <div>
                                     <div className="text-sm font-bold text-white">อีเมล</div>
-                                    <div className="text-xs text-slate-400">contact@satduangdao.com</div>
-                                </div>
-                            </a>
-                            <a
-                                href="https://line.me/ti/p/~@satduangdao"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-4 p-4 bg-slate-800/50 border border-slate-700 rounded-xl hover:border-emerald-500/40 hover:bg-slate-800 transition-all group"
-                            >
-                                <div className="p-3 rounded-full bg-emerald-500/20 text-emerald-400 group-hover:scale-110 transition-transform">
-                                    <MessageCircle size={22} />
-                                </div>
-                                <div>
-                                    <div className="text-sm font-bold text-white">LINE Official</div>
-                                    <div className="text-xs text-slate-400">@satduangdao</div>
+                                    <div className="text-xs text-slate-400">support@satduangdao.com</div>
                                 </div>
                             </a>
                         </div>

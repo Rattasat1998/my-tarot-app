@@ -19,7 +19,7 @@ export const usePremium = () => {
                 // For now, simulate premium check
                 const userMetadata = user?.user_metadata || {};
                 const premiumStatus = userMetadata.is_premium || userMetadata.subscription_status === 'active';
-                
+
                 setIsPremium(premiumStatus);
             } catch (error) {
                 console.error('Error checking premium status:', error);
@@ -34,7 +34,7 @@ export const usePremium = () => {
 
     const requirePremium = (callback, fallbackCallback) => {
         if (isLoading) return;
-        
+
         if (isPremium) {
             callback();
         } else {
@@ -54,7 +54,7 @@ export const usePremium = () => {
         personalGrowthJournal: isPremium,
         prioritySupport: isPremium,
         adFree: isPremium,
-        lottoInsight: isPremium
+        lottoInsight: true
     };
 
     return {

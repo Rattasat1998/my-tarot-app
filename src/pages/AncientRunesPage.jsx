@@ -7,6 +7,8 @@ import {
     RUNE_POEMS, POEMS_NOTE, GALDR, MODERN_REVIVAL, CONCLUSION,
 } from '../data/ancientRunesData';
 import { usePageSEO } from '../hooks/usePageTitle';
+import { useAuth } from '../contexts/AuthContext';
+import { LoginModal } from '../components/modals/LoginModal';
 
 /* ──────────────── helpers ──────────────── */
 const renderBold = (text) => {
@@ -95,6 +97,8 @@ const AettSection = ({ aett }) => {
 export function AncientRunesPage() {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('futhark');
+    const { user, loading: authLoading } = useAuth();
+    const [showLoginModal, setShowLoginModal] = useState(false);
 
     usePageSEO({
         title: 'รูนโบราณ Elder Futhark: อักษรศักดิ์สิทธิ์จากนอร์ส',
@@ -109,6 +113,45 @@ export function AncientRunesPage() {
         { id: 'artifacts', label: '🏛️ โบราณวัตถุ', icon: null },
         { id: 'poems', label: '📜 กวีนิพนธ์', icon: null },
     ];
+
+    if (authLoading) {
+        return (
+            <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+                <div className="w-16 h-16 border-4 border-emerald-200 border-t-emerald-500 rounded-full animate-spin"></div>
+            </div>
+        );
+    }
+
+    if (!user) {
+        return (
+            <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6">
+                <div className="max-w-md text-center">
+                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-slate-900 border border-slate-700 mb-6 shadow-xl">
+                        <span className="text-4xl">🔐</span>
+                    </div>
+                    <h2 className="text-2xl font-bold mb-3">เข้าสู่ระบบก่อนใช้งาน</h2>
+                    <p className="text-slate-400 mb-6 leading-relaxed">
+                        กรุณาเข้าสู่ระบบเพื่ออ่านบทความรูนโบราณ
+                    </p>
+                    <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+                        <button
+                            onClick={() => setShowLoginModal(true)}
+                            className="px-8 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold rounded-xl hover:scale-105 transition-all shadow-lg flex items-center justify-center gap-2"
+                        >
+                            เข้าสู่ระบบ
+                        </button>
+                        <button
+                            onClick={() => window.history.back()}
+                            className="px-8 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white"
+                        >
+                            กลับหน้าหลัก
+                        </button>
+                    </div>
+                </div>
+                <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-slate-950 text-slate-100">

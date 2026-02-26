@@ -120,7 +120,7 @@ export const PrivacyModal = ({ isOpen, onClose, isDark }) => {
                         <p className="text-slate-400">
                             หากมีคำถามเกี่ยวกับนโยบายความเป็นส่วนตัว สามารถติดต่อได้ที่:
                         </p>
-                        <p className="text-purple-400 mt-1">support@saatduangdao.online</p>
+                        <p className="text-purple-400 mt-1">support@satduangdao.com</p>
                     </div>
 
                     {/* Last Updated */}

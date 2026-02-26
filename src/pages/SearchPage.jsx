@@ -4,15 +4,19 @@ import { TAROT_CARDS } from '../data/tarotCards';
 import { getDailyFortune } from '../data/dailyFortune';
 import { PremiumGate } from '../components/ui/PremiumGate';
 import { usePremium } from '../hooks/usePremium';
+import { useAuth } from '../contexts/AuthContext';
+import { LoginModal } from '../components/modals/LoginModal';
 
 export const SearchPage = ({ isDark }) => {
     const { isPremium } = usePremium();
+    const { user, loading: authLoading } = useAuth();
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [isSearching, setIsSearching] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [selectedSort, setSelectedSort] = useState('relevance');
     const [searchHistory, setSearchHistory] = useState([]);
+    const [showLoginModal, setShowLoginModal] = useState(false);
 
     const categories = [
         { id: 'all', name: 'ทั้งหมด', icon: '📚' },
@@ -47,17 +51,17 @@ export const SearchPage = ({ isDark }) => {
         }
 
         setIsSearching(true);
-        
+
         // Simulate search API call
         setTimeout(() => {
             const results = searchInContent(query, selectedCategory);
             setSearchResults(results);
-            
+
             // Add to search history
             const newHistory = [query, ...searchHistory.filter(h => h !== query)].slice(0, 10);
             setSearchHistory(newHistory);
             localStorage.setItem('searchHistory', JSON.stringify(newHistory));
-            
+
             setIsSearching(false);
         }, 500);
     };
@@ -187,18 +191,18 @@ export const SearchPage = ({ isDark }) => {
     const calculateRelevanceScore = (title, query) => {
         const lowerTitle = title.toLowerCase();
         const lowerQuery = query.toLowerCase();
-        
+
         if (lowerTitle === lowerQuery) return 100;
         if (lowerTitle.startsWith(lowerQuery)) return 80;
         if (lowerTitle.includes(lowerQuery)) return 60;
-        
+
         return 0;
     };
 
     const handleSearch = (e) => {
         const query = e.target.value;
         setSearchQuery(query);
-        
+
         if (query.length > 2) {
             performSearch(query);
         } else if (query.length === 0) {
@@ -219,6 +223,48 @@ export const SearchPage = ({ isDark }) => {
         }
         performSearch(query);
     };
+
+    if (authLoading) {
+        return (
+            <div className={`min-h-screen ${isDark ? 'bg-slate-950' : 'bg-slate-50'} flex items-center justify-center`}>
+                <div className="w-16 h-16 border-4 border-purple-200 border-t-purple-500 rounded-full animate-spin"></div>
+            </div>
+        );
+    }
+
+    if (!user) {
+        return (
+            <div className={`min-h-screen ${isDark ? 'bg-slate-950 text-white' : 'bg-slate-50 text-slate-800'} flex flex-col items-center justify-center p-6`}>
+                <div className="max-w-md text-center">
+                    <div className={`inline-flex items-center justify-center w-20 h-20 rounded-full ${isDark ? 'bg-slate-900 border-slate-700' : 'bg-white border-slate-200'} border mb-6 shadow-xl`}>
+                        <span className="text-4xl">🔐</span>
+                    </div>
+                    <h2 className="text-2xl font-bold mb-3">เข้าสู่ระบบก่อนใช้งาน</h2>
+                    <p className={`${isDark ? 'text-slate-400' : 'text-slate-500'} mb-6 leading-relaxed`}>
+                        กรุณาเข้าสู่ระบบเพื่อค้นหาความหมายไพ่ บทความ และเนื้อหาทั้งหมด
+                    </p>
+                    <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+                        <button
+                            onClick={() => setShowLoginModal(true)}
+                            className="px-8 py-3 bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-bold rounded-xl hover:scale-105 transition-all shadow-lg flex items-center justify-center gap-2"
+                        >
+                            เข้าสู่ระบบ
+                        </button>
+                        <button
+                            onClick={() => window.history.back()}
+                            className={`px-8 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${isDark
+                                    ? 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white'
+                                    : 'bg-white text-slate-600 hover:bg-slate-100 hover:text-slate-900 shadow-md'
+                                }`}
+                        >
+                            กลับหน้าหลัก
+                        </button>
+                    </div>
+                </div>
+                <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
+            </div>
+        );
+    }
 
     return (
         <div className={`min-h-screen ${isDark ? 'dark' : ''}`}>
@@ -375,30 +421,28 @@ export const SearchPage = ({ isDark }) => {
                                     {searchResults.map((result, index) => (
                                         <div
                                             key={`${result.type}-${result.item.id || index}`}
-                                            className={`p-6 rounded-xl border transition-all hover:scale-[1.02] ${
-                                                isDark 
-                                                    ? 'bg-slate-900/50 border-slate-800 hover:bg-slate-800/50' 
+                                            className={`p-6 rounded-xl border transition-all hover:scale-[1.02] ${isDark
+                                                    ? 'bg-slate-900/50 border-slate-800 hover:bg-slate-800/50'
                                                     : 'bg-slate-100 border-slate-300 hover:bg-slate-200'
-                                            }`}
+                                                }`}
                                         >
                                             <div className="flex items-start gap-4">
                                                 {/* Icon/Image */}
                                                 <div className="flex-shrink-0">
                                                     {result.type === 'card' && result.image ? (
-                                                        <img 
-                                                            src={result.image} 
+                                                        <img
+                                                            src={result.image}
                                                             alt={result.title}
                                                             className="w-16 h-24 rounded-lg object-cover border border-slate-700"
                                                         />
                                                     ) : (
-                                                        <div className={`w-16 h-16 rounded-lg flex items-center justify-center text-2xl ${
-                                                            result.type === 'article' ? 'bg-blue-500/20 border border-blue-500/30' :
-                                                            result.type === 'zodiac' ? 'bg-purple-500/20 border border-purple-500/30' :
-                                                            'bg-slate-700 border border-slate-600'
-                                                        }`}>
+                                                        <div className={`w-16 h-16 rounded-lg flex items-center justify-center text-2xl ${result.type === 'article' ? 'bg-blue-500/20 border border-blue-500/30' :
+                                                                result.type === 'zodiac' ? 'bg-purple-500/20 border border-purple-500/30' :
+                                                                    'bg-slate-700 border border-slate-600'
+                                                            }`}>
                                                             {result.type === 'card' ? '🎴' :
-                                                             result.type === 'article' ? '📰' :
-                                                             result.type === 'zodiac' ? result.item.element : '📚'}
+                                                                result.type === 'article' ? '📰' :
+                                                                    result.type === 'zodiac' ? result.item.element : '📚'}
                                                         </div>
                                                     )}
                                                 </div>
@@ -406,15 +450,14 @@ export const SearchPage = ({ isDark }) => {
                                                 {/* Content */}
                                                 <div className="flex-1 min-w-0">
                                                     <div className="flex items-center gap-2 mb-2">
-                                                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                                            result.type === 'card' ? 'bg-purple-500/20 border border-purple-500/30 text-purple-300' :
-                                                            result.type === 'article' ? 'bg-blue-500/20 border border-blue-500/30 text-blue-300' :
-                                                            result.type === 'zodiac' ? 'bg-purple-500/20 border border-purple-500/30 text-purple-300' :
-                                                            'bg-slate-700 border border-slate-600 text-slate-300'
-                                                        }`}>
+                                                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${result.type === 'card' ? 'bg-purple-500/20 border border-purple-500/30 text-purple-300' :
+                                                                result.type === 'article' ? 'bg-blue-500/20 border border-blue-500/30 text-blue-300' :
+                                                                    result.type === 'zodiac' ? 'bg-purple-500/20 border border-purple-500/30 text-purple-300' :
+                                                                        'bg-slate-700 border border-slate-600 text-slate-300'
+                                                            }`}>
                                                             {result.type === 'card' ? 'ไพ่ทาโรต์' :
-                                                             result.type === 'article' ? 'บทความ' :
-                                                             result.type === 'zodiac' ? 'ราศี' : 'อื่นๆ'}
+                                                                result.type === 'article' ? 'บทความ' :
+                                                                    result.type === 'zodiac' ? 'ราศี' : 'อื่นๆ'}
                                                         </span>
                                                         {result.type === 'card' && (
                                                             <span className="text-xs text-purple-400">
@@ -426,7 +469,7 @@ export const SearchPage = ({ isDark }) => {
                                                     <h3 className="text-lg font-bold text-white mb-2 hover:text-purple-300 transition-colors cursor-pointer">
                                                         {result.title}
                                                     </h3>
-                                                    
+
                                                     <p className="text-slate-300 text-sm line-clamp-2 mb-3">
                                                         {result.description}
                                                     </p>

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Loader, Calendar, FileText, ChevronRight, Search } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
+import { LoginModal } from '../components/modals/LoginModal';
 import { READING_TOPICS } from '../constants/readingTopics';
 import { ReadingHistoryDetailModal } from '../components/modals/ReadingHistoryDetailModal';
 
@@ -12,12 +13,11 @@ export const HistoryPage = ({ isDark }) => {
     const [loading, setLoading] = useState(true);
     const [history, setHistory] = useState([]);
     const [selectedReading, setSelectedReading] = useState(null);
+    const [showLoginModal, setShowLoginModal] = useState(false);
 
     useEffect(() => {
         if (user) {
             fetchHistory();
-        } else {
-            navigate('/');
         }
     }, [user, navigate]);
 
@@ -53,6 +53,41 @@ export const HistoryPage = ({ isDark }) => {
     const getTopicLabel = (topicId) => {
         return READING_TOPICS.find(t => t.id === topicId)?.label || topicId;
     };
+
+    if (!user) {
+        return (
+            <div className={`min-h-screen ${isDark ? 'bg-slate-950 text-slate-100' : 'bg-purple-50 text-slate-900'} flex flex-col items-center justify-center p-6`}>
+                <div className="max-w-md text-center">
+                    <div className={`inline-flex items-center justify-center w-20 h-20 rounded-full ${isDark ? 'bg-slate-900 border-slate-700' : 'bg-white border-slate-200'} border mb-6 shadow-xl`}>
+                        <span className="text-4xl">🔐</span>
+                    </div>
+                    <h2 className="text-2xl font-bold mb-3">เข้าสู่ระบบก่อนใช้งาน</h2>
+                    <p className={`${isDark ? 'text-slate-400' : 'text-slate-500'} mb-6 leading-relaxed`}>
+                        กรุณาเข้าสู่ระบบเพื่อดูบันทึกการทำนายของคุณ
+                    </p>
+                    <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+                        <button
+                            onClick={() => setShowLoginModal(true)}
+                            className="px-8 py-3 bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-bold rounded-xl hover:scale-105 transition-all shadow-lg flex items-center justify-center gap-2"
+                        >
+                            เข้าสู่ระบบ
+                        </button>
+                        <button
+                            onClick={() => window.history.back()}
+                            className={`px-8 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${
+                                isDark 
+                                ? 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white' 
+                                : 'bg-white text-slate-600 hover:bg-slate-100 hover:text-slate-900 shadow-md'
+                            }`}
+                        >
+                            กลับหน้าหลัก
+                        </button>
+                    </div>
+                </div>
+                <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
+            </div>
+        );
+    }
 
     return (
         <div className={`min-h-screen ${isDark ? 'bg-slate-950 text-slate-100' : 'bg-purple-50 text-slate-900 font-sans'}`}>
