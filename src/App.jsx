@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 // Import pages
 import { GamePage } from './pages/GamePage';
 import { ProfilePage } from './pages/ProfilePage';
@@ -32,10 +32,13 @@ import ShopPage from './pages/ShopPage';
 import { DailyOraclePage } from './pages/DailyOraclePage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TermsOfServicePage from './pages/TermsOfServicePage';
+import { FortuneChatPage } from './pages/FortuneChatPage';
 import { FloatingFortuneButton } from './components/ui/FloatingFortuneButton';
 
 function App() {
   const isDark = true; // Always dark mode
+  const location = useLocation();
+  const isFortuneChatPage = location.pathname === '/fortune-chat';
 
   // Theme effect
   useEffect(() => {
@@ -70,6 +73,7 @@ function App() {
         <Route path="/shop" element={<ShopPage isDark={isDark} />} />
         <Route path="/membership" element={<MembershipPage isDark={isDark} />} />
         <Route path="/daily-oracle" element={<DailyOraclePage isDark={isDark} />} />
+        <Route path="/fortune-chat" element={<FortuneChatPage />} />
         <Route path="/privacy-policy" element={<PrivacyPolicyPage isDark={isDark} />} />
         <Route path="/terms-of-service" element={<TermsOfServicePage isDark={isDark} />} />
         <Route path="/admin/*" element={<AdminPage isDark={isDark} />} />
@@ -77,9 +81,14 @@ function App() {
         <Route path="/payment/success" element={<PaymentSuccessPage isDark={isDark} />} />
         <Route path="/payment/cancel" element={<PaymentCancelPage isDark={isDark} />} />
       </Routes>
-      <FloatingFortuneButton />
+      {!isFortuneChatPage && <FloatingFortuneButton />}
     </>
   );
 }
 
-export default App;
+// Wrapper component to provide routing context
+const AppWrapper = () => (
+  <App />
+);
+
+export default AppWrapper;

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
-import { FortuneChatModal } from '../modals/FortuneChatModal';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { LoginModal } from '../modals/LoginModal';
 import { useAuth } from '../../contexts/AuthContext';
 import { Sparkles, X } from 'lucide-react';
@@ -11,6 +10,7 @@ export const FloatingFortuneButton = () => {
     const [showLoginModal, setShowLoginModal] = useState(false);
     const { user } = useAuth();
     const location = useLocation();
+    const navigate = useNavigate();
 
     // Hide on admin pages
     if (location.pathname.startsWith('/admin')) return null;
@@ -37,8 +37,8 @@ export const FloatingFortuneButton = () => {
             setShowLoginModal(true);
             return;
         }
-        setIsOpen(true);
-        setShowGreeting(false); // Hide greeting when opened
+        setShowGreeting(false);
+        navigate('/fortune-chat');
     };
 
     return (
@@ -88,12 +88,6 @@ export const FloatingFortuneButton = () => {
                     </span>
                 </button>
             </div>
-
-            {/* Chat Modal */}
-            <FortuneChatModal
-                isOpen={isOpen}
-                onClose={() => setIsOpen(false)}
-            />
 
             {/* Login Error Modal */}
             <LoginModal 
