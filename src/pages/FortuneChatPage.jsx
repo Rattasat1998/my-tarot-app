@@ -404,7 +404,7 @@ export const FortuneChatPage = () => {
                         {/* Birthday */}
                         <div className="mb-5">
                             <label className="text-indigo-200 text-sm font-semibold mb-2 block flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-pink-400" /> วัน/เดือน/ปีเกิด</label>
-                            <input type="date" value={formBirthday} onChange={(e) => setFormBirthday(e.target.value)} className="w-full bg-indigo-950/40 text-white px-5 h-[52px] rounded-xl text-base border border-indigo-500/30 focus:outline-none focus:border-purple-400/60 focus:ring-2 focus:ring-purple-400/20 transition-all shadow-inner [color-scheme:dark] flex items-center justify-between" />
+                            <input type="date" value={formBirthday} onChange={(e) => setFormBirthday(e.target.value)} className="w-full bg-indigo-950/40 text-white px-5 py-3.5 rounded-xl text-base border border-indigo-500/30 focus:outline-none focus:border-purple-400/60 focus:ring-2 focus:ring-purple-400/20 transition-all shadow-inner [color-scheme:dark]" />
                         </div>
 
                         {/* Topic */}

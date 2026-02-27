@@ -2,6 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Fix iOS Safari date input sizing */
+input[type="date"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  min-height: 52px;
+  line-height: normal;
+}
+
+input[type="date"]::-webkit-date-and-time-value {
+  text-align: left;
+}
+
 /* เพิ่มเติมเพื่อให้การหมุนไพ่สมบูรณ์ */
 .backface-hidden {
   backface-visibility: hidden;
