@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { Sparkles, Eye, RotateCcw, Gift, ChevronDown, Users, Clock, Award, Coins, ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Sparkles, Eye, RotateCcw, Gift, Users, Clock, Award, Coins, ArrowRight } from 'lucide-react';
 import { QuickDrawButton } from '../ui/QuickDrawButton';
 import { getDailyFortune, getDailyCard } from '../../data/dailyFortune';
 import { TAROT_CARDS } from '../../data/tarotCards';
@@ -17,28 +18,23 @@ export const HeroSection = ({
     credits,
     isDailyFreeAvailable
 }) => {
+    const navigate = useNavigate();
     const fortune = getDailyFortune();
     const card = getDailyCard(TAROT_CARDS);
     const [isCardRevealed, setIsCardRevealed] = useState(false);
     const readingRef = useRef(null);
+    const homeMenus = [
+        { id: 'astrology', label: 'ศาสตร์ดวงดาว', subtitle: 'ภาพรวมดวงปี', icon: '✨', path: '/horoscope-2569' },
+        { id: 'zodiac', label: '12 ราศี', subtitle: 'ดวงรายราศี', icon: '🔮', path: '/zodiac' },
+        { id: 'daily', label: 'ดวงรายวัน', subtitle: 'คำแนะนำวันนี้', icon: '🌤️', path: '/daily-oracle' },
+        { id: 'lotto', label: 'Lotto', subtitle: 'วิเคราะห์หวย', icon: '🎯', path: '/lotto' }
+    ];
 
     const handleSelectTopic = (topicId) => {
         setTopic(topicId);
         setTimeout(() => {
             readingRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }, 100);
-    };
-
-    // Service descriptions for topics
-    const descriptions = {
-        daily: 'ดูดวงรายวันของคุณ พร้อมคำแนะนำเริ่มต้นวันใหม่',
-        love: 'ค้นหาคำตอบเรื่องความรัก คู่ครอง และความสัมพันธ์',
-        work: 'ดวงการงาน อาชีพ และเส้นทางความสำเร็จ',
-        finance: 'วิเคราะห์ดวงการเงิน โชคลาภ และการลงทุน',
-        health: 'สุขภาพกายและใจ คำแนะนำเพื่อชีวิตที่สมดุล',
-        fortune: 'ดวงชะตาโดยรวม โอกาส และสิ่งที่รออยู่ข้างหน้า',
-        social: 'ความสัมพันธ์กับคนรอบข้าง มิตรภาพ และครอบครัว',
-        monthly: 'ดวงรายเดือน ภาพรวมทั้งเดือนแบบเจาะลึก'
     };
 
     return (
@@ -107,6 +103,28 @@ export const HeroSection = ({
                     <br className="hidden sm:block" />
                     สงบจิตใจ แล้วให้ไพ่นำทางคุณสู่ความเข้าใจตนเอง
                 </p>
+
+                {/* Homepage Menu */}
+                <div className="max-w-4xl mx-auto mb-10">
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 mb-4">
+                        <span className="text-indigo-300 text-xs uppercase tracking-[0.15em]">เมนูหน้าแรก</span>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                        {homeMenus.map((menu) => (
+                            <button
+                                key={menu.id}
+                                onClick={() => navigate(menu.path)}
+                                className="group p-4 sm:p-5 rounded-2xl border border-slate-700/70 bg-slate-900/55 hover:bg-slate-800/70 hover:border-indigo-500/40 transition-all text-left"
+                            >
+                                <div className="text-2xl sm:text-3xl mb-2">{menu.icon}</div>
+                                <div className="text-sm sm:text-base font-semibold text-white group-hover:text-indigo-300 transition-colors">
+                                    {menu.label}
+                                </div>
+                                <div className="text-xs text-slate-400 mt-1">{menu.subtitle}</div>
+                            </button>
+                        ))}
+                    </div>
+                </div>
 
                 {/* Quick Draw Button - Hero CTA */}
                 <div className="mb-12">
