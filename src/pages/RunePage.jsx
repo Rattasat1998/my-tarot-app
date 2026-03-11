@@ -1,8 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Sparkles, Hexagon, Shuffle, Coins, Lock, AlertCircle, LogIn } from 'lucide-react';
-import { RUNES, AETTS, RUNE_READING_MODES, drawRunes, getRunesByAett } from '../data/runeData';
-import { RuneStone } from '../components/runes/RuneStone';
+import { ArrowLeft, Sparkles, Shuffle, Coins, Lock, AlertCircle } from 'lucide-react';
+import { AETTS, RUNE_READING_MODES, drawRunes, getRunesByAett } from '../data/runeData';
 import { RuneReading } from '../components/runes/RuneReading';
 import { RuneHistory } from '../components/runes/RuneHistory';
 import { TopUpModal } from '../components/modals/TopUpModal';
@@ -38,8 +37,7 @@ export const RunePage = () => {
 
     const {
         credits,
-        isLoading: creditsLoading,
-        useCredit,
+        useCredit: spendCredit,
         isDailyFreeAvailable,
     } = useCredits();
     const { user } = useAuth();
@@ -57,6 +55,14 @@ export const RunePage = () => {
         setErrorMsg(null);
     };
 
+    const openTopUpWithAuthCheck = () => {
+        if (!user) {
+            setShowLoginModal(true);
+            return;
+        }
+        setIsTopUpOpen(true);
+    };
+
     const handleDraw = async () => {
         if (!selectedMode) return;
         setErrorMsg(null);
@@ -65,26 +71,18 @@ export const RunePage = () => {
         const isFreeDaily = isDaily && isDailyFreeAvailable;
         const effectiveCost = isFreeDaily ? 0 : cost;
 
-        // Require login for ALL readings (including free daily)
-        if (!user) {
-            setErrorMsg(isFreeDaily
-                ? 'กรุณาเข้าสู่ระบบเพื่อบันทึกสิทธิ์รูนรายวัน'
-                : 'กรุณาเข้าสู่ระบบก่อนเพื่อใช้เครดิต');
-            return;
-        }
-
         // Check if user can afford
         if (!isFreeDaily && credits < cost) {
             setErrorMsg(`เครดิตไม่พอ (ต้องใช้ ${cost} เครดิต, มี ${credits})`);
-            setIsTopUpOpen(true);
+            openTopUpWithAuthCheck();
             return;
         }
 
         // Deduct credit
-        const result = await useCredit(effectiveCost, isFreeDaily);
+        const result = await spendCredit(effectiveCost, isFreeDaily);
         if (!result.success) {
             if (result.message === 'Already used free draw today') {
-                setErrorMsg('คุณใช้สิทธิ์รูนรายวันฟรีไปแล้ว กรุณาเข้าสู่ระบบเพื่อใช้เครดิต');
+                setErrorMsg('คุณใช้สิทธิ์รูนรายวันฟรีไปแล้ว กรุณาใช้เครดิตเพื่อดึงรูนต่อ');
             } else {
                 setErrorMsg(`เกิดข้อผิดพลาด: ${result.message}`);
             }
@@ -158,7 +156,7 @@ export const RunePage = () => {
                         ) : null}
 
                         <div
-                            onClick={() => setIsTopUpOpen(true)}
+                            onClick={openTopUpWithAuthCheck}
                             className="flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900/80 border border-amber-500/30 shadow-lg shadow-amber-900/10 cursor-pointer hover:bg-slate-800 transition-all"
                         >
                             <Coins size={16} className="text-amber-400" />
@@ -209,9 +207,7 @@ export const RunePage = () => {
                                         >
                                             <span className={`absolute top-3 right-3 text-[10px] px-2 py-0.5 rounded-full font-bold flex items-center gap-1 ${isFreeDaily
                                                 ? 'bg-green-500/20 text-green-400 border border-green-500/30'
-                                                : !user
-                                                    ? 'bg-slate-500/20 text-slate-400 border border-slate-500/30'
-                                                    : canAfford
+                                                : canAfford
                                                         ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
                                                         : 'bg-red-500/20 text-red-400 border border-red-500/30'
                                                 }`}>
@@ -257,16 +253,12 @@ export const RunePage = () => {
                                     {(() => {
                                         const { cost, isDaily } = getModeCost(selectedMode);
                                         const isFreeDaily = isDaily && isDailyFreeAvailable;
-                                        // Always require login, even for free daily
-                                        const needsLogin = !user;
                                         const canAfford = isFreeDaily || credits >= cost;
 
                                         // Determine button action
-                                        const handleClick = needsLogin
-                                            ? () => setShowLoginModal(true)
-                                            : canAfford
-                                                ? handleDraw
-                                                : () => setIsTopUpOpen(true);
+                                        const handleClick = canAfford
+                                            ? handleDraw
+                                            : openTopUpWithAuthCheck;
 
                                         return (
                                             <button
@@ -274,9 +266,7 @@ export const RunePage = () => {
                                                 disabled={isDrawing}
                                                 className={`group relative px-12 py-5 rounded-full font-bold text-lg transition-all shadow-xl flex items-center gap-3 mx-auto ${isDrawing
                                                     ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
-                                                    : needsLogin
-                                                        ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:scale-105 active:scale-95 shadow-blue-500/25'
-                                                        : canAfford
+                                                    : canAfford
                                                             ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:scale-105 active:scale-95 shadow-emerald-500/25 hover:shadow-emerald-500/40'
                                                             : 'bg-gradient-to-r from-slate-700 to-slate-600 text-slate-300 hover:scale-105'
                                                     }`}
@@ -285,12 +275,6 @@ export const RunePage = () => {
                                                     <>
                                                         <div className="w-5 h-5 border-2 border-slate-500 border-t-slate-300 rounded-full animate-spin" />
                                                         กำลังสุ่มรูน...
-                                                    </>
-                                                ) : needsLogin ? (
-                                                    <>
-                                                        <LogIn size={20} />
-                                                        เข้าสู่ระบบเพื่อดึงรูน
-                                                        <span className="text-sm opacity-75">({cost} เครดิต)</span>
                                                     </>
                                                 ) : canAfford ? (
                                                     <>

@@ -4,16 +4,12 @@ import { Sparkles, Heart, Brain, Moon, Sun, Play, Pause, RotateCcw, Volume2, Vol
 import { PremiumGate } from '../components/ui/PremiumGate';
 import { usePremium } from '../hooks/usePremium';
 import { useActivityLog } from '../hooks/useActivityLog';
-import { useAuth } from '../contexts/AuthContext';
-import { LoginModal } from '../components/modals/LoginModal';
 
 export const MeditationPage = ({ isDark }) => {
     const navigate = useNavigate();
     const { isPremium } = usePremium();
     const { logActivity } = useActivityLog();
-    const { user, loading: authLoading } = useAuth();
     const [isPlaying, setIsPlaying] = useState(false);
-    const [showLoginModal, setShowLoginModal] = useState(false);
     const [breathingPhase, setBreathingPhase] = useState('inhale');
     const [sessionTime, setSessionTime] = useState(0);
     const [selectedDuration, setSelectedDuration] = useState(5);
@@ -59,17 +55,24 @@ export const MeditationPage = ({ isDark }) => {
     ];
 
     useEffect(() => {
-        let interval;
-        if (isPlaying && sessionTime < selectedDuration * 60) {
-            interval = setInterval(() => {
-                setSessionTime(prev => prev + 1);
-            }, 1000);
-        } else if (sessionTime >= selectedDuration * 60) {
-            setIsPlaying(false);
-            logActivity('meditation', `ทำสมาธิ ${selectedDuration} นาที`, { duration: selectedDuration });
-        }
+        if (!isPlaying) return undefined;
+
+        const durationLimit = selectedDuration * 60;
+        const interval = setInterval(() => {
+            setSessionTime(prev => {
+                const next = prev + 1;
+                if (next >= durationLimit) {
+                    clearInterval(interval);
+                    setIsPlaying(false);
+                    logActivity('meditation', `ทำสมาธิ ${selectedDuration} นาที`, { duration: selectedDuration });
+                    return durationLimit;
+                }
+                return next;
+            });
+        }, 1000);
+
         return () => clearInterval(interval);
-    }, [isPlaying, sessionTime, selectedDuration]);
+    }, [isPlaying, selectedDuration, logActivity]);
 
     useEffect(() => {
         let interval;
@@ -118,49 +121,6 @@ export const MeditationPage = ({ isDark }) => {
         }
         navigate('/');
     };
-
-    if (authLoading) {
-        return (
-            <div className={`min-h-screen ${isDark ? 'bg-slate-950' : 'bg-slate-100'} flex items-center justify-center`}>
-                <div className="w-16 h-16 border-4 border-indigo-200 border-t-indigo-500 rounded-full animate-spin"></div>
-            </div>
-        );
-    }
-
-    if (!user) {
-        return (
-            <div className={`min-h-screen ${isDark ? 'bg-slate-950 text-white' : 'bg-slate-50 text-slate-900'} flex flex-col items-center justify-center p-6`}>
-                <div className="max-w-md text-center">
-                    <div className={`inline-flex items-center justify-center w-20 h-20 rounded-full ${isDark ? 'bg-slate-900 border-slate-700' : 'bg-white border-slate-200'} mb-6 shadow-xl`}>
-                        <span className="text-4xl">🔐</span>
-                    </div>
-                    <h2 className="text-2xl font-bold mb-3">เข้าสู่ระบบก่อนใช้งาน</h2>
-                    <p className={`${isDark ? 'text-slate-400' : 'text-slate-500'} mb-6 leading-relaxed`}>
-                        กรุณาเข้าสู่ระบบเพื่อใช้งานฟีเจอร์ทำสมาธิ
-                    </p>
-                    <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
-                        <button
-                            onClick={() => setShowLoginModal(true)}
-                            className="px-8 py-3 bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-bold rounded-xl hover:scale-105 transition-all shadow-lg flex items-center justify-center gap-2"
-                        >
-                            เข้าสู่ระบบ
-                        </button>
-                        <button
-                            onClick={handleBack}
-                            className={`px-8 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${
-                                isDark 
-                                ? 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white' 
-                                : 'bg-white text-slate-600 hover:bg-slate-100'
-                            }`}
-                        >
-                            กลับหน้าหลัก
-                        </button>
-                    </div>
-                </div>
-                <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
-            </div>
-        );
-    }
 
     return (
         <div className={`min-h-screen ${isDark ? 'dark' : ''}`}>

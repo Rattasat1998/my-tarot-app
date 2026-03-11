@@ -5,13 +5,11 @@ import { LuckyGeneratorModal } from '../components/modals/LuckyGeneratorModal';
 import { DreamNumberModal } from '../components/modals/DreamNumberModal';
 import { BirthdayNumberModal } from '../components/modals/BirthdayNumberModal';
 import { TarotLottoModal } from '../components/modals/TarotLottoModal';
-import { LoginModal } from '../components/modals/LoginModal';
 
 import * as lottoService from '../services/lottoService';
 // Fallback to static data if database is not available
 import { getUpcomingDraw as getStaticUpcoming, getPastDraws as getStaticPast } from '../data/lottoData';
 import { usePageSEO } from '../hooks/usePageTitle';
-import { useAuth } from '../contexts/AuthContext';
 
 
 // Module-level cache to persist data across navigations
@@ -29,7 +27,6 @@ export const LottoInsightPage = () => {
     });
     const navigate = useNavigate();
     const location = useLocation();
-    const { user, loading: authLoading } = useAuth();
 
 
     // Check if coming back from detail page (use cache) or from home (reload)
@@ -43,9 +40,7 @@ export const LottoInsightPage = () => {
     const [showDreamModal, setShowDreamModal] = useState(false);
     const [showBirthdayModal, setShowBirthdayModal] = useState(false);
     const [showTarotLottoModal, setShowTarotLottoModal] = useState(false);
-    const [showLoginModal, setShowLoginModal] = useState(false);
 
-    const [selectedDraw, setSelectedDraw] = useState(null);
     // Initialize from cache if coming from detail page
     const [loading, setLoading] = useState(!shouldUseCache);
     const [upcomingDraw, setUpcomingDraw] = useState(shouldUseCache ? cachedUpcoming : null);
@@ -54,12 +49,6 @@ export const LottoInsightPage = () => {
     // Fetch data from database, fallback to static data
     // Only skip fetch if coming from detail page and cache exists
     useEffect(() => {
-        if (authLoading) return;
-        if (!user) {
-            setLoading(false);
-            return;
-        }
-
         if (shouldUseCache) return; // Skip if coming from detail and cache exists
 
         const fetchData = async () => {
@@ -108,7 +97,7 @@ export const LottoInsightPage = () => {
             setLoading(false);
         };
         fetchData();
-    }, [authLoading, user, shouldUseCache]);
+    }, [shouldUseCache]);
 
     const handleSharePrediction = async () => {
         if (!upcomingDraw?.conclusion?.finalPicks) return;
@@ -145,8 +134,6 @@ export const LottoInsightPage = () => {
         }
     };
 
-    const currentDraw = selectedDraw || upcomingDraw;
-
     const tabConfig = [
         { id: 'historical', label: 'สถิติย้อนหลัง', icon: TrendingUp },
         { id: 'sources', label: 'สำนักดัง', icon: Users },
@@ -158,56 +145,6 @@ export const LottoInsightPage = () => {
         pink: { bg: 'bg-pink-50', border: 'border-pink-200', text: 'text-pink-700', badge: 'bg-pink-100 text-pink-600' },
         blue: { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-700', badge: 'bg-blue-100 text-blue-600' }
     };
-
-    // Loading state
-    if (authLoading) {
-        return (
-            <div className="min-h-screen bg-amber-50 flex flex-col items-center justify-center">
-                <div className="relative">
-                    <div className="w-16 h-16 border-4 border-amber-200 border-t-amber-500 rounded-full animate-spin"></div>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-2xl">⏳</span>
-                    </div>
-                </div>
-                <p className="mt-4 text-amber-600 font-medium animate-pulse">กำลังโหลดข้อมูล...</p>
-            </div>
-        );
-    }
-
-    if (!user) {
-        return (
-            <div className="min-h-screen bg-amber-50 text-slate-800 flex flex-col items-center justify-center p-6">
-                <div className="max-w-md text-center">
-                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 mb-6">
-                        <span className="text-4xl">🔐</span>
-                    </div>
-                    <h2 className="text-2xl font-bold text-slate-800 mb-3">LottoInsight ต้องเข้าสู่ระบบก่อน</h2>
-                    <p className="text-slate-500 mb-6">
-                        กรุณาเข้าสู่ระบบก่อนใช้งานเครื่องมือวิเคราะห์หวยและเลขมงคล
-                    </p>
-                    <button
-                        onClick={() => setShowLoginModal(true)}
-                        className="px-8 py-3 bg-gradient-to-r from-indigo-600 to-blue-600 text-white font-bold rounded-xl hover:scale-105 transition-all shadow-lg flex items-center justify-center gap-2 mx-auto"
-                    >
-                        เข้าสู่ระบบ
-                    </button>
-                    <button
-                        onClick={() => navigate('/')}
-                        className="mt-4 px-6 py-2 text-slate-500 hover:text-slate-700 transition-colors text-sm"
-                    >
-                        ← กลับหน้าหลัก
-                    </button>
-                </div>
-
-                <LoginModal
-                    isOpen={showLoginModal}
-                    onClose={() => setShowLoginModal(false)}
-                />
-            </div>
-        );
-    }
-
-
 
     if (loading) {
         return (

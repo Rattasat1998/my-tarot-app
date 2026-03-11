@@ -1,22 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Search, Filter, Calendar, Star, Heart, Brain, BookOpen, Users, Clock, TrendingUp, ArrowLeft, Sparkles, X } from 'lucide-react';
 import { TAROT_CARDS } from '../data/tarotCards';
-import { getDailyFortune } from '../data/dailyFortune';
-import { PremiumGate } from '../components/ui/PremiumGate';
-import { usePremium } from '../hooks/usePremium';
-import { useAuth } from '../contexts/AuthContext';
-import { LoginModal } from '../components/modals/LoginModal';
 
 export const SearchPage = ({ isDark }) => {
-    const { isPremium } = usePremium();
-    const { user, loading: authLoading } = useAuth();
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [isSearching, setIsSearching] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [selectedSort, setSelectedSort] = useState('relevance');
-    const [searchHistory, setSearchHistory] = useState([]);
-    const [showLoginModal, setShowLoginModal] = useState(false);
+    const [searchHistory, setSearchHistory] = useState(() => {
+        const savedHistory = localStorage.getItem('searchHistory');
+        return savedHistory ? JSON.parse(savedHistory) : [];
+    });
 
     const categories = [
         { id: 'all', name: 'ทั้งหมด', icon: '📚' },
@@ -35,14 +30,6 @@ export const SearchPage = ({ isDark }) => {
         { id: 'popular', name: 'ยอดนิยม' },
         { id: 'alphabetical', name: 'ตามอักษร' }
     ];
-
-    useEffect(() => {
-        // Load search history from localStorage
-        const savedHistory = localStorage.getItem('searchHistory');
-        if (savedHistory) {
-            setSearchHistory(JSON.parse(savedHistory));
-        }
-    }, []);
 
     const performSearch = async (query) => {
         if (!query.trim()) {
@@ -223,48 +210,6 @@ export const SearchPage = ({ isDark }) => {
         }
         performSearch(query);
     };
-
-    if (authLoading) {
-        return (
-            <div className={`min-h-screen ${isDark ? 'bg-slate-950' : 'bg-slate-50'} flex items-center justify-center`}>
-                <div className="w-16 h-16 border-4 border-purple-200 border-t-purple-500 rounded-full animate-spin"></div>
-            </div>
-        );
-    }
-
-    if (!user) {
-        return (
-            <div className={`min-h-screen ${isDark ? 'bg-slate-950 text-white' : 'bg-slate-50 text-slate-800'} flex flex-col items-center justify-center p-6`}>
-                <div className="max-w-md text-center">
-                    <div className={`inline-flex items-center justify-center w-20 h-20 rounded-full ${isDark ? 'bg-slate-900 border-slate-700' : 'bg-white border-slate-200'} border mb-6 shadow-xl`}>
-                        <span className="text-4xl">🔐</span>
-                    </div>
-                    <h2 className="text-2xl font-bold mb-3">เข้าสู่ระบบก่อนใช้งาน</h2>
-                    <p className={`${isDark ? 'text-slate-400' : 'text-slate-500'} mb-6 leading-relaxed`}>
-                        กรุณาเข้าสู่ระบบเพื่อค้นหาความหมายไพ่ บทความ และเนื้อหาทั้งหมด
-                    </p>
-                    <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
-                        <button
-                            onClick={() => setShowLoginModal(true)}
-                            className="px-8 py-3 bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-bold rounded-xl hover:scale-105 transition-all shadow-lg flex items-center justify-center gap-2"
-                        >
-                            เข้าสู่ระบบ
-                        </button>
-                        <button
-                            onClick={() => window.history.back()}
-                            className={`px-8 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${isDark
-                                    ? 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white'
-                                    : 'bg-white text-slate-600 hover:bg-slate-100 hover:text-slate-900 shadow-md'
-                                }`}
-                        >
-                            กลับหน้าหลัก
-                        </button>
-                    </div>
-                </div>
-                <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
-            </div>
-        );
-    }
 
     return (
         <div className={`min-h-screen ${isDark ? 'dark' : ''}`}>

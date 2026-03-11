@@ -1,10 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Heart, Sparkles, Stars, Calculator, User, Zap, MessageCircle, Smile, Clock, MapPin, Search, Calendar, Briefcase, Gem, BookOpen } from 'lucide-react';
 import { ZODIAC_SIGNS, ELEMENTS, DAYS_OF_WEEK, LOVE_TIMING_DATA, SOULMATE_DATA, getZodiacByDate } from '../data/zodiacData';
 import { usePageSEO } from '../hooks/usePageTitle';
-import { useAuth } from '../contexts/AuthContext';
-import { LoginModal } from '../components/modals/LoginModal';
 
 export const SoulmatePage = () => {
     usePageSEO({
@@ -14,8 +12,6 @@ export const SoulmatePage = () => {
         path: '/soulmate',
     });
     const navigate = useNavigate();
-    const { user, loading: authLoading } = useAuth();
-    const [showLoginModal, setShowLoginModal] = useState(false);
 
     // User Inputs
     const [name, setName] = useState('');
@@ -24,38 +20,31 @@ export const SoulmatePage = () => {
     const [birthMonth, setBirthMonth] = useState('');
     const [birthYear, setBirthYear] = useState(''); // BE (Thai Year)
 
-    // Derived State
-    const [mySign, setMySign] = useState(null);
-    const [myDayOfWeek, setMyDayOfWeek] = useState(null);
-
     const [result, setResult] = useState(null);
     const [isCalculating, setIsCalculating] = useState(false);
 
-    // Auto-calculate Zodiac & Day when Date changes
-    useEffect(() => {
-        if (birthDay && birthMonth && birthYear) {
-            // Convert BE to CE
-            const yearCE = parseInt(birthYear) - 543;
-            // Note: Month in Date constructor is 0-indexed
-            const dateObj = new Date(yearCE, parseInt(birthMonth) - 1, parseInt(birthDay));
-
-            // Check invalid date
-            if (dateObj.getDate() !== parseInt(birthDay)) return;
-
-            // 1. Find Zodiac
-            const zodiac = getZodiacByDate(parseInt(birthMonth), parseInt(birthDay));
-            setMySign(zodiac);
-
-            // 2. Find Day of Week
-            // 0 = Sunday, 1 = Monday...
-            const daysMap = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-            const dayId = daysMap[dateObj.getDay()];
-            const dayData = DAYS_OF_WEEK.find(d => d.id === dayId);
-            setMyDayOfWeek(dayData);
-        } else {
-            setMySign(null);
-            setMyDayOfWeek(null);
+    const { mySign, myDayOfWeek } = useMemo(() => {
+        if (!birthDay || !birthMonth || !birthYear) {
+            return { mySign: null, myDayOfWeek: null };
         }
+
+        // Convert BE to CE (month is 0-indexed)
+        const day = parseInt(birthDay, 10);
+        const month = parseInt(birthMonth, 10);
+        const yearCE = parseInt(birthYear, 10) - 543;
+        const dateObj = new Date(yearCE, month - 1, day);
+
+        // Invalid date
+        if (dateObj.getDate() !== day) {
+            return { mySign: null, myDayOfWeek: null };
+        }
+
+        const zodiac = getZodiacByDate(month, day);
+        const daysMap = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+        const dayId = daysMap[dateObj.getDay()];
+        const dayData = DAYS_OF_WEEK.find(d => d.id === dayId) || null;
+
+        return { mySign: zodiac, myDayOfWeek: dayData };
     }, [birthDay, birthMonth, birthYear]);
 
 
@@ -113,45 +102,6 @@ export const SoulmatePage = () => {
     // Year range (Thai Year): Current Year + 543 down to -80 years
     const currentYearBE = new Date().getFullYear() + 543;
     const years = Array.from({ length: 80 }, (_, i) => currentYearBE - i);
-
-    if (authLoading) {
-        return (
-            <div className={`min-h-screen bg-slate-950 flex items-center justify-center`}>
-                <div className="w-16 h-16 border-4 border-pink-200 border-t-pink-500 rounded-full animate-spin"></div>
-            </div>
-        );
-    }
-
-    if (!user) {
-        return (
-            <div className={`min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6`}>
-                <div className="max-w-md text-center">
-                    <div className={`inline-flex items-center justify-center w-20 h-20 rounded-full bg-slate-900 border border-slate-700 mb-6 shadow-xl`}>
-                        <span className="text-4xl">🔐</span>
-                    </div>
-                    <h2 className="text-2xl font-bold mb-3">เข้าสู่ระบบก่อนใช้งาน</h2>
-                    <p className={`text-slate-400 mb-6 leading-relaxed`}>
-                        กรุณาเข้าสู่ระบบเพื่อทำนายเนื้อคู่จากดวงชะตาและวันเกิดของคุณ
-                    </p>
-                    <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
-                        <button
-                            onClick={() => setShowLoginModal(true)}
-                            className="px-8 py-3 bg-gradient-to-r from-pink-500 to-indigo-500 text-white font-bold rounded-xl hover:scale-105 transition-all shadow-lg flex items-center justify-center gap-2"
-                        >
-                            เข้าสู่ระบบ
-                        </button>
-                        <button
-                            onClick={() => window.history.back()}
-                            className={`px-8 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white`}
-                        >
-                            กลับหน้าหลัก
-                        </button>
-                    </div>
-                </div>
-                <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
-            </div>
-        );
-    }
 
     return (
         <div className="min-h-screen bg-slate-950 text-white pb-20 font-sans">
