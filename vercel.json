@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+        "source": "/lotto(.*)",
+        "destination": "/lotto/index.html"
+    },
+    {
       "source": "/((?!ads\\.txt|sitemap\\.xml|robots\\.txt).*)",
       "destination": "/index.html"
     }
