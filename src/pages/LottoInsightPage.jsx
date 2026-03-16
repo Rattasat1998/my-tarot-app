@@ -113,7 +113,7 @@ export const LottoInsightPage = () => {
             text += `เลข 3 ตัว: ${threeDigit.join(', ')}\n`;
         }
         
-        text += `\nดูบทวิเคราะห์หวย สถิติย้อนหลัง 22 ปีแบบจัดเต็มได้ฟรีที่:\n${window.location.origin}/lotto`;
+        text += `\nดูบทวิเคราะห์หวย สถิติย้อนหลัง 22 ปีแบบจัดเต็มได้ฟรีที่:\n${window.location.origin}/lotto\n#หวย #เลขเด็ด #เลขงวดนี้ #เลข2ตัว #เลขดัง`;
 
         if (navigator.share) {
             try {
