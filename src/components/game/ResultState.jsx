@@ -1,13 +1,10 @@
-import React, { useMemo, useRef, useState } from 'react';
-import { Sparkles, RefreshCw, Search, Volume2, VolumeX, Pause, Play, Share2, Download, Loader, Save } from 'lucide-react';
-import html2canvas from 'html2canvas';
+import React, { useMemo, useState } from 'react';
+import { RefreshCw, Search, Volume2, VolumeX, Pause, Play, Share2, Save } from 'lucide-react';
 import { READING_TOPICS } from '../../constants/readingTopics';
-import { GoogleAdSlot } from '../ui/GoogleAdSlot';
 import { useSpeech } from '../../hooks/useSpeech';
 import { HolographicCard } from '../ui/HolographicCard';
 import { ManaParticles } from '../ui/ManaParticles';
 import { MysticBackground } from '../ui/MysticBackground';
-import { ShareCardTemplate } from './ShareCardTemplate';
 import { SaveMemoModal } from '../modals/SaveMemoModal';
 import { CardDetailModal } from '../modals/CardDetailModal';
 import { useCardAudio } from '../../hooks/useCardAudio';
@@ -22,12 +19,10 @@ export const ResultState = ({
     isDark
 }) => {
     const { speak, stop, toggle, isSpeaking, isPaused } = useSpeech();
-    const { playDescription, playingCardId, stopAudio } = useCardAudio();
-    const [isSharing, setIsSharing] = useState(false);
+    const { playDescription, playingCardId } = useCardAudio();
     const [showSaveModal, setShowSaveModal] = useState(false);
     const [selectedDetailCard, setSelectedDetailCard] = useState(null);
     const [detailLabel, setDetailLabel] = useState('');
-    const shareTemplateRef = useRef(null);
 
     const handleCardClick = (card, label) => {
         setSelectedDetailCard(card);
@@ -83,34 +78,7 @@ export const ResultState = ({
         }
     };
 
-    const handleShare = async () => {
-        if (!shareTemplateRef.current) return;
-        setIsSharing(true);
-
-        try {
-            await new Promise(resolve => setTimeout(resolve, 100));
-            const canvas = await html2canvas(shareTemplateRef.current, {
-                useCORS: true,
-                scale: 1, // Native 1080x1920
-                backgroundColor: '#020617',
-                logging: false,
-            });
-            const image = canvas.toDataURL("image/png");
-            const link = document.createElement('a');
-            link.href = image;
-            link.download = `tarot-destiny-${Date.now()}.png`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        } catch (error) {
-            console.error("Error generating share image:", error);
-            alert("ขออภัย ไม่สามารถสร้างรูปภาพได้ในขณะนี้");
-        } finally {
-            setIsSharing(false);
-        }
-    };
-
-    const TTSButton = () => (
+    const renderTtsControls = () => (
         <div className="flex items-center gap-2">
             <button
                 onClick={handleSpeak}
@@ -142,7 +110,7 @@ export const ResultState = ({
         </div>
     );
 
-    const ShareButton = () => (
+    const renderShareButton = () => (
         <button
             disabled
             className="flex items-center gap-2 px-4 py-2 rounded-full bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700 opacity-60 text-sm font-bold"
@@ -152,7 +120,7 @@ export const ResultState = ({
         </button>
     );
 
-    const SaveButton = () => (
+    const renderSaveButton = () => (
         <button
             onClick={() => setShowSaveModal(true)}
             className="flex items-center gap-2 px-4 py-2 rounded-full bg-slate-700 hover:bg-slate-600 text-white transition-all text-sm font-bold"
@@ -170,17 +138,6 @@ export const ResultState = ({
             <div className="w-full flex flex-col items-center animate-in fade-in slide-in-from-bottom-8 duration-700 max-w-6xl mx-auto relative overflow-hidden">
                 <MysticBackground />
                 <ManaParticles count={50} />
-
-                <div style={{ position: 'fixed', left: '-3000px', top: 0, width: '1080px', height: '1920px', zIndex: -10, overflow: 'hidden' }}>
-                    <div ref={shareTemplateRef} data-share-template>
-                        <ShareCardTemplate
-                            cards={selectedCards}
-                            topic={topic}
-                            readingType={readingType}
-                            appName="ศาสตร์ดวงดาว"
-                        />
-                    </div>
-                </div>
 
                 <SaveMemoModal
                     isOpen={showSaveModal}
@@ -203,9 +160,9 @@ export const ResultState = ({
                     <h2 className="text-3xl font-serif text-yellow-500 mb-2">คำทำนายรายเดือน</h2>
                     <p className="text-slate-400 text-sm mb-4">ภาพรวมตลอดเดือนของคุณ</p>
                     <div className="flex justify-center gap-3 flex-wrap">
-                        <TTSButton />
-                        <SaveButton />
-                        <ShareButton />
+                        {renderTtsControls()}
+                        {renderSaveButton()}
+                        {renderShareButton()}
                     </div>
                 </div>
 
@@ -270,7 +227,6 @@ export const ResultState = ({
                         กลับหน้าหลัก
                     </button>
                 </div>
-                <GoogleAdSlot className="mt-16" />
             </div>
         );
     }
@@ -298,15 +254,9 @@ export const ResultState = ({
                     </button>
 
                     <div className="flex gap-2">
-                        <TTSButton />
+                        {renderTtsControls()}
 
-                        <div style={{ position: 'fixed', left: '-3000px', top: 0, width: '1080px', height: '1920px', zIndex: -10, overflow: 'hidden' }}>
-                            <div ref={shareTemplateRef} data-share-template>
-                                <ShareCardTemplate cards={selectedCards} topic={topic} readingType={readingType} appName="ศาสตร์ดวงดาว" />
-                            </div>
-                        </div>
-
-                        <ShareButton />
+                        {renderShareButton()}
 
                         <button
                             onClick={() => setShowSaveModal(true)}
@@ -397,7 +347,7 @@ export const ResultState = ({
                             </div>
                             <div className="flex flex-col gap-4 p-4 items-center justify-center bg-slate-900/30 rounded-3xl border border-slate-700/50">
                                 {/* Stack cards 7-10 */}
-                                {[9, 8, 7, 6].map((idx, i) => {
+                                {[9, 8, 7, 6].map((idx) => {
                                     const label = idx === 9 ? '10. บทสรุป' : idx === 8 ? '9. หวัง/กลัว' : idx === 7 ? '8. อิทธิพล' : '7. ทัศนคติ';
                                     return (
                                         <div key={idx} className="w-24 sm:w-32 aspect-[2/3] scale-90 hover:scale-100 transition-transform duration-300">
@@ -466,47 +416,35 @@ export const ResultState = ({
                 {/* Meanings Section */}
                 <div className="w-full max-w-4xl mt-12 space-y-8 bg-slate-900/40 p-6 rounded-3xl border border-slate-800 backdrop-blur-sm">
                     <h3 className="text-2xl font-serif text-center text-purple-300 mb-8">ความหมายโดยละเอียด</h3>
-                    {selectedCards.map((card, idx) => {
-                        let label = '';
-                        if (readingType === 'celtic-cross') {
-                            const labels = ['สถานการณ์ปัจจุบัน', 'อุปสรรค', 'เป้าหมาย/ความคิด', 'พื้นฐาน/จิตใต้สำนึก', 'อดีต', 'อนาคตอันใกล้', 'ทัศนคติ', 'อิทธิพลภายนอก', 'ความหวัง/ความกลัว', 'บทสรุป'];
-                            label = `${idx + 1}. ${labels[idx]}`;
-                        } else if (readingType === '1-card') {
-                            label = idx === 0 ? 'ปัจจุบัน' : 'อนาคต';
-                        } else {
-                            label = idx === 0 ? 'อดีต' : idx === 1 ? 'ปัจจุบัน' : 'อนาคต';
-                        }
-
-                        return (
-                            <div key={card.id} className="flex flex-col md:flex-row gap-6 border-b border-slate-800/50 pb-8 last:border-0 last:pb-0 items-center md:items-start group">
-                                <div className="relative shrink-0 w-32 aspect-[2/3] group/glow">
-                                    <div className="absolute inset-0 bg-yellow-500/10 blur-2xl group-hover/glow:bg-yellow-500/20 transition-all duration-700"></div>
-                                    <div className="relative w-full h-full overflow-hidden shadow-xl z-10">
-                                        <img src={card.img} alt={card.name} className="w-full h-full object-contain" />
-                                    </div>
-                                </div>
-                                <div className="flex-1">
-                                    <div className="flex items-center gap-3 mb-2 justify-center md:justify-start">
-                                        <div className="shrink-0 w-6 h-6 rounded-none bg-purple-900/30 flex items-center justify-center text-xs font-bold text-purple-300 border border-purple-500/20">
-                                            {idx + 1}
-                                        </div>
-                                        <div className="flex items-baseline gap-2">
-                                            <span className="font-bold text-yellow-500 text-lg">{card.name}</span>
-                                            <span className="text-sm text-slate-400">({card.nameThai})</span>
-                                        </div>
-                                        <button
-                                            onClick={() => playDescription(card.id)}
-                                            className={`shrink-0 p-1.5 rounded-full transition-all ${playingCardId === card.id ? 'bg-purple-600 text-white animate-pulse' : 'bg-slate-700 hover:bg-slate-600 text-slate-300'}`}
-                                            title={playingCardId === card.id ? 'หยุดฟัง' : 'ฟังคำอธิบายไพ่'}
-                                        >
-                                            {playingCardId === card.id ? <VolumeX size={14} /> : <Volume2 size={14} />}
-                                        </button>
-                                    </div>
-                                    <p className="text-sm md:text-base text-slate-300 leading-relaxed text-center md:text-left">{getCardMeaning(card, topic)}</p>
+                    {selectedCards.map((card, idx) => (
+                        <div key={card.id} className="flex flex-col md:flex-row gap-6 border-b border-slate-800/50 pb-8 last:border-0 last:pb-0 items-center md:items-start group">
+                            <div className="relative shrink-0 w-32 aspect-[2/3] group/glow">
+                                <div className="absolute inset-0 bg-yellow-500/10 blur-2xl group-hover/glow:bg-yellow-500/20 transition-all duration-700"></div>
+                                <div className="relative w-full h-full overflow-hidden shadow-xl z-10">
+                                    <img src={card.img} alt={card.name} className="w-full h-full object-contain" />
                                 </div>
                             </div>
-                        );
-                    })}
+                            <div className="flex-1">
+                                <div className="flex items-center gap-3 mb-2 justify-center md:justify-start">
+                                    <div className="shrink-0 w-6 h-6 rounded-none bg-purple-900/30 flex items-center justify-center text-xs font-bold text-purple-300 border border-purple-500/20">
+                                        {idx + 1}
+                                    </div>
+                                    <div className="flex items-baseline gap-2">
+                                        <span className="font-bold text-yellow-500 text-lg">{card.name}</span>
+                                        <span className="text-sm text-slate-400">({card.nameThai})</span>
+                                    </div>
+                                    <button
+                                        onClick={() => playDescription(card.id)}
+                                        className={`shrink-0 p-1.5 rounded-full transition-all ${playingCardId === card.id ? 'bg-purple-600 text-white animate-pulse' : 'bg-slate-700 hover:bg-slate-600 text-slate-300'}`}
+                                        title={playingCardId === card.id ? 'หยุดฟัง' : 'ฟังคำอธิบายไพ่'}
+                                    >
+                                        {playingCardId === card.id ? <VolumeX size={14} /> : <Volume2 size={14} />}
+                                    </button>
+                                </div>
+                                <p className="text-sm md:text-base text-slate-300 leading-relaxed text-center md:text-left">{getCardMeaning(card, topic)}</p>
+                            </div>
+                        </div>
+                    ))}
                 </div>
 
                 <div className="mt-12 flex justify-center">
@@ -514,8 +452,6 @@ export const ResultState = ({
                         กลับหน้าหลัก
                     </button>
                 </div>
-
-                <GoogleAdSlot className="mt-16" />
 
                 <SaveMemoModal
                     isOpen={showSaveModal}

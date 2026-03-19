@@ -101,7 +101,7 @@ export function AncientRunesPage() {
         description: 'เรียนรู้รูนโบราณ Elder Futhark 24 ตัว ต้นกำเนิดจากยุคไวกิ้ง ตำนานโอดิน ระบบ 3 Ættir โบราณวัตถุทางรูน กวีนิพนธ์รูน กัลดร์ และการฟื้นฟูในยุคปัจจุบัน',
         keywords: 'รูนโบราณ, Elder Futhark, ดูดวงรูน, อักษรรูน, ไวกิ้ง, โอดิน, Ættir, Norse runes, กัลดร์',
         ogImage: 'https://satduangdao.com/rune-hero.png',
-        path: '/ancient-runes-article',
+        path: '/ancient-runes',
     });
 
     const tabs = [

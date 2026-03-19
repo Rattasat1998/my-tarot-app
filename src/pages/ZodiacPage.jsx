@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Stars, Sparkles, Calendar } from 'lucide-react';
 import { ZODIAC_SIGNS, getZodiacFortune, ELEMENTS } from '../data/zodiacData';
 import { ZodiacCard } from '../components/zodiac/ZodiacCard';
@@ -14,18 +14,16 @@ export const ZodiacPage = () => {
         path: '/zodiac',
     });
     const navigate = useNavigate();
-    const [selectedZodiac, setSelectedZodiac] = useState(null);
-    const [fortune, setFortune] = useState(null);
+    const [searchParams, setSearchParams] = useSearchParams();
+    const selectedZodiac = searchParams.get('sign');
+    const fortune = selectedZodiac ? getZodiacFortune(selectedZodiac) : null;
 
     const handleSelectZodiac = (zodiac) => {
-        setSelectedZodiac(zodiac.id);
-        const fortuneData = getZodiacFortune(zodiac.id);
-        setFortune(fortuneData);
+        setSearchParams({ sign: zodiac.id }, { replace: true });
     };
 
     const handleCloseFortune = () => {
-        setFortune(null);
-        setSelectedZodiac(null);
+        setSearchParams({}, { replace: true });
     };
 
     // Group zodiacs by element for display

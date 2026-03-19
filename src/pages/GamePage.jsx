@@ -106,8 +106,6 @@ export function GamePage({ isDark, setIsDark }) {
         requiredPickCount,
         revealedIndices,
         handleCardPick,
-        handleStartReading: gameStartReading,
-        confirmReading: gameConfirmReading,
         onShuffleComplete,
         onCutComplete,
         resetGame: gameReset,
@@ -121,19 +119,25 @@ export function GamePage({ isDark, setIsDark }) {
     // Check for topic param (e.g. from Soulmate Page)
     useEffect(() => {
         const topicParam = searchParams.get('topic');
-        if (topicParam === 'love' && setTopic) {
-            setTopic('love');
-            // Clear param to clean URL
+        const articleParam = searchParams.get('article');
+
+        if (articleParam) {
+            setArticleId(articleParam);
+            setGameState('ARTICLE');
+            setSearchParams({});
+            return;
+        }
+
+        if (topicParam && READING_TOPICS.some((item) => item.id === topicParam) && setTopic) {
+            setTopic(topicParam);
+            setGameState('MENU');
             setSearchParams({});
         }
-    }, [searchParams, setTopic, setSearchParams]);
+    }, [searchParams, setGameState, setTopic, setSearchParams]);
 
     const {
         credits,
-        isLoading: creditsLoading,
-        useCredit,
-        addCredits,
-        checkDailyFree,
+        useCredit: consumeCredit,
         isDailyFreeAvailable,
         isDailyFreeClaimed,
         claimDailyFreeDraw
@@ -168,7 +172,7 @@ export function GamePage({ isDark, setIsDark }) {
         setShowRewardModal(true);
     };
 
-    const handleStartReading = (costFromMenu, readingTypeFromMenu) => {
+    const handleStartReading = (costFromMenu) => {
         // Use cost passed from MenuState (already calculated correctly there)
         const cost = costFromMenu || 0;
         const { isDaily } = getReadingCost(topic);
@@ -190,7 +194,7 @@ export function GamePage({ isDark, setIsDark }) {
 
         // Check if user has enough credits or it's free
         if (pendingIsFreeDaily || credits >= pendingCreditCost) {
-            const result = await useCredit(effectiveCost, treatAsDaily);
+            const result = await consumeCredit(effectiveCost, treatAsDaily);
             if (result.success) {
                 logActivity('tarot_reading', `อ่านไพ่: ${topic || 'ทั่วไป'}`, { topic, readingType, cost: effectiveCost });
                 // Show warp animation first
@@ -395,7 +399,7 @@ export function GamePage({ isDark, setIsDark }) {
                     onConfirm={async () => {
                         const cost = 1;
                         if (credits >= cost) {
-                            const result = await useCredit(cost, false);
+                            const result = await consumeCredit(cost, false);
                             if (result.success) {
                                 setShowFutureDialog(false);
                                 setIsDrawingFuture(true);

@@ -9,7 +9,7 @@ export function BuddhistCeremonyPage() {
         title: 'ศาสนพิธีในพุทธศาสนาไทย',
         description: 'บทความเชิงลึกเกี่ยวกับศาสนพิธีในพุทธศาสนาไทย วิวัฒนาการจากรากฐานคัมภีร์สู่สังคมร่วมสมัย พิธีกรรมทำบุญ อุปสมบท ทอดกฐิน ลอยกระทง สัญลักษณ์ทางศาสนา',
         keywords: 'ศาสนพิธี, พุทธศาสนา, พิธีกรรมไทย, ทำบุญ, อุปสมบท, ทอดกฐิน, ลอยกระทง, วัดไทย, พระพุทธศาสนา',
-        path: '/buddhist-ceremony-article',
+        path: '/ceremony',
     });
     const navigate = useNavigate();
     const [activeSection, setActiveSection] = useState('intro');

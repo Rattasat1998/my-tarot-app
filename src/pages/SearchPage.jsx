@@ -1,529 +1,601 @@
 import React, { useState } from 'react';
-import { Search, Filter, Calendar, Star, Heart, Brain, BookOpen, Users, Clock, TrendingUp, ArrowLeft, Sparkles, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import {
+    ArrowLeft,
+    BookOpen,
+    Calendar,
+    Compass,
+    ExternalLink,
+    Search,
+    Sparkles,
+    Star,
+    TrendingUp
+} from 'lucide-react';
+import { ARTICLES } from '../data/articles';
 import { TAROT_CARDS } from '../data/tarotCards';
+import { ZODIAC_SIGNS } from '../data/zodiacData';
+import { usePageSEO } from '../hooks/usePageTitle';
+
+const CATEGORY_OPTIONS = [
+    { id: 'all', label: 'ทั้งหมด' },
+    { id: 'pages', label: 'เครื่องมือ' },
+    { id: 'articles', label: 'บทความ' },
+    { id: 'cards', label: 'ความหมายไพ่' },
+    { id: 'zodiac', label: 'ราศี' },
+];
+
+const TRENDING_SEARCHES = [
+    'ไพ่ The Fool',
+    'ความรัก',
+    'เลขศาสตร์',
+    'ราศีเมษ',
+    'ฮวงจุ้ยโต๊ะทำงาน',
+    'เลขเด็ด'
+];
+
+const FEATURED_COLLECTIONS = [
+    {
+        id: 'daily-oracle',
+        title: 'ดวงรายวันแบบอินเทอร์แอคทีฟ',
+        description: 'ดูคำทำนายประจำวัน สีมงคล และคำแนะนำที่อ่านง่ายในหน้าเดียว',
+        route: '/daily-oracle',
+        icon: Calendar,
+        badge: 'อัปเดตรายวัน',
+        theme: 'from-emerald-500/15 to-teal-500/15',
+        border: 'border-emerald-500/30',
+        accent: 'text-emerald-300',
+    },
+    {
+        id: 'zodiac',
+        title: 'ดวง 12 ราศี',
+        description: 'ดูพื้นฐานราศี ธาตุประจำตัว และคำทำนายของแต่ละราศีได้ทันที',
+        route: '/zodiac',
+        icon: Star,
+        badge: '12 หมวด',
+        theme: 'from-fuchsia-500/15 to-violet-500/15',
+        border: 'border-fuchsia-500/30',
+        accent: 'text-fuchsia-300',
+    },
+    {
+        id: 'lotto',
+        title: 'คลังวิเคราะห์หวย',
+        description: 'รวมสถิติย้อนหลัง แนวทางเลขเด่น และเครื่องมือช่วยคิดเลขมงคล',
+        route: '/lotto',
+        icon: TrendingUp,
+        badge: 'ข้อมูล 22 ปี',
+        theme: 'from-amber-500/15 to-orange-500/15',
+        border: 'border-amber-500/30',
+        accent: 'text-amber-300',
+    },
+];
+
+const SITE_PAGES = [
+    {
+        id: 'daily-oracle',
+        kind: 'page',
+        category: 'pages',
+        title: 'ดวงรายวันแบบอินเทอร์แอคทีฟ',
+        description: 'ดูคำทำนายประจำวัน สีมงคล จุดเด่น จุดระวัง และแนวทางเสริมดวงของวันนี้',
+        route: '/daily-oracle',
+        actionLabel: 'เปิดดวงรายวัน',
+        keywords: ['รายวัน', 'ดวงวันนี้', 'สีมงคล', 'คำแนะนำประจำวัน'],
+    },
+    {
+        id: 'zodiac',
+        kind: 'page',
+        category: 'pages',
+        title: 'ดูดวง 12 ราศี',
+        description: 'คำทำนายราศีประจำวัน พร้อมข้อมูลธาตุ ดาวประจำราศี และเลขมงคล',
+        route: '/zodiac',
+        actionLabel: 'เปิดหน้าราศี',
+        keywords: ['ราศี', 'ธาตุ', 'ดวงราศี', 'โหราศาสตร์'],
+    },
+    {
+        id: 'lotto',
+        kind: 'page',
+        category: 'pages',
+        title: 'วิเคราะห์หวยและสถิติย้อนหลัง',
+        description: 'รวมข้อมูลหวยย้อนหลัง กระแสเลขเด่น เครื่องมือสุ่มเลขมงคล และตรวจผลสลาก',
+        route: '/lotto',
+        actionLabel: 'เปิดหน้าวิเคราะห์หวย',
+        keywords: ['หวย', 'เลขเด็ด', 'สถิติย้อนหลัง', 'ตรวจหวย'],
+    },
+    {
+        id: 'runes',
+        kind: 'page',
+        category: 'pages',
+        title: 'ดูดวงรูนโบราณ',
+        description: 'ทำความรู้จัก Elder Futhark และสุ่มรูนเพื่อรับคำแนะนำเชิงสัญลักษณ์',
+        route: '/runes',
+        actionLabel: 'เปิดหน้ารูน',
+        keywords: ['รูน', 'norse', 'elder futhark', 'คำทำนายรูน'],
+    },
+    {
+        id: 'soulmate',
+        kind: 'page',
+        category: 'pages',
+        title: 'เช็กดวงเนื้อคู่',
+        description: 'วิเคราะห์สมพงษ์ ความเข้ากันได้ และแนวโน้มเรื่องความสัมพันธ์จากข้อมูลวันเกิด',
+        route: '/soulmate',
+        actionLabel: 'เปิดหน้าเนื้อคู่',
+        keywords: ['เนื้อคู่', 'ความรัก', 'สมพงษ์', 'คู่ครอง'],
+    },
+    {
+        id: 'numerology',
+        kind: 'page',
+        category: 'pages',
+        title: 'บทความเลขศาสตร์',
+        description: 'เจาะลึกระบบเลขศาสตร์ ความหมายตัวเลข 1-9 และแนวคิด Master Numbers',
+        route: '/numerology-article',
+        actionLabel: 'อ่านบทความ',
+        keywords: ['เลขศาสตร์', 'ตัวเลข', 'master numbers', 'นามศาสตร์'],
+    },
+    {
+        id: 'feng-shui',
+        kind: 'page',
+        category: 'pages',
+        title: 'คู่มือฮวงจุ้ย',
+        description: 'รวมแนวคิดหยินหยาง ธาตุทั้งห้า และวิธีจัดพื้นที่ให้ส่งเสริมการใช้ชีวิต',
+        route: '/feng-shui-article',
+        actionLabel: 'อ่านบทความ',
+        keywords: ['ฮวงจุ้ย', 'จัดบ้าน', 'โต๊ะทำงาน', 'ทิศทาง'],
+    },
+    {
+        id: 'palmistry',
+        kind: 'page',
+        category: 'pages',
+        title: 'ศาสตร์ลายมือ',
+        description: 'เรียนรู้เส้นหลัก เนินฝ่ามือ และแนวทางอ่านลักษณะมือเชิงบูรณาการ',
+        route: '/palmistry-article',
+        actionLabel: 'อ่านบทความ',
+        keywords: ['ลายมือ', 'หัตถศาสตร์', 'เส้นชีวิต', 'เส้นหัวใจ'],
+    },
+];
+
+const SEARCHABLE_ITEMS = [
+    ...SITE_PAGES,
+    ...ARTICLES.map((article) => ({
+        id: `article:${article.id}`,
+        kind: 'article',
+        category: 'articles',
+        title: article.title.replace(/[^\p{L}\p{N}\s"“”'():!?-]/gu, '').trim(),
+        description: article.description,
+        route: `/?article=${article.id}`,
+        actionLabel: 'เปิดบทความ',
+        articleId: article.id,
+        meta: `${article.category} • ${article.readTime}`,
+        keywords: [article.category, article.readTime, article.title, article.description],
+    })),
+    ...ZODIAC_SIGNS.map((sign) => ({
+        id: `zodiac:${sign.id}`,
+        kind: 'zodiac',
+        category: 'zodiac',
+        title: `ราศี${sign.nameTh}`,
+        description: `ธาตุ${sign.element} • ดาวประจำราศี ${sign.rulingPlanet} • จุดเด่น ${sign.traits.slice(0, 3).join(' • ')}`,
+        route: `/zodiac?sign=${sign.id}`,
+        actionLabel: 'เปิดคำทำนายราศี',
+        signId: sign.id,
+        meta: sign.dateRange,
+        keywords: [sign.nameTh, sign.nameEn, sign.element, sign.rulingPlanet, ...sign.traits],
+    })),
+    ...TAROT_CARDS.map((card) => ({
+        id: `card:${card.id}`,
+        kind: 'card',
+        category: 'cards',
+        title: `${card.name} (${card.nameThai})`,
+        description: card.description || card.meaningUpright || '',
+        route: '/',
+        actionLabel: 'กลับไปเปิดไพ่',
+        meta: `ไพ่หมายเลข ${card.id}`,
+        keywords: [
+            card.name,
+            card.nameThai,
+            ...(card.keywords || []),
+            ...(card.keywords?.upright || []),
+            ...(card.keywords?.reversed || []),
+            card.meaningUpright,
+            card.meaningLove,
+            card.meaningWork,
+            card.meaningFinance,
+        ].filter(Boolean),
+    })),
+];
+
+const normalize = (value = '') => value.toLocaleLowerCase('th-TH');
+
+const scoreMatch = (item, query) => {
+    const normalizedTitle = normalize(item.title);
+    const normalizedDescription = normalize(item.description);
+    const normalizedKeywords = normalize(item.keywords.join(' '));
+
+    let score = 0;
+
+    if (normalizedTitle === query) score += 140;
+    if (normalizedTitle.startsWith(query)) score += 70;
+    if (normalizedTitle.includes(query)) score += 45;
+    if (normalizedKeywords.includes(query)) score += 25;
+    if (normalizedDescription.includes(query)) score += 18;
+    if (item.kind === 'article') score += 8;
+    if (item.kind === 'page') score += 6;
+
+    return score;
+};
+
+const searchLibrary = (query, category) => {
+    const normalizedQuery = normalize(query.trim());
+    if (normalizedQuery.length < 2) return [];
+
+    return SEARCHABLE_ITEMS
+        .filter((item) => category === 'all' || item.category === category)
+        .map((item) => ({ ...item, score: scoreMatch(item, normalizedQuery) }))
+        .filter((item) => item.score > 0)
+        .sort((left, right) => right.score - left.score)
+        .slice(0, 24);
+};
+
+const getCardTags = (item) => {
+    if (item.kind !== 'card') return [];
+    return item.keywords
+        .filter((keyword) => typeof keyword === 'string' && keyword.length > 1)
+        .slice(0, 4);
+};
+
+const getHistory = () => {
+    try {
+        const raw = localStorage.getItem('knowledgeSearchHistory');
+        return raw ? JSON.parse(raw) : [];
+    } catch {
+        return [];
+    }
+};
+
+const saveHistory = (query) => {
+    if (!query.trim()) return [];
+
+    const nextHistory = [query.trim(), ...getHistory().filter((item) => item !== query.trim())].slice(0, 6);
+    localStorage.setItem('knowledgeSearchHistory', JSON.stringify(nextHistory));
+    return nextHistory;
+};
+
+const ResultBadge = ({ item }) => {
+    const labelMap = {
+        page: { label: 'เครื่องมือ', className: 'bg-sky-500/10 text-sky-300 border-sky-500/30' },
+        article: { label: 'บทความ', className: 'bg-purple-500/10 text-purple-300 border-purple-500/30' },
+        zodiac: { label: 'ราศี', className: 'bg-amber-500/10 text-amber-300 border-amber-500/30' },
+        card: { label: 'ไพ่ทาโรต์', className: 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30' },
+    };
+
+    const badge = labelMap[item.kind];
+    return (
+        <span className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold ${badge.className}`}>
+            {badge.label}
+        </span>
+    );
+};
 
 export const SearchPage = ({ isDark }) => {
+    const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState('');
-    const [searchResults, setSearchResults] = useState([]);
-    const [isSearching, setIsSearching] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState('all');
-    const [selectedSort, setSelectedSort] = useState('relevance');
-    const [searchHistory, setSearchHistory] = useState(() => {
-        const savedHistory = localStorage.getItem('searchHistory');
-        return savedHistory ? JSON.parse(savedHistory) : [];
+    const [searchHistory, setSearchHistory] = useState(() => getHistory());
+
+    usePageSEO({
+        title: 'คลังความรู้ไพ่ทาโรต์และดูดวง',
+        description: 'ค้นหาบทความดูดวง ความหมายไพ่ทาโรต์ ข้อมูลราศี และเครื่องมือสำคัญทั้งหมดของศาสตร์ดวงดาวในหน้าเดียว',
+        keywords: 'ค้นหาดูดวง, คลังความรู้, ไพ่ทาโรต์, ความหมายไพ่, ราศี, เลขศาสตร์, ฮวงจุ้ย',
+        path: '/search',
+        robots: 'noindex, follow',
+        type: 'website',
     });
 
-    const categories = [
-        { id: 'all', name: 'ทั้งหมด', icon: '📚' },
-        { id: 'cards', name: 'ไพ่ทาโรต์', icon: '🎴' },
-        { id: 'meanings', name: 'ความหมาย', icon: '📖' },
-        { id: 'articles', name: 'บทความ', icon: '📰' },
-        { id: 'zodiac', name: 'ราศี', icon: '⭐' },
-        { id: 'meditation', name: 'สมาธิ', icon: '🧘' },
-        { id: 'journal', name: 'บันทึก', icon: '📔' },
-        { id: 'community', name: 'ชุมชน', icon: '👥' }
-    ];
+    const results = searchLibrary(searchQuery, selectedCategory);
+    const hasQuery = searchQuery.trim().length >= 2;
 
-    const sortOptions = [
-        { id: 'relevance', name: 'ความเกี่ยวข้อง' },
-        { id: 'recent', name: 'ล่าสุด' },
-        { id: 'popular', name: 'ยอดนิยม' },
-        { id: 'alphabetical', name: 'ตามอักษร' }
-    ];
-
-    const performSearch = async (query) => {
-        if (!query.trim()) {
-            setSearchResults([]);
+    const handleBack = () => {
+        if (window.history.length > 1) {
+            navigate(-1);
             return;
         }
 
-        setIsSearching(true);
-
-        // Simulate search API call
-        setTimeout(() => {
-            const results = searchInContent(query, selectedCategory);
-            setSearchResults(results);
-
-            // Add to search history
-            const newHistory = [query, ...searchHistory.filter(h => h !== query)].slice(0, 10);
-            setSearchHistory(newHistory);
-            localStorage.setItem('searchHistory', JSON.stringify(newHistory));
-
-            setIsSearching(false);
-        }, 500);
+        navigate('/');
     };
 
-    const searchInContent = (query, category) => {
-        const lowerQuery = query.toLowerCase();
-        let results = [];
-
-        // Search in tarot cards
-        if (category === 'all' || category === 'cards') {
-            TAROT_CARDS.forEach(card => {
-                if (card.name.toLowerCase().includes(lowerQuery) ||
-                    card.keywords?.upright?.some(k => k.toLowerCase().includes(lowerQuery)) ||
-                    card.keywords?.reversed?.some(k => k.toLowerCase().includes(lowerQuery)) ||
-                    card.description?.toLowerCase().includes(lowerQuery)) {
-                    results.push({
-                        type: 'card',
-                        item: card,
-                        title: card.name,
-                        description: card.description || `${card.keywords?.upright?.slice(0, 3).join(' • ')} - ${card.keywords?.reversed?.slice(0, 3).join(' • ')}`,
-                        url: `/card/${card.id}`,
-                        image: card.image,
-                        category: 'cards'
-                    });
-                }
-            });
-        }
-
-        // Search in articles (mock data)
-        if (category === 'all' || category === 'articles') {
-            const articles = [
-                {
-                    id: 1,
-                    title: 'วิธีอ่านไพ่ทาโรต์สำหรับมือใหม่',
-                    excerpt: 'คู่มือคำแนะนำใหม่เพื่อการอ่านไพ่ทาโรต์อย่างง่าย...',
-                    url: '/articles/tarot-basics',
-                    category: 'articles',
-                    date: '2024-01-15',
-                    readTime: '5 นาที'
-                },
-                {
-                    id: 2,
-                    title: 'ความหมายไพ่ The Fool ในทาโรต์',
-                    excerpt: 'ไพ่ The Fool เป็นไพ่แรกกแรกแรกที่ 0 ในสำรับไพ่ทาโรต์...',
-                    url: '/articles/fool-meaning',
-                    category: 'articles',
-                    date: '2024-01-10',
-                    readTime: '3 นาที'
-                }
-            ];
-
-            articles.forEach(article => {
-                if (article.title.toLowerCase().includes(lowerQuery) ||
-                    article.excerpt.toLowerCase().includes(lowerQuery)) {
-                    results.push({
-                        type: 'article',
-                        item: article,
-                        title: article.title,
-                        description: article.excerpt,
-                        url: article.url,
-                        category: 'articles'
-                    });
-                }
-            });
-        }
-
-        // Search in zodiac data (mock)
-        if (category === 'all' || category === 'zodiac') {
-            const zodiacData = [
-                {
-                    id: 'aries',
-                    name: 'ราศีเมษ',
-                    description: 'ผู้นำการนำ มีนะเสนอนสูง มีนะเสนอน...',
-                    element: 'ไฟ',
-                    dates: '21 มี.ค. - 19 เม.ย.',
-                    traits: ['กล้าวเสนอน', 'มีความมุน', 'ขี้งแข็งแข็ง']
-                },
-                {
-                    id: 'taurus',
-                    name: 'ราศีพฤษภ',
-                    description: 'ผู้มีเสถียนภาพระณิย์ มั่นคงความ...',
-                    element: 'วัว',
-                    dates: '20 เม.ย. - 20 พ.ค.',
-                    traits: ['อดทน', 'ซื่อมั่นคง', 'จริงจริง']
-                }
-            ];
-
-            zodiacData.forEach(zodiac => {
-                if (zodiac.name.toLowerCase().includes(lowerQuery) ||
-                    zodiac.description.toLowerCase().includes(lowerQuery) ||
-                    zodiac.traits.some(trait => trait.toLowerCase().includes(lowerQuery))) {
-                    results.push({
-                        type: 'zodiac',
-                        item: zodiac,
-                        title: zodiac.name,
-                        description: zodiac.description,
-                        url: `/zodiac/${zodiac.id}`,
-                        category: 'zodiac'
-                    });
-                }
-            });
-        }
-
-        // Sort results
-        return sortResults(results, selectedSort);
+    const rememberQuery = (query) => {
+        if (!query.trim()) return;
+        setSearchHistory(saveHistory(query));
     };
 
-    const sortResults = (results, sortType) => {
-        switch (sortType) {
-            case 'relevance':
-                return results.sort((a, b) => {
-                    const aScore = calculateRelevanceScore(a.title, searchQuery);
-                    const bScore = calculateRelevanceScore(b.title, searchQuery);
-                    return bScore - aScore;
-                });
-            case 'recent':
-                return results.sort((a, b) => (b.date || 0) - (a.date || 0));
-            case 'popular':
-                return results.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
-            case 'alphabetical':
-                return results.sort((a, b) => a.title.localeCompare(b.title));
-            default:
-                return results;
-        }
-    };
-
-    const calculateRelevanceScore = (title, query) => {
-        const lowerTitle = title.toLowerCase();
-        const lowerQuery = query.toLowerCase();
-
-        if (lowerTitle === lowerQuery) return 100;
-        if (lowerTitle.startsWith(lowerQuery)) return 80;
-        if (lowerTitle.includes(lowerQuery)) return 60;
-
-        return 0;
-    };
-
-    const handleSearch = (e) => {
-        const query = e.target.value;
+    const handleSuggestionClick = (query) => {
         setSearchQuery(query);
-
-        if (query.length > 2) {
-            performSearch(query);
-        } else if (query.length === 0) {
-            setSearchResults([]);
-        }
+        rememberQuery(query);
     };
 
-    const clearSearch = () => {
-        setSearchQuery('');
-        setSearchResults([]);
-    };
-
-    const addToHistory = (query) => {
-        if (!searchHistory.includes(query)) {
-            const newHistory = [query, ...searchHistory.slice(0, 9)];
-            setSearchHistory(newHistory);
-            localStorage.setItem('searchHistory', JSON.stringify(newHistory));
-        }
-        performSearch(query);
+    const openResult = (item) => {
+        rememberQuery(searchQuery || item.title);
+        navigate(item.route);
     };
 
     return (
         <div className={`min-h-screen ${isDark ? 'dark' : ''}`}>
             <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-950 text-white">
-                {/* Header */}
-                <div className="p-6">
+                <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
                     <button
-                        onClick={() => window.history.back()}
-                        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-800/50 border border-slate-700 text-slate-300 hover:bg-slate-700 transition-all mb-6"
+                        onClick={handleBack}
+                        className="mb-8 inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-900/60 px-4 py-2 text-sm text-slate-300 transition-colors hover:border-slate-600 hover:bg-slate-800 hover:text-white"
                     >
-                        <ArrowLeft size={20} />
+                        <ArrowLeft size={18} />
                         กลับ
                     </button>
 
-                    <div className="text-center">
-                        <div className="flex items-center justify-center gap-3 mb-4">
-                            <div className="p-3 rounded-full bg-gradient-to-r from-purple-500/20 to-indigo-500/20 border border-purple-500/30">
-                                <Search className="w-8 h-8 text-purple-400" />
+                    <section className="mb-10 rounded-[2rem] border border-slate-800 bg-slate-900/40 p-6 shadow-2xl shadow-black/20 sm:p-8">
+                        <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/10 px-4 py-2 text-sm text-purple-200">
+                            <Compass size={16} />
+                            คลังความรู้ในแอปเดียว
+                        </div>
+                        <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
+                            <div>
+                                <h1 className="max-w-3xl text-3xl font-serif font-bold leading-tight text-white sm:text-5xl">
+                                    ค้นหาความหมายไพ่ บทความ และเครื่องมือดูดวงจากข้อมูลจริงในเว็บไซต์
+                                </h1>
+                                <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-300">
+                                    หน้านี้รวบรวมบทความ, ไพ่ทาโรต์ 78 ใบ, ดวง 12 ราศี และเครื่องมือสำคัญของศาสตร์ดวงดาวไว้ในที่เดียว
+                                    เพื่อให้ค้นหาความรู้ได้โดยไม่ต้องไล่เปิดหลายเมนู
+                                </p>
                             </div>
-                            <h1 className="text-4xl font-serif font-bold bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent">
-                                ค้นหาความรู้
-                            </h1>
-                        </div>
-                        <p className="สล-300 max-w-2xl mx-auto">
-                            ค้นหาบทความ, ไพ่ทาโรต์, และข้อมูลเชี่ยวชาญษ์ทั้งหมด
-                        </p>
-                    </div>
-                </div>
 
-                {/* Search Bar */}
-                <div className="max-w-4xl mx-auto px-6 pb-6">
-                    <div className="relative">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-                        <input
-                            type="text"
-                            placeholder="ค้นหาไพ่ทาโรต์, บทความ, ความหมาย..."
-                            value={searchQuery}
-                            onChange={handleSearch}
-                            onFocus={() => searchQuery.length > 0 && addToHistory(searchQuery)}
-                            className={`w-full pl-12 pr-12 py-4 rounded-2xl ${isDark ? 'bg-slate-800/50 border border-slate-700 text-white placeholder-slate-500' : 'bg-slate-100 border border-slate-300 placeholder-slate-500'} focus:outline-none focus:border-purple-500 transition-all`}
-                        />
-                        {searchQuery && (
-                            <button
-                                onClick={clearSearch}
-                                className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-slate-700/50 border border-slate-600 text-slate-400 hover:bg-slate-600 transition-all"
-                            >
-                                <X size={16} />
-                            </button>
-                        )}
-                    </div>
-
-                    {/* Filters */}
-                    <div className="flex flex-wrap gap-4 justify-center mb-6">
-                        {/* Category Filter */}
-                        <div className="flex items-center gap-2">
-                            <Filter className="text-slate-400" size={18} />
-                            <select
-                                value={selectedCategory}
-                                onChange={(e) => setSelectedCategory(e.target.value)}
-                                className={`px-4 py-2 rounded-lg ${isDark ? 'bg-slate-800/50 border border-slate-700 text-white' : 'bg-slate-100 border border-slate-300'} focus:outline-none focus:border-purple-500`}
-                            >
-                                {categories.map(cat => (
-                                    <option key={cat.id} value={cat.id}>{cat.icon} {cat.name}</option>
-                                ))}
-                            </select>
-                        </div>
-
-                        {/* Sort Filter */}
-                        <div className="flex items-center gap-2">
-                            <TrendingUp className="text-slate-400" size={18} />
-                            <select
-                                value={selectedSort}
-                                onChange={(e) => setSelectedSort(e.target.value)}
-                                className={`px-4 py-2 rounded-lg ${isDark ? 'bg-slate-800/50 border border-slate-700 text-white' : 'bg-slate-100 border border-slate-300'} focus:outline-none focus:border-purple-500`}
-                            >
-                                {sortOptions.map(option => (
-                                    <option key={option.id} value={option.id}>{option.name}</option>
-                                ))}
-                            </select>
-                        </div>
-                    </div>
-
-                    {/* Search History */}
-                    {searchHistory.length > 0 && searchQuery.length === 0 && (
-                        <div className="mb-6">
-                            <div className="flex items-center gap-2 mb-3">
-                                <Clock className="text-slate-400" size={16} />
-                                <span className="text-slate-400 text-sm">ค้นหาล่าสุด</span>
+                            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-2">
+                                <div className="rounded-2xl border border-slate-800 bg-slate-950/70 p-4">
+                                    <div className="text-2xl font-bold text-white">{TAROT_CARDS.length}</div>
+                                    <div className="mt-1 text-xs text-slate-400">ไพ่ทาโรต์ในคลัง</div>
+                                </div>
+                                <div className="rounded-2xl border border-slate-800 bg-slate-950/70 p-4">
+                                    <div className="text-2xl font-bold text-white">{ARTICLES.length}</div>
+                                    <div className="mt-1 text-xs text-slate-400">บทความแนะนำ</div>
+                                </div>
+                                <div className="rounded-2xl border border-slate-800 bg-slate-950/70 p-4">
+                                    <div className="text-2xl font-bold text-white">{ZODIAC_SIGNS.length}</div>
+                                    <div className="mt-1 text-xs text-slate-400">ราศีที่ค้นหาได้</div>
+                                </div>
+                                <div className="rounded-2xl border border-slate-800 bg-slate-950/70 p-4">
+                                    <div className="text-2xl font-bold text-white">{SITE_PAGES.length}</div>
+                                    <div className="mt-1 text-xs text-slate-400">เครื่องมือหลัก</div>
+                                </div>
                             </div>
+                        </div>
+
+                        <div className="mt-8 space-y-4">
+                            <div className="relative">
+                                <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={20} />
+                                <input
+                                    type="search"
+                                    value={searchQuery}
+                                    onChange={(event) => setSearchQuery(event.target.value)}
+                                    onKeyDown={(event) => {
+                                        if (event.key === 'Enter') {
+                                            rememberQuery(searchQuery);
+                                        }
+                                    }}
+                                    placeholder="ลองค้นหา เช่น ไพ่ The Star, ราศีเมษ, ความรัก, ฮวงจุ้ย"
+                                    className="w-full rounded-2xl border border-slate-700 bg-slate-950/80 py-4 pl-12 pr-4 text-base text-white placeholder:text-slate-500 focus:border-purple-500 focus:outline-none"
+                                />
+                            </div>
+
                             <div className="flex flex-wrap gap-2">
-                                {searchHistory.map((query, index) => (
+                                {CATEGORY_OPTIONS.map((option) => (
                                     <button
-                                        key={index}
-                                        onClick={() => addToHistory(query)}
-                                        className="px-3 py-1 rounded-full bg-slate-800/50 border border-slate-700 text-slate-300 hover:bg-slate-700 transition-all text-sm"
+                                        key={option.id}
+                                        onClick={() => setSelectedCategory(option.id)}
+                                        className={`rounded-full border px-4 py-2 text-sm transition-colors ${
+                                            selectedCategory === option.id
+                                                ? 'border-purple-400 bg-purple-500/15 text-purple-200'
+                                                : 'border-slate-700 bg-slate-900/60 text-slate-300 hover:border-slate-600 hover:text-white'
+                                        }`}
+                                    >
+                                        {option.label}
+                                    </button>
+                                ))}
+                            </div>
+
+                            <div className="flex flex-wrap items-center gap-2 text-sm text-slate-400">
+                                <Sparkles size={16} className="text-yellow-400" />
+                                <span>คำค้นยอดนิยม:</span>
+                                {TRENDING_SEARCHES.map((query) => (
+                                    <button
+                                        key={query}
+                                        onClick={() => handleSuggestionClick(query)}
+                                        className="rounded-full border border-slate-700 px-3 py-1.5 text-slate-300 transition-colors hover:border-slate-600 hover:bg-slate-800 hover:text-white"
                                     >
                                         {query}
                                     </button>
                                 ))}
                             </div>
                         </div>
-                    )}
-                </div>
+                    </section>
 
-                {/* Loading State */}
-                {isSearching && (
-                    <div className="max-w-4xl mx-auto px-6 pb-12">
-                        <div className="text-center py-12">
-                            <div className="inline-flex items-center gap-3 px-6 py-3 bg-purple-500/10 border border-purple-500/30 rounded-xl mb-4">
-                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-400"></div>
-                                <span className="text-purple-300">กำลังค้นหา...</span>
-                            </div>
-                        </div>
-                    </div>
-                )}
+                    {!hasQuery && (
+                        <>
+                            {searchHistory.length > 0 && (
+                                <section className="mb-10">
+                                    <div className="mb-4 flex items-center gap-2 text-slate-300">
+                                        <Search size={16} className="text-slate-500" />
+                                        <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">ค้นหาล่าสุด</h2>
+                                    </div>
+                                    <div className="flex flex-wrap gap-2">
+                                        {searchHistory.map((query) => (
+                                            <button
+                                                key={query}
+                                                onClick={() => handleSuggestionClick(query)}
+                                                className="rounded-full border border-slate-700 bg-slate-900/60 px-4 py-2 text-sm text-slate-300 transition-colors hover:border-slate-600 hover:bg-slate-800 hover:text-white"
+                                            >
+                                                {query}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </section>
+                            )}
 
-                {/* Search Results */}
-                {!isSearching && (
-                    <div className="max-w-6xl mx-auto px-6 pb-12">
-                        {searchResults.length === 0 && searchQuery.length > 0 ? (
-                            <div className="text-center py-12">
-                                <div className="inline-flex items-center gap-3 px-6 py-3 bg-slate-800/50 border border-slate-700 rounded-xl">
-                                    <Search className="text-slate-400" size={24} />
-                                    <span className="text-slate-300">ไม่พบผลลการค้นหา</span>
+                            <section className="mb-12">
+                                <div className="mb-5 flex items-center gap-2">
+                                    <BookOpen size={18} className="text-purple-300" />
+                                    <h2 className="text-xl font-semibold text-white">เริ่มจากหมวดที่คนใช้งานบ่อย</h2>
                                 </div>
-                                <p className="text-slate-400 mt-4">
-                                    ลองค้นหาด้วยที่แตกต่างหรือใช้้คำศัพท์อื่น
-                                </p>
-                                <div className="mt-6 flex flex-wrap gap-2 justify-center">
-                                    <span className="px-3 py-1 bg-purple-500/10 border border-purple-500/30 rounded-full text-purple-300 text-sm">
-                                        ลอง: "ไพ่ The Fool"
-                                    </span>
-                                    <span className="px-3 py-1 bg-purple-500/10 border border-purple-500/30 rounded-full text-purple-300 text-sm">
-                                        ลอง: "ความรัก"
-                                    </span>
-                                    <span className="px-3 py-1 bg-purple-500/10 border border-purple-500/30 rounded-full text-purple-300 text-sm">
-                                        ลอง: "สมาธิ"
-                                    </span>
+                                <div className="grid gap-4 lg:grid-cols-3">
+                                    {FEATURED_COLLECTIONS.map((item) => {
+                                        const Icon = item.icon;
+                                        return (
+                                            <button
+                                                key={item.id}
+                                                onClick={() => navigate(item.route)}
+                                                className={`rounded-[1.75rem] border bg-gradient-to-br ${item.theme} ${item.border} p-6 text-left transition-transform hover:-translate-y-1`}
+                                            >
+                                                <div className="mb-5 flex items-center justify-between">
+                                                    <div className="rounded-2xl border border-white/10 bg-slate-950/60 p-3">
+                                                        <Icon size={22} className={item.accent} />
+                                                    </div>
+                                                    <span className={`rounded-full border border-white/10 px-3 py-1 text-xs font-semibold ${item.accent}`}>
+                                                        {item.badge}
+                                                    </span>
+                                                </div>
+                                                <h3 className="text-xl font-semibold text-white">{item.title}</h3>
+                                                <p className="mt-3 text-sm leading-relaxed text-slate-300">{item.description}</p>
+                                                <div className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-white">
+                                                    เปิดดูเลย
+                                                    <ExternalLink size={16} />
+                                                </div>
+                                            </button>
+                                        );
+                                    })}
                                 </div>
-                            </div>
-                        ) : searchResults.length > 0 ? (
-                            <div>
-                                <div className="flex items-center justify-between mb-6">
-                                    <p className="text-slate-300">
-                                        พบ {searchResults.length} ผลลลการค้นหาสำหรับ "{searchQuery}"
-                                    </p>
-                                    <div className="flex items-center gap-2 text-sm text-slate-400">
-                                        <Sparkles className="w-4 h-4 text-purple-400" />
-                                        <span>ความเกี่ยวข้อง</span>
+                            </section>
+
+                            <section className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+                                <div>
+                                    <div className="mb-5 flex items-center gap-2">
+                                        <Sparkles size={18} className="text-yellow-400" />
+                                        <h2 className="text-xl font-semibold text-white">บทความที่คนอ่านต่อบ่อย</h2>
+                                    </div>
+                                    <div className="space-y-4">
+                                        {ARTICLES.slice(0, 4).map((article) => (
+                                            <button
+                                                key={article.id}
+                                                onClick={() => navigate(`/?article=${article.id}`)}
+                                                className="w-full rounded-3xl border border-slate-800 bg-slate-900/40 p-5 text-left transition-colors hover:border-slate-700 hover:bg-slate-900/70"
+                                            >
+                                                <div className="mb-3 flex items-center gap-2 text-xs text-slate-400">
+                                                    <BookOpen size={14} />
+                                                    <span>{article.category}</span>
+                                                    <span>•</span>
+                                                    <span>{article.readTime}</span>
+                                                </div>
+                                                <h3 className="text-lg font-semibold text-white">{article.title}</h3>
+                                                <p className="mt-2 text-sm leading-relaxed text-slate-300">{article.description}</p>
+                                            </button>
+                                        ))}
                                     </div>
                                 </div>
 
-                                <div className="space-y-4">
-                                    {searchResults.map((result, index) => (
+                                <div>
+                                    <div className="mb-5 flex items-center gap-2">
+                                        <Star size={18} className="text-amber-400" />
+                                        <h2 className="text-xl font-semibold text-white">ไพ่ที่ถูกค้นหาบ่อย</h2>
+                                    </div>
+                                    <div className="grid gap-3 sm:grid-cols-2">
+                                        {TAROT_CARDS.slice(0, 6).map((card) => (
+                                            <div
+                                                key={card.id}
+                                                className="rounded-3xl border border-slate-800 bg-slate-900/40 p-4"
+                                            >
+                                                <div className="text-sm font-semibold text-white">{card.name}</div>
+                                                <div className="mt-1 text-xs text-slate-500">{card.nameThai}</div>
+                                                <p className="mt-3 text-sm leading-relaxed text-slate-300 line-clamp-3">
+                                                    {card.description || card.meaningUpright}
+                                                </p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </section>
+                        </>
+                    )}
+
+                    {hasQuery && (
+                        <section>
+                            <div className="mb-5 flex items-center justify-between gap-4">
+                                <div>
+                                    <h2 className="text-xl font-semibold text-white">ผลการค้นหา</h2>
+                                    <p className="mt-1 text-sm text-slate-400">
+                                        พบ {results.length} รายการสำหรับคำว่า "{searchQuery.trim()}"
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={() => rememberQuery(searchQuery)}
+                                    className="rounded-full border border-slate-700 px-4 py-2 text-sm text-slate-300 transition-colors hover:border-slate-600 hover:text-white"
+                                >
+                                    บันทึกคำค้นนี้
+                                </button>
+                            </div>
+
+                            {results.length === 0 ? (
+                                <div className="rounded-[2rem] border border-slate-800 bg-slate-900/40 p-8 text-center">
+                                    <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full border border-slate-700 bg-slate-950/80">
+                                        <Search size={22} className="text-slate-400" />
+                                    </div>
+                                    <h3 className="text-lg font-semibold text-white">ยังไม่พบคำตอบที่ตรงมากพอ</h3>
+                                    <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-slate-400">
+                                        ลองเปลี่ยนเป็นคำที่สั้นลงหรือกว้างขึ้น เช่น "ไพ่ lovers", "ความรัก", "ราศีสิงห์", "เลขศาสตร์"
+                                    </p>
+                                </div>
+                            ) : (
+                                <div className="grid gap-4">
+                                    {results.map((item) => (
                                         <div
-                                            key={`${result.type}-${result.item.id || index}`}
-                                            className={`p-6 rounded-xl border transition-all hover:scale-[1.02] ${isDark
-                                                    ? 'bg-slate-900/50 border-slate-800 hover:bg-slate-800/50'
-                                                    : 'bg-slate-100 border-slate-300 hover:bg-slate-200'
-                                                }`}
+                                            key={item.id}
+                                            className="rounded-[1.75rem] border border-slate-800 bg-slate-900/45 p-5 transition-colors hover:border-slate-700 hover:bg-slate-900/70"
                                         >
-                                            <div className="flex items-start gap-4">
-                                                {/* Icon/Image */}
-                                                <div className="flex-shrink-0">
-                                                    {result.type === 'card' && result.image ? (
-                                                        <img
-                                                            src={result.image}
-                                                            alt={result.title}
-                                                            className="w-16 h-24 rounded-lg object-cover border border-slate-700"
-                                                        />
-                                                    ) : (
-                                                        <div className={`w-16 h-16 rounded-lg flex items-center justify-center text-2xl ${result.type === 'article' ? 'bg-blue-500/20 border border-blue-500/30' :
-                                                                result.type === 'zodiac' ? 'bg-purple-500/20 border border-purple-500/30' :
-                                                                    'bg-slate-700 border border-slate-600'
-                                                            }`}>
-                                                            {result.type === 'card' ? '🎴' :
-                                                                result.type === 'article' ? '📰' :
-                                                                    result.type === 'zodiac' ? result.item.element : '📚'}
+                                            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                                                <div className="min-w-0 flex-1">
+                                                    <div className="mb-3 flex flex-wrap items-center gap-2">
+                                                        <ResultBadge item={item} />
+                                                        {item.meta && (
+                                                            <span className="text-xs text-slate-500">{item.meta}</span>
+                                                        )}
+                                                    </div>
+                                                    <h3 className="text-lg font-semibold text-white">{item.title}</h3>
+                                                    <p className="mt-2 text-sm leading-relaxed text-slate-300">
+                                                        {item.description}
+                                                    </p>
+
+                                                    {item.kind === 'card' && (
+                                                        <div className="mt-4 flex flex-wrap gap-2">
+                                                            {getCardTags(item).map((tag) => (
+                                                                <span
+                                                                    key={`${item.id}-${tag}`}
+                                                                    className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs text-emerald-200"
+                                                                >
+                                                                    {tag}
+                                                                </span>
+                                                            ))}
                                                         </div>
                                                     )}
                                                 </div>
 
-                                                {/* Content */}
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="flex items-center gap-2 mb-2">
-                                                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${result.type === 'card' ? 'bg-purple-500/20 border border-purple-500/30 text-purple-300' :
-                                                                result.type === 'article' ? 'bg-blue-500/20 border border-blue-500/30 text-blue-300' :
-                                                                    result.type === 'zodiac' ? 'bg-purple-500/20 border border-purple-500/30 text-purple-300' :
-                                                                        'bg-slate-700 border border-slate-600 text-slate-300'
-                                                            }`}>
-                                                            {result.type === 'card' ? 'ไพ่ทาโรต์' :
-                                                                result.type === 'article' ? 'บทความ' :
-                                                                    result.type === 'zodiac' ? 'ราศี' : 'อื่นๆ'}
-                                                        </span>
-                                                        {result.type === 'card' && (
-                                                            <span className="text-xs text-purple-400">
-                                                                #{result.item.arcana}
-                                                            </span>
-                                                        )}
-                                                    </div>
-
-                                                    <h3 className="text-lg font-bold text-white mb-2 hover:text-purple-300 transition-colors cursor-pointer">
-                                                        {result.title}
-                                                    </h3>
-
-                                                    <p className="text-slate-300 text-sm line-clamp-2 mb-3">
-                                                        {result.description}
-                                                    </p>
-
-                                                    {/* Meta */}
-                                                    <div className="flex items-center gap-4 text-xs text-slate-400">
-                                                        {result.type === 'article' && (
-                                                            <>
-                                                                <span>{result.readTime}</span>
-                                                                <span>{result.date}</span>
-                                                            </>
-                                                        )}
-                                                        {result.type === 'zodiac' && (
-                                                            <>
-                                                                <span>{result.item.element}</span>
-                                                                <span>{result.item.dates}</span>
-                                                            </>
-                                                        )}
-                                                    </div>
+                                                <div className="sm:pl-4">
+                                                    <button
+                                                        onClick={() => openResult(item)}
+                                                        className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-900 transition-transform hover:scale-[1.02]"
+                                                    >
+                                                        {item.actionLabel}
+                                                        <ExternalLink size={15} />
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
                                     ))}
                                 </div>
-                            </div>
-                        ) : (
-                            <div className="text-center py-12">
-                                <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-purple-500/20 to-indigo-500/20 border border-purple-500/30 rounded-xl">
-                                    <BookOpen className="w-8 h-8 text-purple-400" />
-                                    <span className="text-purple-300">เริเริ่มค้นหาเพื่อค้นพบสิ่งที่ต้องการ</span>
-                                </div>
-                                <p className="text-slate-400 mt-4">
-                                    พิมพิมพ์คำค้นหาเพื่อค้นหาไพ่ทาโรต์, บทความ, หรือข้อมูลเชี่ยวชาญษ์
-                                </p>
-                            </div>
-                        )}
-                    </div>
-                )}
-
-                {/* Popular Searches */}
-                {!isSearching && searchResults.length === 0 && searchQuery.length === 0 && (
-                    <div className="max-w-6xl mx-auto px-6 pb-12">
-                        <div className="text-center mb-8">
-                            <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-purple-500/20 to-indigo-500/20 border border-purple-500/30 rounded-xl mb-6">
-                                <TrendingUp className="w-6 h-6 text-purple-400" />
-                                <span className="text-purple-300">ค้นหายอดนิยม</span>
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {/* Popular Cards */}
-                            <div className={`rounded-xl p-6 ${isDark ? 'bg-slate-900/50 border border-slate-800' : 'bg-slate-100 border border-slate-300'}`}>
-                                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                                    <Star className="w-5 h-5 text-purple-400" />
-                                    ไพ่ยอดนิยม
-                                </h3>
-                                <div className="space-y-3">
-                                    {['The Fool', 'The Magician', 'The High Priestess', 'The Empress'].slice(0, 4).map(cardName => (
-                                        <button
-                                            key={cardName}
-                                            onClick={() => addToHistory(cardName)}
-                                            className="w-full text-left px-4 py-2 rounded-lg border transition-all hover:bg-purple-500/20 hover:border-purple-400 text-slate-300 hover:text-white"
-                                        >
-                                            🔮 {cardName}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Popular Topics */}
-                            <div className={`rounded-xl p-6 ${isDark ? 'bg-slate-900/50 border border-slate-800' : 'bg-slate-100 border border-slate-300'}`}>
-                                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                                    <Heart className="w-5 h-5 text-pink-400" />
-                                    หัวข้องยอดนิยม
-                                </h3>
-                                <div className="space-y-3">
-                                    {['ความรัก', 'การงาน', 'สุขภาพ', 'การเงิน', 'สุขภาพจิติ'].slice(0, 5).map(topic => (
-                                        <button
-                                            key={topic}
-                                            onClick={() => addToHistory(topic)}
-                                            className="w-full text-left px-4 py-2 rounded-lg border transition-all hover:bg-pink-500/20 hover:border-pink-400 text-slate-300 hover:text-white"
-                                        >
-                                            💕 {topic}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Zodiac Signs */}
-                            <div className={`rounded-xl p-6 ${isDark ? 'bg-slate-900/50 border border-slate-800' : 'bg-slate-100 border border-slate-300'}`}>
-                                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                                    <Star className="w-5 h-5 text-purple-400" />
-                                    ราศีทั้งหมด
-                                </h3>
-                                <div className="grid grid-cols-3 gap-2">
-                                    {['ราศีเมษ', 'ราศีพฤษภ', 'ราศีเมถุน', 'ราศีกรกฎ', 'ราศีสิงห์', 'ราศีเกมภา', 'ราศีตุล', 'ราศีพิจิก', 'ราศีธนู', 'ราศีกุมภ์', 'ราศีมีน'].map(sign => (
-                                        <button
-                                            key={sign}
-                                            onClick={() => addToHistory(sign)}
-                                            className="text-center px-3 py-2 rounded-lg border transition-all hover:bg-purple-500/20 hover:border-purple-400 text-slate-300 hover:text-white"
-                                        >
-                                            {sign}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
+                            )}
+                        </section>
+                    )}
+                </div>
             </div>
         </div>
     );

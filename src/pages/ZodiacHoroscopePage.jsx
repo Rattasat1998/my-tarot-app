@@ -127,8 +127,8 @@ export function ZodiacHoroscopePage() {
         title: 'ดูดวงราศี 12 ราศี ปี 2569 แม่นที่สุด',
         description: 'พยากรณ์ดวงชะตา 12 ราศี ประจำปี 2569 วิเคราะห์อิทธิพลดาวประธาน สีมงคลประจำวัน เลขนำโชคตามปีนักษัตร พร้อมพยากรณ์รายเดือน การเงิน ความรัก สุขภาพ',
         keywords: 'ดูดวงราศี, ดวง 12 ราศี 2569, พยากรณ์ดวงชะตา, สีมงคล, เลขนำโชค, โหราศาสตร์ไทย, ดวงรายเดือน',
-        ogImage: 'https://satduangdao.com/zodiac-hero.png',
-        path: '/zodiac-horoscope',
+        ogImage: 'https://satduangdao.com/og-image.png',
+        path: '/horoscope-2569',
     });
 
     const toggleSign = (id) => {

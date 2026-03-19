@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, TrendingUp, Users, Flame, ChevronRight, Calendar, Trophy, Sparkles, FileText, Search, Target, ChevronDown, ChevronUp, Moon, Cake, ShoppingBag, Crown, Share2 } from 'lucide-react';
+import { 
+    ArrowLeft, TrendingUp, Users, Flame, ChevronRight, 
+    Calendar, Trophy, Sparkles, FileText, Search, Target, 
+    Moon, Cake, ShoppingBag, Share2, Star, LineChart, 
+    MessageSquare, Activity, Compass, 
+} from 'lucide-react';
 import { LuckyGeneratorModal } from '../components/modals/LuckyGeneratorModal';
 import { DreamNumberModal } from '../components/modals/DreamNumberModal';
 import { BirthdayNumberModal } from '../components/modals/BirthdayNumberModal';
@@ -25,16 +30,14 @@ export const LottoInsightPage = () => {
         path: '/lotto',
         ogImage: 'https://satduangdao.com/lotto-hero.png', // สามารถเปลี่ยน URL รูปภาพตรงนี้ได้เลย
     });
+    
     const navigate = useNavigate();
     const location = useLocation();
-
 
     // Check if coming back from detail page (use cache) or from home (reload)
     const fromDetail = location.state?.fromDetail === true;
     const shouldUseCache = fromDetail && dataLoaded;
 
-    // Always use light theme for LottoInsight page
-    const isDark = false;
     const [activeTab, setActiveTab] = useState('historical');
     const [showLuckyModal, setShowLuckyModal] = useState(false);
     const [showDreamModal, setShowDreamModal] = useState(false);
@@ -47,7 +50,6 @@ export const LottoInsightPage = () => {
     const [pastDraws, setPastDraws] = useState(shouldUseCache ? cachedPast : []);
 
     // Fetch data from database, fallback to static data
-    // Only skip fetch if coming from detail page and cache exists
     useEffect(() => {
         if (shouldUseCache) return; // Skip if coming from detail and cache exists
 
@@ -64,7 +66,6 @@ export const LottoInsightPage = () => {
                 if (upcoming && upcoming.kpi) {
                     upcomingData = lottoService.transformDrawForUI(upcoming);
                 } else {
-                    // DB returned no data or auto-generated minimal entry — use static
                     upcomingData = getStaticUpcoming();
                 }
 
@@ -74,7 +75,6 @@ export const LottoInsightPage = () => {
                     pastData = getStaticPast();
                 }
 
-                // Save to cache
                 cachedUpcoming = upcomingData;
                 cachedPast = pastData;
                 dataLoaded = true;
@@ -83,7 +83,6 @@ export const LottoInsightPage = () => {
                 setPastDraws(pastData);
             } catch (error) {
                 console.error('Error fetching lotto data:', error);
-                // Fallback to static data
                 const upcomingData = getStaticUpcoming();
                 const pastData = getStaticPast();
 
@@ -141,278 +140,334 @@ export const LottoInsightPage = () => {
     ];
 
     const sourceColors = {
-        green: { bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-700', badge: 'bg-green-100 text-green-600' },
-        pink: { bg: 'bg-pink-50', border: 'border-pink-200', text: 'text-pink-700', badge: 'bg-pink-100 text-pink-600' },
-        blue: { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-700', badge: 'bg-blue-100 text-blue-600' }
+        green: { bg: 'bg-emerald-50', border: 'border-emerald-200/50', text: 'text-emerald-700', badge: 'bg-emerald-100/50 text-emerald-600' },
+        pink: { bg: 'bg-rose-50', border: 'border-rose-200/50', text: 'text-rose-700', badge: 'bg-rose-100/50 text-rose-600' },
+        blue: { bg: 'bg-indigo-50', border: 'border-indigo-200/50', text: 'text-indigo-700', badge: 'bg-indigo-100/50 text-indigo-600' }
     };
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-amber-50 flex flex-col items-center justify-center">
-                <div className="relative">
-                    {/* Spinning outer ring */}
-                    <div className="w-16 h-16 border-4 border-amber-200 border-t-amber-500 rounded-full animate-spin"></div>
-                    {/* Center icon */}
-                    <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-2xl">🔮</span>
-                    </div>
+            <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="w-12 h-12 border-[3px] border-slate-200 border-t-amber-500 rounded-full animate-spin"></div>
+                    <p className="text-sm font-medium text-slate-500 tracking-wider">LOADING INSIGHTS</p>
                 </div>
-                <p className="mt-4 text-amber-600 font-medium animate-pulse">กำลังโหลดข้อมูล...</p>
             </div>
         );
     }
 
     return (
-        <div className={`min-h-screen ${isDark ? 'bg-slate-950 text-white' : 'bg-amber-50 text-slate-800'}`}>
-            {/* Header */}
-            <header className={`sticky top-0 z-40 ${isDark ? 'bg-slate-900/95 border-slate-800' : 'bg-white/95 border-amber-100'} border-b backdrop-blur-sm`}>
-                <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="min-h-screen bg-[#F8F9FA] text-slate-800 font-sans selection:bg-amber-100 pb-20">
+            {/* Elegant Header */}
+            <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-200/50">
+                <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
                     <div className="flex items-center gap-4">
                         <button
                             onClick={() => navigate('/')}
-                            className={`p-2 rounded-lg ${isDark ? 'hover:bg-slate-800' : 'hover:bg-amber-100'} transition-colors`}
+                            className="p-2 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors text-slate-600"
                         >
-                            <ArrowLeft size={20} />
+                            <ArrowLeft size={20} strokeWidth={1.5} />
                         </button>
                         <div>
-                            <h1 className="text-xl font-bold flex items-center gap-2">
-                                🔮 LottoInsight
+                            <h1 className="text-xl font-semibold tracking-tight text-slate-900">
+                                LottoInsight
                             </h1>
-                            <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                                วิเคราะห์แนวทางสลากกินแบ่งรัฐบาล
+                            <p className="text-xs text-slate-500 font-medium tracking-wide uppercase">
+                                Data-Driven Predictions
                             </p>
                         </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
                         <button
                             onClick={() => setShowLuckyModal(true)}
-                            className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-2 rounded-full font-medium flex items-center gap-2 hover:scale-105 transition-transform shadow-lg"
+                            className="bg-slate-900 text-white px-5 py-2.5 rounded-full text-sm font-medium flex items-center gap-2 hover:bg-slate-800 transition-all shadow-sm active:scale-95"
                         >
-                            <Sparkles size={16} />
+                            <Sparkles size={16} strokeWidth={1.5} />
                             <span className="hidden sm:inline">สุ่มเลขมงคล</span>
                         </button>
                         <button
                             onClick={() => navigate('/lotto/check')}
-                            className={`px-4 py-2 rounded-full font-medium flex items-center gap-2 hover:scale-105 transition-transform shadow-sm border ${isDark ? 'bg-slate-800 border-slate-700 text-white hover:bg-slate-700' : 'bg-white border-amber-200 text-amber-600 hover:bg-amber-50'}`}
+                            className="px-5 py-2.5 rounded-full text-sm font-medium flex items-center gap-2 hover:bg-slate-50 transition-colors border border-slate-200 text-slate-700 bg-white shadow-sm active:scale-95"
                         >
-                            <Search size={16} />
-                            <span className="hidden sm:inline">ตรวจหวย</span>
+                            <Search size={16} strokeWidth={1.5} />
+                            <span className="hidden sm:inline">ตรวจรางวัล</span>
                         </button>
                     </div>
                 </div>
             </header>
 
-            <main className="max-w-6xl mx-auto px-4 py-8 space-y-8">
-                {/* Section: Tools / Features */}
+            <main className="max-w-5xl mx-auto px-4 py-10 space-y-12">
+                
+                {/* 1. Feature Tools - Bento Grid Style */}
                 <section>
-                    <div className="flex items-center gap-2 mb-4">
-                        <Sparkles size={20} className="text-purple-500" />
-                        <h2 className="text-lg font-bold">เครื่องมือเสริมดวง</h2>
+                    <div className="flex items-center gap-2 mb-6 px-1">
+                        <Compass size={18} className="text-slate-400" strokeWidth={1.5} />
+                        <h2 className="text-base font-semibold text-slate-800 tracking-wide">เครื่องมือวิเคราะห์ & เสริมดวง</h2>
                     </div>
 
-                    {/* Hero Feature: Tarot × Lotto */}
-                    <button
-                        onClick={() => setShowTarotLottoModal(true)}
-                        className="group relative overflow-hidden rounded-2xl p-6 text-left transition-all hover:scale-[1.01] active:scale-[0.99] shadow-xl mb-4 w-full"
-                    >
-                        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-900" />
-                        <div className="absolute top-0 right-0 -mr-10 -mt-10 w-40 h-40 rounded-full bg-purple-500/15" />
-                        <div className="absolute bottom-0 left-0 -ml-10 -mb-10 w-32 h-32 rounded-full bg-indigo-500/10" />
-                        {/* Floating cards deco */}
-                        <div className="absolute top-3 right-4 text-4xl opacity-20 rotate-12">🃏</div>
-                        <div className="absolute bottom-3 right-16 text-2xl opacity-15 -rotate-6">🔮</div>
-                        <div className="relative z-10">
-                            <div className="flex items-center gap-2 mb-1">
-                                <span className="bg-amber-400 text-black text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide">แนะนำ</span>
-                            </div>
-                            <div className="flex items-center gap-3 mb-2">
-                                <span className="text-3xl">🃏</span>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 auto-rows-[140px]">
+                        {/* Bento Item 1: Tarot (Large - spans 2 cols, 2 rows) */}
+                        <button
+                            onClick={() => setShowTarotLottoModal(true)}
+                            className="group relative overflow-hidden rounded-3xl md:col-span-2 md:row-span-2 bg-gradient-to-br from-slate-900 to-slate-800 p-8 text-left transition-all hover:shadow-xl hover:-translate-y-1 border border-slate-700/50"
+                        >
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl -mr-20 -mt-20 transition-all group-hover:bg-amber-500/20" />
+                            <div className="relative z-10 h-full flex flex-col justify-between">
                                 <div>
-                                    <h3 className="text-xl font-bold text-white">ไพ่ทาโรต์ทำนายเลขเด็ด</h3>
-                                    <p className="text-indigo-300 text-sm">เปิดไพ่ 3 ใบ รับเลขมงคลประจำงวด</p>
+                                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/10 text-white mb-6 backdrop-blur-md">
+                                        <Star size={12} className="text-amber-300" fill="currentColor" />
+                                        <span className="text-[10px] font-semibold tracking-wider uppercase text-amber-50">Recommended</span>
+                                    </div>
+                                    <h3 className="text-3xl font-bold text-white mb-2 tracking-tight">ไพ่ทาโรต์ทำนายเลข</h3>
+                                    <p className="text-slate-400 text-sm max-w-[200px] leading-relaxed">
+                                        เปิดไพ่ 3 ใบ เพื่อรับแนวทางตัวเลขมงคลประจำงวด ตามพื้นดวงของคุณ
+                                    </p>
+                                </div>
+                                <div className="flex items-center justify-between mt-8">
+                                    <div className="flex -space-x-4">
+                                        <div className="w-12 h-16 rounded-lg bg-slate-800 border border-slate-600 shadow-2xl rotate-[-10deg] transform transition-transform group-hover:rotate-[-15deg]" />
+                                        <div className="w-12 h-16 rounded-lg bg-gradient-to-br from-amber-600 to-orange-600 border border-amber-500 shadow-2xl z-10 transition-transform group-hover:-translate-y-2 flex items-center justify-center">
+                                            <Star size={18} className="text-amber-100 opacity-50" />
+                                        </div>
+                                        <div className="w-12 h-16 rounded-lg bg-slate-800 border border-slate-600 shadow-2xl rotate-[10deg] transform transition-transform group-hover:rotate-[15deg]" />
+                                    </div>
+                                    <div className="w-10 h-10 rounded-full bg-white text-slate-900 flex items-center justify-center transition-transform group-hover:scale-110 shadow-lg">
+                                        <ChevronRight size={18} strokeWidth={2} />
+                                    </div>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-4 mt-3">
-                                <div className="flex -space-x-2">
-                                    <div className="w-8 h-11 rounded bg-gradient-to-br from-purple-500 to-indigo-600 border border-purple-400/50 shadow-md" />
-                                    <div className="w-8 h-11 rounded bg-gradient-to-br from-indigo-500 to-blue-600 border border-indigo-400/50 shadow-md" />
-                                    <div className="w-8 h-11 rounded bg-gradient-to-br from-violet-500 to-purple-600 border border-violet-400/50 shadow-md" />
-                                </div>
-                                <div className="flex items-center gap-1 bg-white/10 px-3 py-1.5 rounded-full">
-                                    <Sparkles size={14} className="text-amber-400" />
-                                    <span className="text-white text-sm font-medium">เปิดไพ่เลย</span>
-                                    <ChevronRight size={14} className="text-white/70" />
-                                </div>
-                            </div>
-                        </div>
-                    </button>
+                        </button>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        {/* Dream to Number */}
+                        {/* Bento Item 2: Dream (1 col, 1 row) */}
                         <button
                             onClick={() => setShowDreamModal(true)}
-                            className="group relative overflow-hidden rounded-2xl p-5 text-left transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg"
+                            className="group relative overflow-hidden rounded-3xl bg-white p-6 text-left transition-all hover:shadow-lg hover:-translate-y-1 border border-slate-200/60"
                         >
-                            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-600" />
-                            <div className="absolute top-0 right-0 -mr-6 -mt-6 w-24 h-24 rounded-full bg-white/10" />
-                            <div className="relative z-10">
-                                <div className="flex items-center gap-3 mb-2">
-                                    <Moon size={24} className="text-yellow-300" />
-                                    <h3 className="text-lg font-bold text-white">ทำนายฝัน</h3>
+                            <div className="flex flex-col h-full justify-between">
+                                <div className="w-10 h-10 rounded-2xl bg-indigo-50 flex items-center justify-center mb-4 text-indigo-500 group-hover:scale-110 transition-transform">
+                                    <Moon size={20} strokeWidth={1.5} />
                                 </div>
-                                <p className="text-indigo-200 text-sm leading-relaxed">
-                                    ฝันเห็นอะไร? แปลงเป็นเลขเด็ดตามตำราโบราณ
-                                </p>
-                                <div className="mt-3 flex items-center gap-1 text-white/80 text-xs font-medium">
-                                    <span>เปิดเลย</span>
-                                    <ChevronRight size={14} />
+                                <div>
+                                    <h3 className="text-base font-semibold text-slate-900 mb-1">ทำนายฝัน</h3>
+                                    <p className="text-xs text-slate-500 line-clamp-2">แก้ฝันเป็นเลขเด็ดตามตำราโบราณ</p>
                                 </div>
                             </div>
                         </button>
 
-                        {/* Birthday Number */}
+                        {/* Bento Item 3: Birthday (1 col, 1 row) */}
                         <button
                             onClick={() => setShowBirthdayModal(true)}
-                            className="group relative overflow-hidden rounded-2xl p-5 text-left transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg"
+                            className="group relative overflow-hidden rounded-3xl bg-white p-6 text-left transition-all hover:shadow-lg hover:-translate-y-1 border border-slate-200/60"
                         >
-                            <div className="absolute inset-0 bg-gradient-to-br from-amber-500 to-orange-600" />
-                            <div className="absolute top-0 right-0 -mr-6 -mt-6 w-24 h-24 rounded-full bg-white/10" />
-                            <div className="relative z-10">
-                                <div className="flex items-center gap-3 mb-2">
-                                    <Cake size={24} className="text-yellow-200" />
-                                    <h3 className="text-lg font-bold text-white">เลขวันเกิด</h3>
+                            <div className="flex flex-col h-full justify-between">
+                                <div className="w-10 h-10 rounded-2xl bg-amber-50 flex items-center justify-center mb-4 text-amber-600 group-hover:scale-110 transition-transform">
+                                    <Cake size={20} strokeWidth={1.5} />
                                 </div>
-                                <p className="text-amber-100 text-sm leading-relaxed">
-                                    คำนวณเลขมงคลส่วนตัวจากวันเกิดและราศี
-                                </p>
-                                <div className="mt-3 flex items-center gap-1 text-white/80 text-xs font-medium">
-                                    <span>เปิดเลย</span>
-                                    <ChevronRight size={14} />
+                                <div>
+                                    <h3 className="text-base font-semibold text-slate-900 mb-1">เลขวันเกิด</h3>
+                                    <p className="text-xs text-slate-500 line-clamp-2">คำนวณเลขมงคลประจำราศี</p>
                                 </div>
                             </div>
                         </button>
 
-                        {/* Lucky Generator */}
+                        {/* Bento Item 4: Generator (wide - 2 cols, 1 row) */}
                         <button
                             onClick={() => setShowLuckyModal(true)}
-                            className="group relative overflow-hidden rounded-2xl p-5 text-left transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg"
+                            className="group md:col-span-2 relative overflow-hidden rounded-3xl bg-white p-6 text-left transition-all hover:shadow-lg hover:-translate-y-1 border border-slate-200/60 flex items-center justify-between"
                         >
-                            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-600" />
-                            <div className="absolute top-0 right-0 -mr-6 -mt-6 w-24 h-24 rounded-full bg-white/10" />
-                            <div className="relative z-10">
-                                <div className="flex items-center gap-3 mb-2">
-                                    <Sparkles size={24} className="text-yellow-300" />
-                                    <h3 className="text-lg font-bold text-white">สุ่มเลขมงคล</h3>
+                            <div className="flex items-center gap-5">
+                                <div className="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600 group-hover:rotate-12 transition-transform">
+                                    <Activity size={24} strokeWidth={1.5} />
                                 </div>
-                                <p className="text-emerald-100 text-sm leading-relaxed">
-                                    สุ่มเลขจากน้ำหนักสถิติและเลขชนสำนัก
-                                </p>
-                                <div className="mt-3 flex items-center gap-1 text-white/80 text-xs font-medium">
-                                    <span>เปิดเลย</span>
-                                    <ChevronRight size={14} />
+                                <div>
+                                    <h3 className="text-base font-semibold text-slate-900 mb-1">ระบบสุ่มเลข AI</h3>
+                                    <p className="text-sm text-slate-500">วิเคราะห์ความน่าจะเป็นจากฐานข้อมูล</p>
                                 </div>
                             </div>
-                        </button>
-
-                        {/* Shop */}
-                        <button
-                            onClick={() => navigate('/shop')}
-                            className="group relative overflow-hidden rounded-2xl p-5 text-left transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg"
-                        >
-                            <div className="absolute inset-0 bg-gradient-to-br from-rose-500 to-pink-600" />
-                            <div className="absolute top-0 right-0 -mr-6 -mt-6 w-24 h-24 rounded-full bg-white/10" />
-                            <div className="relative z-10">
-                                <div className="flex items-center gap-3 mb-2">
-                                    <ShoppingBag size={24} className="text-yellow-200" />
-                                    <h3 className="text-lg font-bold text-white">ร้านค้ามงคล</h3>
-                                </div>
-                                <p className="text-rose-100 text-sm leading-relaxed">
-                                    วัตถุมงคล เสริมดวง เสริมโชคลาภ
-                                </p>
-                                <div className="mt-3 flex items-center gap-1 text-white/80 text-xs font-medium">
-                                    <span>เข้าชม</span>
-                                    <ChevronRight size={14} />
-                                </div>
+                            <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-slate-100 transition-colors">
+                                <ChevronRight size={16} className="text-slate-400" strokeWidth={2} />
                             </div>
                         </button>
                     </div>
                 </section>
 
-                {/* Section: Upcoming Draw */}
-                {upcomingDraw && (
+                {/* 2. Main Prediction Card (Editorial Style) */}
+                {upcomingDraw?.conclusion?.finalPicks && (
                     <section>
-                        <div className="flex items-center gap-2 mb-4">
-                            <Calendar size={20} className="text-amber-500" />
-                            <h2 className="text-lg font-bold">งวดที่กำลังจะมาถึง</h2>
+                        <div className="flex items-center justify-between mb-6 px-1">
+                            <div className="flex items-center gap-2">
+                                <Target size={18} className="text-slate-400" strokeWidth={1.5} />
+                                <h2 className="text-base font-semibold text-slate-800 tracking-wide">สรุปเลขเด่นประจำงวด</h2>
+                            </div>
+                            <button
+                                onClick={handleSharePrediction}
+                                className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 bg-slate-100 transition-colors"
+                            >
+                                <Share2 size={14} />
+                                <span>Share</span>
+                            </button>
                         </div>
 
-                        <div className={`rounded-2xl p-6 ${isDark ? 'bg-slate-900' : 'bg-white'} shadow-lg`}>
-                            <div className="flex items-center justify-between mb-6">
-                                <div>
-                                    <h3 className="text-xl font-bold text-amber-500">{upcomingDraw.label}</h3>
-                                    <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                                        รวบรวมข้อมูลจากสถิติ 22 ปี, สำนักดัง, และโซเชียล
-                                    </p>
+                        <div className="bg-white rounded-3xl border border-slate-200/60 shadow-sm overflow-hidden transition-shadow hover:shadow-md">
+                            {/* Top part: The Numbers */}
+                            <div className="p-8 md:p-10 bg-slate-900 text-center relative overflow-hidden">
+                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-400 via-amber-200 to-amber-400 opacity-80" />
+                                <p className="text-amber-200/80 text-[10px] font-bold tracking-[0.2em] uppercase mb-2">Editor's Pick</p>
+                                <h3 className="text-white text-2xl font-light tracking-tight mb-10">{upcomingDraw.label}</h3>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-12 divide-y md:divide-y-0 md:divide-x divide-slate-800">
+                                    {/* 2 Digits */}
+                                    <div className="flex flex-col items-center pt-2 md:pt-0">
+                                        <p className="text-[10px] text-slate-500 font-medium tracking-[0.2em] uppercase mb-6">สองตัวท้าย</p>
+                                        <div className="flex flex-wrap justify-center gap-4 max-w-[280px]">
+                                            {upcomingDraw.conclusion.finalPicks.twoDigit?.map((num, idx) => (
+                                                <div key={idx} className="relative group">
+                                                    <div className={`w-14 h-14 md:w-16 md:h-16 flex items-center justify-center rounded-2xl text-2xl font-light tracking-tight transition-all
+                                                        ${idx === 0 
+                                                            ? 'bg-gradient-to-b from-amber-400 to-amber-500 text-slate-900 shadow-[0_0_20px_rgba(245,158,11,0.25)] scale-110 font-medium z-10' 
+                                                            : 'bg-slate-800/80 text-slate-300 border border-slate-700/50 group-hover:bg-slate-700'
+                                                        }`}
+                                                    >
+                                                        {num}
+                                                    </div>
+                                                    {idx === 0 && (
+                                                        <div className="absolute -top-1 -right-1 z-20">
+                                                            <div className="bg-slate-900 text-amber-300 rounded-full p-0.5 border border-slate-800">
+                                                                <Star size={10} fill="currentColor" />
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* 3 Digits */}
+                                    <div className="flex flex-col items-center pt-10 md:pt-0">
+                                        <p className="text-[10px] text-slate-500 font-medium tracking-[0.2em] uppercase mb-6">สามตัว</p>
+                                        <div className="flex flex-wrap justify-center gap-3 max-w-[280px]">
+                                            {upcomingDraw.conclusion.finalPicks.threeDigit?.map((num, idx) => (
+                                                <div key={idx} className={`px-5 py-3 md:px-6 md:py-3.5 rounded-2xl text-xl tracking-widest transition-all text-center
+                                                    ${idx === 0 
+                                                        ? 'bg-slate-50 text-slate-900 font-medium scale-105 shadow-lg border border-slate-200' 
+                                                        : 'bg-slate-800/80 text-slate-300 font-light border border-slate-700/50'
+                                                    }`}
+                                                >
+                                                    {num}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
                                 </div>
-                                <button
-                                    onClick={() => navigate(`/lotto/${upcomingDraw.id}`)}
-                                    className="hidden sm:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded-full text-sm font-medium hover:scale-105 transition-transform shadow-md"
-                                >
-                                    <FileText size={16} />
-                                    ดูวิเคราะห์แบบละเอียด
-                                </button>
                             </div>
 
-                            {/* KPI Cards */}
-                            {upcomingDraw.kpi && (
-                                <div className="grid grid-cols-3 gap-4 mb-6">
-                                    <div className={`p-4 rounded-xl text-center ${isDark ? 'bg-slate-800' : 'bg-amber-50'}`}>
-                                        <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'} mb-1`}>สถิติสูงสุด</p>
-                                        <p className="text-2xl font-bold text-amber-500">{upcomingDraw.kpi.historical}</p>
+                            {/* Bottom part: The Why (List) */}
+                            <div className="p-6 md:p-8 bg-white grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-6">
+                                {upcomingDraw.conclusion.statistical && (
+                                    <div className="space-y-4">
+                                        <h4 className="text-[11px] font-bold text-slate-900 tracking-wider uppercase flex items-center gap-2">
+                                            <LineChart size={14} className="text-amber-500" />
+                                            เชิงสถิติ
+                                        </h4>
+                                        <ul className="space-y-3">
+                                            {upcomingDraw.conclusion.statistical.numbers?.slice(0, 3).map((item, idx) => (
+                                                <li key={idx} className="flex gap-3 text-sm">
+                                                    <span className="font-semibold text-slate-900 w-8 flex-shrink-0 text-right">{item.num}</span>
+                                                    <span className="text-slate-500 leading-relaxed text-[13px]">{item.reason}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
                                     </div>
-                                    <div className={`p-4 rounded-xl text-center ${isDark ? 'bg-slate-800' : 'bg-blue-50'}`}>
-                                        <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'} mb-1`}>เลขชนสำนัก</p>
-                                        <p className="text-2xl font-bold text-blue-500">{upcomingDraw.kpi.sources}</p>
+                                )}
+                                {upcomingDraw.conclusion.eventDriven && (
+                                    <div className="space-y-4">
+                                        <h4 className="text-[11px] font-bold text-slate-900 tracking-wider uppercase flex items-center gap-2">
+                                            <Flame size={14} className="text-rose-500" />
+                                            กระแสสังคม
+                                        </h4>
+                                        <ul className="space-y-3">
+                                            {upcomingDraw.conclusion.eventDriven.numbers?.slice(0, 3).map((item, idx) => (
+                                                <li key={idx} className="flex gap-3 text-sm">
+                                                    <span className="font-semibold text-slate-900 w-8 flex-shrink-0 text-right">{item.num}</span>
+                                                    <span className="text-slate-500 leading-relaxed text-[13px]">{item.reason}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
                                     </div>
-                                    <div className={`p-4 rounded-xl text-center ${isDark ? 'bg-slate-800' : 'bg-red-50'}`}>
-                                        <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'} mb-1`}>กระแสมาแรง</p>
-                                        <p className="text-2xl font-bold text-red-500">{upcomingDraw.kpi.trending}</p>
+                                )}
+                                {upcomingDraw.conclusion.consensus && (
+                                    <div className="space-y-4">
+                                        <h4 className="text-[11px] font-bold text-slate-900 tracking-wider uppercase flex items-center gap-2">
+                                            <MessageSquare size={14} className="text-indigo-500" />
+                                            สำนักดัง
+                                        </h4>
+                                        <ul className="space-y-3">
+                                            {upcomingDraw.conclusion.consensus.numbers?.slice(0, 3).map((item, idx) => (
+                                                <li key={idx} className="flex gap-3 text-sm">
+                                                    <span className="font-semibold text-slate-900 w-8 flex-shrink-0 text-right">{item.num}</span>
+                                                    <span className="text-slate-500 leading-relaxed text-[13px]">{item.reason}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
                                     </div>
-                                </div>
-                            )}
+                                )}
+                            </div>
+                        </div>
+                    </section>
+                )}
 
-                            {/* Tabs */}
-                            <div className={`flex gap-2 p-1 rounded-lg mb-6 ${isDark ? 'bg-slate-800' : 'bg-slate-100'}`}>
+
+                {/* 3. Deep Dive Analysis (Tabs) */}
+                {upcomingDraw && (
+                    <section>
+                        <div className="flex items-center gap-2 mb-6 px-1">
+                            <Activity size={18} className="text-slate-400" strokeWidth={1.5} />
+                            <h2 className="text-base font-semibold text-slate-800 tracking-wide">เจาะลึกข้อมูล</h2>
+                        </div>
+
+                        <div className="bg-white rounded-3xl border border-slate-200/60 shadow-sm p-3 transition-shadow hover:shadow-md">
+                            {/* Segmented Control */}
+                            <div className="flex bg-slate-50 rounded-2xl p-1 mb-6 border border-slate-100/50">
                                 {tabConfig.map(tab => (
                                     <button
                                         key={tab.id}
                                         onClick={() => setActiveTab(tab.id)}
-                                        className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 ${activeTab === tab.id
-                                            ? `${isDark ? 'bg-slate-700 text-white' : 'bg-white text-amber-600 shadow-sm'}`
-                                            : `${isDark ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-700'}`
-                                            }`}
+                                        className={`flex-1 py-3 px-4 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2 ${
+                                            activeTab === tab.id
+                                            ? 'bg-white text-slate-900 shadow-sm border border-slate-200/50'
+                                            : 'text-slate-500 hover:text-slate-700'
+                                        }`}
                                     >
-                                        <tab.icon size={14} />
+                                        <tab.icon size={16} strokeWidth={activeTab === tab.id ? 2 : 1.5} />
                                         <span className="hidden sm:inline">{tab.label}</span>
                                     </button>
                                 ))}
                             </div>
 
-                            {/* Tab Content */}
-                            <div className="min-h-[200px]">
+                            <div className="px-3 pb-6 min-h-[250px]">
                                 {/* Historical */}
                                 {activeTab === 'historical' && upcomingDraw.historical && (
-                                    <div className="space-y-4">
-                                        <p className={`text-sm ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
-                                            <strong className="text-amber-500">บทวิเคราะห์:</strong> จากสถิติย้อนหลัง 10 ปี พบว่าเลขที่ออกบ่อยในงวดนี้ ได้แก่
-                                        </p>
-                                        <div className="grid grid-cols-5 gap-2">
+                                    <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                        <div className="flex items-center justify-between mb-8 px-2">
+                                            <div>
+                                                <h3 className="text-lg font-semibold text-slate-900 mb-1">ความถี่ของตัวเลข</h3>
+                                                <p className="text-sm text-slate-500">วิเคราะห์จากฐานข้อมูลการออกรางวัลย้อนหลัง 22 ปี</p>
+                                            </div>
+                                            <div className="hidden md:flex text-amber-500/10">
+                                                <LineChart size={48} strokeWidth={1} />
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
                                             {upcomingDraw.historical.labels.map((num, idx) => (
-                                                <div key={idx} className={`p-4 rounded-xl text-center ${isDark ? 'bg-slate-800' : 'bg-amber-50'}`}>
-                                                    <p className="text-2xl font-bold text-amber-500">{num}</p>
-                                                    <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                                                        {upcomingDraw.historical.data[idx]} ครั้ง
-                                                    </p>
+                                                <div key={idx} className="group p-5 rounded-2xl border border-slate-100 bg-slate-50 text-center hover:bg-white hover:border-amber-200 hover:shadow-sm transition-all">
+                                                    <p className="text-4xl font-light tracking-tight text-slate-800 mb-3 group-hover:text-amber-500 transition-colors">{num}</p>
+                                                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 group-hover:bg-amber-50 transition-colors">
+                                                        <Activity size={10} className="text-slate-400 group-hover:text-amber-500" />
+                                                        <p className="text-[10px] font-bold text-slate-500 group-hover:text-amber-600 uppercase tracking-widest">
+                                                            {upcomingDraw.historical.data[idx]} ครั้ง
+                                                        </p>
+                                                    </div>
                                                 </div>
                                             ))}
                                         </div>
@@ -421,22 +476,34 @@ export const LottoInsightPage = () => {
 
                                 {/* Sources */}
                                 {activeTab === 'sources' && upcomingDraw.sources && (
-                                    <div className="space-y-4">
-                                        <p className={`text-sm ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
-                                            <strong className="text-blue-500">บทวิเคราะห์:</strong> เปรียบเทียบเลขเด็ดจาก 3 สำนัก พบว่าเลข <strong className="text-blue-500">{upcomingDraw.kpi.sources}</strong> ปรากฏในทุกสำนัก
-                                        </p>
-                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                         <div className="flex items-center justify-between mb-8 px-2">
+                                            <div>
+                                                <h3 className="text-lg font-semibold text-slate-900 mb-1">เปรียบเทียบสำนักดัง</h3>
+                                                <p className="text-sm text-slate-500">รวมรวมตัวเลขจากแหล่งอ้างอิงหลักประจำงวด</p>
+                                            </div>
+                                            <div className="hidden md:flex text-indigo-500/10">
+                                                <Users size={48} strokeWidth={1} />
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
                                             {upcomingDraw.sources.map((source, idx) => {
                                                 const colors = sourceColors[source.color] || sourceColors.blue;
                                                 return (
-                                                    <div key={idx} className={`${colors.bg} ${colors.border} border rounded-xl p-4`}>
-                                                        <div className="flex items-center justify-between mb-3">
-                                                            <h4 className={`font-bold ${colors.text.replace('700', '800')}`}>{source.name}</h4>
-                                                            <span className={`text-xs px-2 py-1 rounded ${colors.badge}`}>{source.theme}</span>
+                                                    <div key={idx} className={`rounded-2xl p-6 border transition-all hover:shadow-md bg-white ${colors.border}`}>
+                                                        <div className="flex items-center justify-between mb-6">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${colors.badge}`}>
+                                                                    <MessageSquare size={14} />
+                                                                </div>
+                                                                <h4 className={`font-semibold tracking-wide ${colors.text}`}>{source.name}</h4>
+                                                            </div>
+                                                            <span className={`text-[9px] uppercase tracking-wider font-bold px-2.5 py-1 rounded-md bg-slate-50 text-slate-500 border border-slate-100`}>{source.theme}</span>
                                                         </div>
-                                                        <div className="flex flex-wrap gap-2 justify-center">
+                                                        <div className="flex flex-wrap gap-2">
                                                             {source.numbers.map((num, nidx) => (
-                                                                <div key={nidx} className={`w-10 h-10 rounded-full flex items-center justify-center font-bold bg-white ${colors.text} border ${colors.border} shadow-sm`}>
+                                                                <div key={nidx} className={`w-11 h-11 rounded-xl flex items-center justify-center text-lg font-medium border shadow-sm ${colors.bg} ${colors.border} ${colors.text}`}>
                                                                     {num}
                                                                 </div>
                                                             ))}
@@ -450,23 +517,32 @@ export const LottoInsightPage = () => {
 
                                 {/* Trends */}
                                 {activeTab === 'trends' && upcomingDraw.trends && (
-                                    <div className="space-y-4">
-                                        <p className={`text-sm ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
-                                            <strong className="text-red-500">บทวิเคราะห์:</strong> กระแสโซเชียลมุ่งเน้นเลขที่เกี่ยวกับเหตุการณ์ปัจจุบัน
-                                        </p>
-                                        <div className="space-y-3">
+                                    <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                        <div className="flex items-center justify-between mb-8 px-2">
+                                            <div>
+                                                <h3 className="text-lg font-semibold text-slate-900 mb-1">กระแสสังคม</h3>
+                                                <p className="text-sm text-slate-500">การวิเคราะห์ keyword ที่ถูกพูดถึงมากที่สุด</p>
+                                            </div>
+                                            <div className="hidden md:flex text-rose-500/10">
+                                                <Flame size={48} strokeWidth={1} />
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             {upcomingDraw.trends.items.map((item, idx) => (
-                                                <div key={idx} className={`flex items-center justify-between p-4 rounded-xl ${idx === 0 ? 'bg-red-50 border border-red-100' :
-                                                    idx === 1 ? 'bg-orange-50 border border-orange-100' :
-                                                        'bg-yellow-50 border border-yellow-100'
-                                                    }`}>
-                                                    <span className="text-slate-700">{item.label}</span>
-                                                    <span className={`text-sm font-semibold ${idx === 0 ? 'text-red-600' :
-                                                        idx === 1 ? 'text-orange-600' :
-                                                            'text-yellow-700'
-                                                        }`}>
-                                                        มาแรงอันดับ {item.rank}
-                                                    </span>
+                                                <div key={idx} className={`group flex flex-col justify-between p-5 rounded-2xl bg-white border transition-all hover:shadow-md ${
+                                                    idx === 0 ? 'border-amber-200/60 hover:border-amber-300 md:col-span-2 md:flex-row md:items-center' : 'border-slate-100 hover:border-slate-200'
+                                                }`}>
+                                                    <div className="flex items-center gap-4 mb-4 md:mb-0">
+                                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm
+                                                            ${idx === 0 ? 'bg-gradient-to-br from-amber-400 to-orange-400 text-white shadow-md' : 
+                                                              'bg-slate-50 text-slate-400 border border-slate-100'}`}
+                                                        >
+                                                            #{item.rank}
+                                                        </div>
+                                                        <span className="text-slate-700 font-medium text-sm md:text-base leading-relaxed">{item.label.replace(/^[🔥📱✨🙏🚗⭐🧧]\s*/u, '')}</span>
+                                                    </div>
+                                                    
                                                 </div>
                                             ))}
                                         </div>
@@ -474,144 +550,15 @@ export const LottoInsightPage = () => {
                                 )}
                             </div>
 
-                            {/* Detail Button - Mobile */}
-                            <div className="mt-6 sm:hidden">
+                            <div className="mt-2 text-center">
                                 <button
                                     onClick={() => navigate(`/lotto/${upcomingDraw.id}`)}
-                                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded-xl font-medium shadow-md"
+                                    className="w-full inline-flex items-center justify-center gap-2 py-4 text-sm font-medium text-slate-600 hover:text-slate-900 bg-slate-50/50 hover:bg-slate-50 rounded-2xl transition-colors border border-transparent hover:border-slate-200/50"
                                 >
-                                    <FileText size={18} />
-                                    ดูการวิเคราะห์แบบละเอียด
+                                    <FileText size={16} strokeWidth={1.5} />
+                                    ดูรายงานการวิเคราะห์รอบเต็ม
+                                    <ChevronRight size={16} className="opacity-50" />
                                 </button>
-                            </div>
-                        </div>
-                    </section>
-                )}
-
-                {/* Section: คาดเดางวดถัดไป (Next Draw Prediction) */}
-                {upcomingDraw?.conclusion?.finalPicks && (
-                    <section>
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="flex items-center gap-2">
-                                <Target size={20} className="text-orange-500" />
-                                <h2 className="text-lg font-bold">🎯 คาดเดางวดถัดไป</h2>
-                            </div>
-                            <button
-                                onClick={handleSharePrediction}
-                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium shadow-sm transition-colors border hover:scale-105 ${isDark ? 'bg-slate-800 border-slate-700 text-amber-500 hover:bg-slate-700' : 'bg-white border-amber-200 text-amber-600 hover:bg-amber-50'}`}
-                            >
-                                <Share2 size={16} />
-                                <span className="hidden sm:inline">แชร์เลขเด็ด</span>
-                                <span className="sm:hidden">แชร์</span>
-                            </button>
-                        </div>
-
-                        {/* Main Prediction Card */}
-                        <div className="rounded-2xl overflow-hidden shadow-lg">
-                            <div className="bg-gradient-to-br from-amber-500 via-orange-500 to-red-500 p-6 text-white">
-                                <div className="text-center mb-1">
-                                    <p className="text-amber-100 text-sm font-medium">สรุปเลขเด่นประจำงวด</p>
-                                    <p className="text-amber-200 text-xs">{upcomingDraw.label}</p>
-                                </div>
-
-                                {/* 2-digit predictions */}
-                                <div className="mt-5">
-                                    <p className="text-xs text-amber-100 mb-2 text-center">เลขท้าย 2 ตัว</p>
-                                    <div className="flex flex-wrap justify-center gap-3">
-                                        {upcomingDraw.conclusion.finalPicks.twoDigit?.map((num, idx) => (
-                                            <div
-                                                key={idx}
-                                                className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg shadow-md transition-transform hover:scale-110 ${idx === 0
-                                                    ? 'bg-white text-orange-600 ring-2 ring-yellow-300'
-                                                    : 'bg-white/20 text-white backdrop-blur-sm border border-white/30'
-                                                    }`}
-                                            >
-                                                {num}
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                {/* 3-digit predictions */}
-                                <div className="mt-5">
-                                    <p className="text-xs text-amber-100 mb-2 text-center">เลข 3 ตัว</p>
-                                    <div className="flex flex-wrap justify-center gap-3">
-                                        {upcomingDraw.conclusion.finalPicks.threeDigit?.map((num, idx) => (
-                                            <div
-                                                key={idx}
-                                                className={`px-4 py-2 rounded-full font-bold text-sm shadow-md transition-transform hover:scale-110 ${idx === 0
-                                                    ? 'bg-white text-orange-600 ring-2 ring-yellow-300'
-                                                    : 'bg-white/20 text-white backdrop-blur-sm border border-white/30'
-                                                    }`}
-                                            >
-                                                {num}
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Summary Analysis Cards */}
-                            <div className={`${isDark ? 'bg-slate-900' : 'bg-white'} p-4 space-y-3`}>
-                                {/* Statistical */}
-                                {upcomingDraw.conclusion.statistical && (
-                                    <div className="border border-amber-100 rounded-xl overflow-hidden">
-                                        <div className="bg-amber-50 px-4 py-2 flex items-center gap-2">
-                                            <span>{upcomingDraw.conclusion.statistical.icon}</span>
-                                            <span className="text-sm font-bold text-amber-800">{upcomingDraw.conclusion.statistical.title}</span>
-                                        </div>
-                                        <div className="px-4 py-3 space-y-2">
-                                            {upcomingDraw.conclusion.statistical.numbers?.slice(0, 3).map((item, idx) => (
-                                                <div key={idx} className="flex items-center gap-3">
-                                                    <span className="w-10 h-7 flex items-center justify-center bg-amber-100 text-amber-700 rounded font-bold text-sm">
-                                                        {item.num}
-                                                    </span>
-                                                    <span className="text-xs text-slate-500">{item.reason}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Event-driven */}
-                                {upcomingDraw.conclusion.eventDriven && (
-                                    <div className="border border-red-100 rounded-xl overflow-hidden">
-                                        <div className="bg-red-50 px-4 py-2 flex items-center gap-2">
-                                            <span>{upcomingDraw.conclusion.eventDriven.icon}</span>
-                                            <span className="text-sm font-bold text-red-800">{upcomingDraw.conclusion.eventDriven.title}</span>
-                                        </div>
-                                        <div className="px-4 py-3 space-y-2">
-                                            {upcomingDraw.conclusion.eventDriven.numbers?.slice(0, 3).map((item, idx) => (
-                                                <div key={idx} className="flex items-center gap-3">
-                                                    <span className="w-10 h-7 flex items-center justify-center bg-red-100 text-red-700 rounded font-bold text-sm">
-                                                        {item.num}
-                                                    </span>
-                                                    <span className="text-xs text-slate-500">{item.reason}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Consensus */}
-                                {upcomingDraw.conclusion.consensus && (
-                                    <div className="border border-purple-100 rounded-xl overflow-hidden">
-                                        <div className="bg-purple-50 px-4 py-2 flex items-center gap-2">
-                                            <span>{upcomingDraw.conclusion.consensus.icon}</span>
-                                            <span className="text-sm font-bold text-purple-800">{upcomingDraw.conclusion.consensus.title}</span>
-                                        </div>
-                                        <div className="px-4 py-3 space-y-2">
-                                            {upcomingDraw.conclusion.consensus.numbers?.slice(0, 3).map((item, idx) => (
-                                                <div key={idx} className="flex items-center gap-3">
-                                                    <span className="w-10 h-7 flex items-center justify-center bg-purple-100 text-purple-700 rounded font-bold text-sm">
-                                                        {item.num}
-                                                    </span>
-                                                    <span className="text-xs text-slate-500">{item.reason}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
                             </div>
                         </div>
                     </section>
@@ -620,73 +567,70 @@ export const LottoInsightPage = () => {
                 {/* Section: Past Draws */}
                 {pastDraws.length > 0 && (
                     <section>
-                        <div className="flex items-center gap-2 mb-4">
-                            <Trophy size={20} className="text-slate-400" />
-                            <h2 className="text-lg font-bold">งวดที่ผ่านมา</h2>
+                        <div className="flex items-center gap-2 mb-6 px-1">
+                            <Calendar size={18} className="text-slate-400" strokeWidth={1.5} />
+                            <h2 className="text-base font-semibold text-slate-800 tracking-wide">ผลรางวัลย้อนหลัง</h2>
                         </div>
 
-                        <div className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {pastDraws.map((draw) => (
                                 <div
                                     key={draw.id}
                                     onClick={() => navigate(`/lotto/${draw.id}`)}
-                                    className={`rounded-xl p-4 ${isDark ? 'bg-slate-900' : 'bg-white'} shadow-md cursor-pointer hover:shadow-lg hover:scale-[1.01] transition-all`}
+                                    className="group rounded-3xl p-6 md:p-8 bg-white border border-slate-200/60 shadow-sm cursor-pointer hover:shadow-md hover:border-slate-300 transition-all flex flex-col justify-between"
                                 >
-                                    <div className="flex items-center justify-between">
-                                        <div>
-                                            <h3 className="font-bold">{draw.label}</h3>
-                                            {draw.result && (
-                                                <div className="flex items-center gap-4 mt-2">
-                                                    <div>
-                                                        <span className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>รางวัลที่ 1</span>
-                                                        <p className="text-lg font-mono font-bold text-amber-500">{draw.result.first}</p>
-                                                    </div>
-                                                    <div>
-                                                        <span className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>เลขท้าย 2 ตัว</span>
-                                                        <p className="text-lg font-mono font-bold text-blue-500">{draw.result.lastTwo}</p>
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-xs text-purple-500 hidden sm:inline">ดูวิเคราะห์</span>
-                                            <ChevronRight size={20} className="text-purple-400" />
+                                    <div className="flex items-center justify-between mb-8">
+                                        <h3 className="font-semibold text-slate-900">{draw.label}</h3>
+                                        <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-slate-100 transition-colors text-slate-400 group-hover:text-slate-700 border border-slate-100">
+                                            <ChevronRight size={16} strokeWidth={2} />
                                         </div>
                                     </div>
+                                    
+                                    {draw.result && (
+                                        <div className="flex items-center gap-6 md:gap-10 border-t border-slate-100 pt-6">
+                                            <div>
+                                                <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-slate-400 block mb-2">รางวัลที่ 1</span>
+                                                <p className="text-2xl md:text-3xl font-light tracking-widest text-slate-900">{draw.result.first}</p>
+                                            </div>
+                                            <div className="w-px h-10 bg-slate-100"></div>
+                                            <div>
+                                                <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-slate-400 block mb-2">2 ตัว</span>
+                                                <p className="text-2xl md:text-3xl font-light tracking-widest text-slate-900">{draw.result.lastTwo}</p>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             ))}
                         </div>
                     </section>
                 )}
 
-                {/* Disclaimer */}
-                <footer className={`text-center py-8 ${isDark ? 'text-slate-500' : 'text-slate-400'} text-xs`}>
-                    <p>ข้อมูลนี้เป็นเพียงการวิเคราะห์ทางสถิติเพื่อความบันเทิง</p>
-                    <p>โปรดใช้วิจารณญาณในการรับชม ทางผู้จัดทำไม่สนับสนุนการพนัน</p>
+                <footer className="text-center pt-8 pb-4 border-t border-slate-200/50">
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mb-4">Disclaimer</p>
+                    <p className="text-xs text-slate-500 leading-relaxed max-w-md mx-auto">
+                        ข้อมูลนี้เป็นการวิเคราะห์ทางสถิติและรวบรวมข้อมูลจากแหล่งอ้างอิงต่างๆ เพื่อเป็นแนวทางเบื้องต้นและเพื่อความบันเทิง<br/>
+                        โปรดใช้วิจารณญาณ ไม่สนับสนุนการพนันที่ไม่ถูกกฎหมาย
+                    </p>
                 </footer>
             </main>
 
             <LuckyGeneratorModal
                 isOpen={showLuckyModal}
                 onClose={() => setShowLuckyModal(false)}
-                isDark={isDark}
+                isDark={false}
             />
-
             <DreamNumberModal
                 isOpen={showDreamModal}
                 onClose={() => setShowDreamModal(false)}
             />
-
             <BirthdayNumberModal
                 isOpen={showBirthdayModal}
                 onClose={() => setShowBirthdayModal(false)}
             />
-
             <TarotLottoModal
                 isOpen={showTarotLottoModal}
                 onClose={() => setShowTarotLottoModal(false)}
             />
-
         </div>
     );
 };

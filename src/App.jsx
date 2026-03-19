@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 // Import pages
 import { GamePage } from './pages/GamePage';
@@ -35,6 +35,28 @@ import TermsOfServicePage from './pages/TermsOfServicePage';
 import { FortuneChatPage } from './pages/FortuneChatPage';
 import { FloatingFortuneButton } from './components/ui/FloatingFortuneButton';
 
+const DEFAULT_ROBOTS = 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1';
+const BASE_URL = 'https://satduangdao.com';
+const NO_INDEX_ROUTES = new Set([
+  '/auth/line-callback',
+  '/community',
+  '/fortune-chat',
+  '/history',
+  '/journal',
+  '/meditation',
+  '/membership',
+  '/payment/cancel',
+  '/payment/success',
+  '/profile',
+  '/search',
+  '/shop',
+  '/zodiac-report',
+]);
+
+const shouldNoIndexPath = (pathname) => (
+  pathname.startsWith('/admin') || NO_INDEX_ROUTES.has(pathname)
+);
+
 function App() {
   const isDark = true; // Always dark mode
   const location = useLocation();
@@ -44,6 +66,28 @@ function App() {
   useEffect(() => {
     document.documentElement.classList.add('dark');
   }, []);
+
+  useEffect(() => {
+    const upsertMeta = (name, content) => {
+      let el = document.querySelector(`meta[name="${name}"]`);
+      if (!el) {
+        el = document.createElement('meta');
+        el.setAttribute('name', name);
+        document.head.appendChild(el);
+      }
+      el.setAttribute('content', content);
+    };
+
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonical);
+    }
+
+    canonical.setAttribute('href', `${BASE_URL}${location.pathname}`);
+    upsertMeta('robots', shouldNoIndexPath(location.pathname) ? 'noindex, follow' : DEFAULT_ROBOTS);
+  }, [location.pathname]);
 
   return (
     <>
