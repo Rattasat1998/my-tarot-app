@@ -4,17 +4,17 @@ import {
     ArrowLeft, TrendingUp, Users, Flame, ChevronRight, 
     Calendar, Trophy, Sparkles, FileText, Search, Target, 
     Moon, Cake, ShoppingBag, Share2, Star, LineChart, 
-    MessageSquare, Activity, Compass, 
+    MessageSquare, Activity, Compass, Loader2, ExternalLink, Clock,
 } from 'lucide-react';
-import { LuckyGeneratorModal } from '../components/modals/LuckyGeneratorModal';
-import { DreamNumberModal } from '../components/modals/DreamNumberModal';
-import { BirthdayNumberModal } from '../components/modals/BirthdayNumberModal';
-import { TarotLottoModal } from '../components/modals/TarotLottoModal';
-
 import * as lottoService from '../services/lottoService';
 // Fallback to static data if database is not available
 import { getUpcomingDraw as getStaticUpcoming, getPastDraws as getStaticPast } from '../data/lottoData';
 import { usePageSEO } from '../hooks/usePageTitle';
+import { getNextDrawDate, formatThaiDrawLabel } from '../utils/lottoDateUtils';
+import { LuckyGeneratorModal } from '../components/modals/LuckyGeneratorModal';
+import { DreamNumberModal } from '../components/modals/DreamNumberModal';
+import { BirthdayNumberModal } from '../components/modals/BirthdayNumberModal';
+import { TarotLottoModal } from '../components/modals/TarotLottoModal';
 
 
 // Module-level cache to persist data across navigations
@@ -48,6 +48,63 @@ export const LottoInsightPage = () => {
     const [loading, setLoading] = useState(!shouldUseCache);
     const [upcomingDraw, setUpcomingDraw] = useState(shouldUseCache ? cachedUpcoming : null);
     const [pastDraws, setPastDraws] = useState(shouldUseCache ? cachedPast : []);
+
+    // Latest real draw results (from rayriffy API)
+    const [latestDraw, setLatestDraw] = useState(null);
+    const [loadingLatest, setLoadingLatest] = useState(true);
+
+    // Countdown state for next draw
+    const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+    const [nextDrawLabel, setNextDrawLabel] = useState('');
+    const [nextDrawDate, setNextDrawDate] = useState(null);
+
+    // Fetch latest real lottery draw from API
+    useEffect(() => {
+        const fetchLatest = async () => {
+            setLoadingLatest(true);
+            try {
+                const history = await lottoService.fetchDrawHistory();
+                if (history && history.length > 0) {
+                    const data = await lottoService.fetchDrawByIdFromApi(history[0].id);
+                    if (data && data.prizes) setLatestDraw(data);
+                }
+            } catch (err) {
+                console.error('Error fetching latest real draw:', err);
+            }
+            setLoadingLatest(false);
+        };
+        fetchLatest();
+    }, []);
+
+    // Countdown timer for next draw
+    useEffect(() => {
+        const nextDate = getNextDrawDate();
+        setNextDrawDate(nextDate);
+        setNextDrawLabel(formatThaiDrawLabel(nextDate));
+
+        const tick = () => {
+            const now = new Date();
+            // Set target to midnight (00:00:00) on the draw date
+            const target = new Date(nextDate);
+            target.setHours(0, 0, 0, 0);
+            const diff = target - now;
+
+            if (diff <= 0) {
+                setCountdown({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+                return;
+            }
+            setCountdown({
+                days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+                hours: Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+                minutes: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)),
+                seconds: Math.floor((diff % (1000 * 60)) / 1000),
+            });
+        };
+
+        tick();
+        const timer = setInterval(tick, 1000);
+        return () => clearInterval(timer);
+    }, []);
 
     // Fetch data from database, fallback to static data
     useEffect(() => {
@@ -197,7 +254,157 @@ export const LottoInsightPage = () => {
             </header>
 
             <main className="max-w-5xl mx-auto px-4 py-10 space-y-12">
-                
+
+                {/* ─── ผลหวยงวดล่าสุด ─── */}
+                <section>
+                    <div className="flex items-center justify-between mb-6 px-1">
+                        <div className="flex items-center gap-2">
+                            <Trophy size={18} className="text-amber-500" strokeWidth={1.5} />
+                            <h2 className="text-base font-semibold text-slate-800 tracking-wide">ผลหวยงวดล่าสุด</h2>
+                        </div>
+                        {latestDraw?.date && (
+                            <span className="text-xs text-slate-500 font-medium tracking-wide">{latestDraw.date}</span>
+                        )}
+                    </div>
+
+                    {loadingLatest ? (
+                        <div className="bg-white rounded-3xl border border-slate-200/60 shadow-sm p-10 flex flex-col items-center justify-center gap-3">
+                            <Loader2 size={28} className="animate-spin text-amber-500" />
+                            <p className="text-sm text-slate-400">กำลังโหลดผลรางวัล...</p>
+                        </div>
+                    ) : latestDraw ? (
+                        <div className="bg-white rounded-3xl border border-slate-200/60 shadow-sm overflow-hidden transition-shadow hover:shadow-md">
+                            {/* Prize 1 Hero */}
+                            <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-8 md:p-10 text-center relative overflow-hidden">
+                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400" />
+                                <div className="absolute top-6 right-6 w-32 h-32 bg-amber-500/5 rounded-full blur-2xl" />
+                                <div className="absolute bottom-4 left-6 w-24 h-24 bg-indigo-500/5 rounded-full blur-2xl" />
+
+                                <p className="text-amber-300/80 text-[10px] font-bold tracking-[0.25em] uppercase mb-1 relative z-10">🏆 รางวัลที่ 1</p>
+                                <p className="text-slate-500 text-xs mb-6 relative z-10">รางวัลละ 6,000,000 บาท</p>
+                                <div className="text-6xl md:text-7xl font-light tracking-[0.25em] text-white font-mono relative z-10 select-all">
+                                    {latestDraw.prizes?.find(p => p.id === 'prizeFirst')?.number?.[0] || '------'}
+                                </div>
+
+                                {/* Adjacent Numbers */}
+                                {latestDraw.prizes?.find(p => p.id === 'prizeFirstNear')?.number?.length > 0 && (
+                                    <div className="mt-6 relative z-10">
+                                        <p className="text-slate-500 text-[10px] uppercase tracking-widest mb-3">เลขข้างเคียงรางวัลที่ 1 — รางวัลละ 100,000 บาท</p>
+                                        <div className="flex justify-center gap-4">
+                                            {latestDraw.prizes.find(p => p.id === 'prizeFirstNear').number.map((num, i) => (
+                                                <span key={i} className="text-xl font-mono text-slate-300 tracking-widest">{num}</span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Running Numbers Row */}
+                            <div className="grid grid-cols-3 divide-x divide-slate-100">
+                                {/* Back 2 */}
+                                <div className="p-5 text-center">
+                                    <p className="text-[10px] uppercase font-bold tracking-widest text-blue-500 mb-1">เลขท้าย 2 ตัว</p>
+                                    <p className="text-[10px] text-slate-400 mb-3">รางวัลละ 2,000 บาท</p>
+                                    <p className="text-3xl font-light tracking-[0.2em] text-slate-900 font-mono">
+                                        {latestDraw.runningNumbers?.find(r => r.id === 'runningNumberBackTwo')?.number?.[0] || '--'}
+                                    </p>
+                                </div>
+                                {/* Front 3 */}
+                                <div className="p-5 text-center">
+                                    <p className="text-[10px] uppercase font-bold tracking-widest text-purple-500 mb-1">เลขหน้า 3 ตัว</p>
+                                    <p className="text-[10px] text-slate-400 mb-3">รางวัลละ 4,000 บาท</p>
+                                    <div className="flex flex-col gap-1 items-center">
+                                        {(latestDraw.runningNumbers?.find(r => r.id === 'runningNumberFrontThree')?.number || []).map((num, i) => (
+                                            <span key={i} className="text-xl font-mono text-slate-700 tracking-wider">{num}</span>
+                                        ))}
+                                    </div>
+                                </div>
+                                {/* Back 3 */}
+                                <div className="p-5 text-center">
+                                    <p className="text-[10px] uppercase font-bold tracking-widest text-purple-500 mb-1">เลขท้าย 3 ตัว</p>
+                                    <p className="text-[10px] text-slate-400 mb-3">รางวัลละ 4,000 บาท</p>
+                                    <div className="flex flex-col gap-1 items-center">
+                                        {(latestDraw.runningNumbers?.find(r => r.id === 'runningNumberBackThree')?.number || []).map((num, i) => (
+                                            <span key={i} className="text-xl font-mono text-slate-700 tracking-wider">{num}</span>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Footer CTA */}
+                            <div className="border-t border-slate-100 p-4">
+                                <button
+                                    onClick={() => navigate('/lotto/check')}
+                                    className="w-full flex items-center justify-center gap-2 py-3 text-sm font-medium text-amber-600 hover:text-amber-700 hover:bg-amber-50 rounded-2xl transition-colors"
+                                >
+                                    <Search size={15} strokeWidth={1.5} />
+                                    ตรวจสอบสลากของคุณ
+                                    <ExternalLink size={13} className="opacity-50" />
+                                </button>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="bg-white rounded-3xl border border-slate-200/60 shadow-sm p-8 text-center">
+                            <p className="text-slate-400 text-sm">ไม่พบข้อมูลผลรางวัล</p>
+                        </div>
+                    )}
+                </section>
+
+                {/* ─── งวดที่กำลังจะมาถึง ─── */}
+                <section>
+                    <div className="flex items-center gap-2 mb-6 px-1">
+                        <Clock size={18} className="text-indigo-500" strokeWidth={1.5} />
+                        <h2 className="text-base font-semibold text-slate-800 tracking-wide">งวดที่กำลังจะมาถึง</h2>
+                    </div>
+
+                    <div className="bg-white rounded-3xl border border-slate-200/60 shadow-sm overflow-hidden transition-shadow hover:shadow-md">
+                        {/* Header strip */}
+                        <div className="bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-600 px-8 py-6 text-center relative overflow-hidden">
+                            <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_50%,rgba(255,255,255,0.08),transparent)]" />
+                            <p className="text-indigo-200 text-[10px] font-bold tracking-[0.25em] uppercase mb-1 relative z-10">📅 งวดถัดไป</p>
+                            <p className="text-white text-2xl font-semibold tracking-tight relative z-10">{nextDrawLabel}</p>
+                        </div>
+
+                        {/* Countdown Grid */}
+                        <div className="grid grid-cols-4 divide-x divide-slate-100 border-b border-slate-100">
+                            {[
+                                { value: countdown.days, label: 'วัน' },
+                                { value: countdown.hours, label: 'ชั่วโมง' },
+                                { value: countdown.minutes, label: 'นาที' },
+                                { value: countdown.seconds, label: 'วินาที' },
+                            ].map(({ value, label }) => (
+                                <div key={label} className="p-5 text-center">
+                                    <p className="text-3xl md:text-4xl font-light tabular-nums text-slate-900 font-mono">
+                                        {String(value).padStart(2, '0')}
+                                    </p>
+                                    <p className="text-[10px] text-slate-400 uppercase tracking-widest mt-1">{label}</p>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* CTA */}
+                        <div className="p-4 flex flex-col sm:flex-row gap-3">
+                            {upcomingDraw?.id && (
+                                <button
+                                    onClick={() => navigate(`/lotto/${upcomingDraw.id}`, { state: { fromDetail: true } })}
+                                    className="flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 rounded-2xl transition-colors border border-indigo-100"
+                                >
+                                    <Sparkles size={15} strokeWidth={1.5} />
+                                    ดูบทวิเคราะห์งวดนี้
+                                    <ChevronRight size={14} className="opacity-50" />
+                                </button>
+                            )}
+                            <button
+                                onClick={() => navigate('/lotto/check')}
+                                className="flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-50 rounded-2xl transition-colors border border-slate-200"
+                            >
+                                <Search size={15} strokeWidth={1.5} />
+                                ตรวจสลากงวดล่าสุด
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
                 {/* 1. Feature Tools - Bento Grid Style */}
                 <section>
                     <div className="flex items-center gap-2 mb-6 px-1">
