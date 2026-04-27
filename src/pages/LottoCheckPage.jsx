@@ -3,8 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Loader2, AlertCircle, FileText, Search, Calendar } from 'lucide-react';
 import * as lottoService from '../services/lottoService';
 import { usePageSEO } from '../hooks/usePageTitle';
-import { useAuth } from '../contexts/AuthContext';
-import { LoginModal } from '../components/modals/LoginModal';
 
 export const LottoCheckPage = () => {
     usePageSEO({
@@ -27,8 +25,6 @@ export const LottoCheckPage = () => {
     const [showHistory, setShowHistory] = useState(false);
     const [historyList, setHistoryList] = useState([]);
     const [loadingHistory, setLoadingHistory] = useState(false);
-    const { user, loading: authLoading } = useAuth();
-    const [showLoginModal, setShowLoginModal] = useState(false);
 
     const handleShowHistory = async () => {
         setShowHistory(true);
@@ -149,37 +145,6 @@ export const LottoCheckPage = () => {
             <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center gap-3">
                 <Loader2 className="w-10 h-10 text-amber-500 animate-spin" />
                 <p className="text-slate-500 text-sm font-medium animate-pulse">กำลังโหลดข้อมูลสลาก...</p>
-            </div>
-        );
-    }
-
-    if (!user) {
-        return (
-            <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6">
-                <div className="max-w-md text-center">
-                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-white border border-slate-200 mb-6 shadow-xl">
-                        <span className="text-4xl">🔐</span>
-                    </div>
-                    <h2 className="text-2xl font-bold mb-3 text-slate-800">เข้าสู่ระบบก่อนใช้งาน</h2>
-                    <p className="text-slate-500 mb-6 leading-relaxed">
-                        กรุณาเข้าสู่ระบบเพื่อใช้งานระบบตรวจสลากกินแบ่งรัฐบาล
-                    </p>
-                    <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
-                        <button
-                            onClick={() => setShowLoginModal(true)}
-                            className="px-8 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold rounded-xl hover:scale-105 transition-all shadow-lg flex items-center justify-center gap-2"
-                        >
-                            เข้าสู่ระบบ
-                        </button>
-                        <button
-                            onClick={() => window.history.back()}
-                            className="px-8 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
-                        >
-                            กลับหน้าหลัก
-                        </button>
-                    </div>
-                </div>
-                <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
             </div>
         );
     }

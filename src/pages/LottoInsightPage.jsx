@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { 
     ArrowLeft, TrendingUp, Users, Flame, ChevronRight, 
     Calendar, Trophy, Sparkles, FileText, Search, Target, 
-    Moon, Cake, ShoppingBag, Share2, Star, LineChart, 
+    Moon, Cake, Share2, Star, LineChart, 
     MessageSquare, Activity, Compass, Loader2, ExternalLink, Clock,
+    BarChart3, ShieldCheck,
 } from 'lucide-react';
 import * as lottoService from '../services/lottoService';
 // Fallback to static data if database is not available
@@ -15,12 +16,32 @@ import { LuckyGeneratorModal } from '../components/modals/LuckyGeneratorModal';
 import { DreamNumberModal } from '../components/modals/DreamNumberModal';
 import { BirthdayNumberModal } from '../components/modals/BirthdayNumberModal';
 import { TarotLottoModal } from '../components/modals/TarotLottoModal';
+import { LottoSignalScannerModal } from '../components/modals/LottoSignalScannerModal';
+import { LottoFortuneBoostModal } from '../components/modals/LottoFortuneBoostModal';
 
 
 // Module-level cache to persist data across navigations
 let cachedUpcoming = null;
 let cachedPast = [];
 let dataLoaded = false;
+
+const calculateDrawCountdown = (drawDate) => {
+    const now = new Date();
+    const target = new Date(drawDate);
+    target.setHours(0, 0, 0, 0);
+    const diff = target - now;
+
+    if (diff <= 0) {
+        return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+    }
+
+    return {
+        days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+        minutes: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)),
+        seconds: Math.floor((diff % (1000 * 60)) / 1000),
+    };
+};
 
 export const LottoInsightPage = () => {
     usePageSEO({
@@ -43,6 +64,8 @@ export const LottoInsightPage = () => {
     const [showDreamModal, setShowDreamModal] = useState(false);
     const [showBirthdayModal, setShowBirthdayModal] = useState(false);
     const [showTarotLottoModal, setShowTarotLottoModal] = useState(false);
+    const [showSignalScannerModal, setShowSignalScannerModal] = useState(false);
+    const [showFortuneBoostModal, setShowFortuneBoostModal] = useState(false);
 
     // Initialize from cache if coming from detail page
     const [loading, setLoading] = useState(!shouldUseCache);
@@ -54,9 +77,9 @@ export const LottoInsightPage = () => {
     const [loadingLatest, setLoadingLatest] = useState(true);
 
     // Countdown state for next draw
-    const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-    const [nextDrawLabel, setNextDrawLabel] = useState('');
-    const [nextDrawDate, setNextDrawDate] = useState(null);
+    const nextDrawDate = useMemo(() => getNextDrawDate(), []);
+    const nextDrawLabel = useMemo(() => formatThaiDrawLabel(nextDrawDate), [nextDrawDate]);
+    const [countdown, setCountdown] = useState(() => calculateDrawCountdown(nextDrawDate));
 
     // Fetch latest real lottery draw from API
     useEffect(() => {
@@ -78,33 +101,11 @@ export const LottoInsightPage = () => {
 
     // Countdown timer for next draw
     useEffect(() => {
-        const nextDate = getNextDrawDate();
-        setNextDrawDate(nextDate);
-        setNextDrawLabel(formatThaiDrawLabel(nextDate));
-
-        const tick = () => {
-            const now = new Date();
-            // Set target to midnight (00:00:00) on the draw date
-            const target = new Date(nextDate);
-            target.setHours(0, 0, 0, 0);
-            const diff = target - now;
-
-            if (diff <= 0) {
-                setCountdown({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-                return;
-            }
-            setCountdown({
-                days: Math.floor(diff / (1000 * 60 * 60 * 24)),
-                hours: Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-                minutes: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)),
-                seconds: Math.floor((diff % (1000 * 60)) / 1000),
-            });
-        };
-
-        tick();
-        const timer = setInterval(tick, 1000);
+        const timer = setInterval(() => {
+            setCountdown(calculateDrawCountdown(nextDrawDate));
+        }, 1000);
         return () => clearInterval(timer);
-    }, []);
+    }, [nextDrawDate]);
 
     // Fetch data from database, fallback to static data
     useEffect(() => {
@@ -412,11 +413,11 @@ export const LottoInsightPage = () => {
                         <h2 className="text-base font-semibold text-slate-800 tracking-wide">เครื่องมือวิเคราะห์ & เสริมดวง</h2>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 auto-rows-[140px]">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 auto-rows-auto md:auto-rows-[140px]">
                         {/* Bento Item 1: Tarot (Large - spans 2 cols, 2 rows) */}
                         <button
                             onClick={() => setShowTarotLottoModal(true)}
-                            className="group relative overflow-hidden rounded-3xl md:col-span-2 md:row-span-2 bg-gradient-to-br from-slate-900 to-slate-800 p-8 text-left transition-all hover:shadow-xl hover:-translate-y-1 border border-slate-700/50"
+                            className="group relative overflow-hidden rounded-3xl min-h-[280px] md:col-span-2 md:row-span-2 bg-gradient-to-br from-slate-900 to-slate-800 p-8 text-left transition-all hover:shadow-xl hover:-translate-y-1 border border-slate-700/50"
                         >
                             <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl -mr-20 -mt-20 transition-all group-hover:bg-amber-500/20" />
                             <div className="relative z-10 h-full flex flex-col justify-between">
@@ -480,7 +481,7 @@ export const LottoInsightPage = () => {
                         {/* Bento Item 4: Generator (wide - 2 cols, 1 row) */}
                         <button
                             onClick={() => setShowLuckyModal(true)}
-                            className="group md:col-span-2 relative overflow-hidden rounded-3xl bg-white p-6 text-left transition-all hover:shadow-lg hover:-translate-y-1 border border-slate-200/60 flex items-center justify-between"
+                            className="group md:col-span-2 relative overflow-hidden rounded-3xl min-h-[140px] bg-white p-6 text-left transition-all hover:shadow-lg hover:-translate-y-1 border border-slate-200/60 flex items-center justify-between"
                         >
                             <div className="flex items-center gap-5">
                                 <div className="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600 group-hover:rotate-12 transition-transform">
@@ -493,6 +494,51 @@ export const LottoInsightPage = () => {
                             </div>
                             <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-slate-100 transition-colors">
                                 <ChevronRight size={16} className="text-slate-400" strokeWidth={2} />
+                            </div>
+                        </button>
+
+                        {/* Bento Item 5: Signal Scanner */}
+                        <button
+                            onClick={() => setShowSignalScannerModal(true)}
+                            className="group md:col-span-2 relative overflow-hidden rounded-3xl min-h-[140px] bg-white p-6 text-left transition-all hover:shadow-lg hover:-translate-y-1 border border-slate-200/60 flex flex-col sm:flex-row sm:items-center justify-between gap-5"
+                        >
+                            <div className="flex items-center gap-5">
+                                <div className="w-14 h-14 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-600 group-hover:scale-110 transition-transform">
+                                    <BarChart3 size={24} strokeWidth={1.5} />
+                                </div>
+                                <div>
+                                    <h3 className="text-base font-semibold text-slate-900 mb-1">สแกนเลขชนข้อมูล</h3>
+                                    <p className="text-sm text-slate-500">จัดอันดับเลขจากสถิติ สำนักดัง และกระแส</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                {(upcomingDraw?.conclusion?.finalPicks?.twoDigit || []).slice(0, 3).map((num) => (
+                                    <span key={num} className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-sm font-semibold text-slate-700 font-mono">
+                                        {num}
+                                    </span>
+                                ))}
+                                <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-slate-100 transition-colors">
+                                    <ChevronRight size={16} className="text-slate-400" strokeWidth={2} />
+                                </div>
+                            </div>
+                        </button>
+
+                        {/* Bento Item 6: Fortune Boost */}
+                        <button
+                            onClick={() => setShowFortuneBoostModal(true)}
+                            className="group md:col-span-2 relative overflow-hidden rounded-3xl min-h-[140px] bg-slate-950 p-6 text-left transition-all hover:shadow-lg hover:-translate-y-1 border border-slate-800 flex items-center justify-between"
+                        >
+                            <div className="flex items-center gap-5">
+                                <div className="w-14 h-14 rounded-2xl bg-emerald-400/10 border border-emerald-300/20 flex items-center justify-center text-emerald-300 group-hover:rotate-6 transition-transform">
+                                    <ShieldCheck size={24} strokeWidth={1.5} />
+                                </div>
+                                <div>
+                                    <h3 className="text-base font-semibold text-white mb-1">ฤกษ์เสริมโชค</h3>
+                                    <p className="text-sm text-slate-400">สีมงคล ทิศ เวลา และเลขเข้ากับวันเกิด</p>
+                                </div>
+                            </div>
+                            <div className="w-8 h-8 rounded-full bg-white text-slate-950 flex items-center justify-center transition-transform group-hover:scale-110">
+                                <ChevronRight size={16} strokeWidth={2} />
                             </div>
                         </button>
                     </div>
@@ -837,6 +883,17 @@ export const LottoInsightPage = () => {
             <TarotLottoModal
                 isOpen={showTarotLottoModal}
                 onClose={() => setShowTarotLottoModal(false)}
+            />
+            <LottoSignalScannerModal
+                isOpen={showSignalScannerModal}
+                onClose={() => setShowSignalScannerModal(false)}
+                draw={upcomingDraw}
+            />
+            <LottoFortuneBoostModal
+                isOpen={showFortuneBoostModal}
+                onClose={() => setShowFortuneBoostModal(false)}
+                draw={upcomingDraw}
+                nextDrawLabel={nextDrawLabel}
             />
         </div>
     );
