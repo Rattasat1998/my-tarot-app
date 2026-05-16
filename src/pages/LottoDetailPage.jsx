@@ -214,7 +214,7 @@ export const LottoDetailPage = () => {
                 {/* Section: Sunday Stats */}
                 {draw.sunday_stats && (
                     <section className="bg-white rounded-2xl shadow-sm overflow-hidden">
-                        <SectionHeader icon={Calendar} title="สถิติวันอาทิตย์" sectionKey="sunday" color="blue" />
+                        <SectionHeader icon={Calendar} title={draw.sunday_stats.title || 'สถิติวันอาทิตย์'} sectionKey="sunday" color="blue" />
                         {expandedSections.sunday && (
                             <div className="p-4 space-y-4">
                                 <div className="bg-blue-50 rounded-xl p-4">
